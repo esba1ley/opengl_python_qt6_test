@@ -2,6 +2,21 @@
 
 Newest first.
 
+## 2026-11-01 — Newest OpenGL per platform
+
+- `src/main.py` now requests a 4.1 core profile on macOS and OpenGL ES 3.1
+  elsewhere. `src/gl_utils.py` derives the GLSL `#version` line from the
+  created context and adds `float` and `sampler2DArray` precision on ES,
+  fixing an ES header that would never have compiled. See `DECISIONS.md`.
+- Shader bodies untouched. Verified on macOS: context reports GL 4.1 Metal,
+  header `#version 410`, `--check` passes, saved frame unchanged. Every header
+  branch checked with stub contexts.
+- Updated `README.md`, `.claude/CLAUDE.md` and `ARCHITECTURE.md`.
+
+**Next:** Run `--check` on the Pi and confirm the version line reads
+"OpenGL ES 3.1 Mesa". If PyOpenGL fails under the ES context, route GL
+imports through `OpenGL.GLES3`.
+
 ## 2026-11-01 — Release v0.1.0
 
 - Added `.bumpversion.cfg` and `__version__` in `src/main.py` so bump2version

@@ -43,7 +43,7 @@ All the textures are generated in code, so there are no image files.
 - PyQt6, including the `QtOpenGLWidgets` module
 - PyOpenGL
 - NumPy
-- OpenGL 3.1 or OpenGL ES 3.0
+- OpenGL 3.1 or later, or OpenGL ES 3.0 or later
 
 On Debian and Raspberry Pi OS, install the dependencies with:
 
@@ -51,13 +51,20 @@ On Debian and Raspberry Pi OS, install the dependencies with:
 sudo apt install python3-pyqt6 python3-opengl python3-numpy
 ```
 
-The program has been run on a Raspberry Pi with a V3D 7.1 GPU, under Wayland,
-using OpenGL 3.1 from Mesa.
+`main.py` asks each platform for the newest OpenGL it offers, and the shaders
+are compiled under the matching GLSL version. On Linux it requests OpenGL ES
+3.1, which on a Raspberry Pi 5 is the native path of Mesa's V3D driver. On
+macOS it requests an OpenGL 4.1 core profile, because macOS has no OpenGL ES
+and offers only OpenGL 2.1 otherwise. The shader source is the same on both;
+only the `#version` line differs, and it is chosen at run time from the
+context that was actually created, so a platform that grants less than was
+requested still works.
 
-On macOS, `main.py` requests an OpenGL 3.2 core profile, because macOS only
-offers OpenGL 2.1 otherwise. Apple's core profile ignores line widths above one
-pixel, so the axes draw thinner than on the Pi. In a conda environment, install
-the dependencies with:
+The program has been run on a Raspberry Pi with a V3D 7.1 GPU, under Wayland,
+using OpenGL 3.1 from Mesa, and on an Apple M4 using OpenGL 4.1 core. The
+OpenGL ES request has not yet been run on the Pi. Apple's core profile ignores
+line widths above one pixel, so the axes draw thinner there than on the Pi.
+In a conda environment, install the dependencies with:
 
 ```
 conda install pyopengl numpy

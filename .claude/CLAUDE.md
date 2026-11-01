@@ -23,14 +23,16 @@ output are harmless.
 ## Platform constraints
 
 - The development machine is a Raspberry Pi with a V3D 7.1 GPU, under Wayland.
-- It provides OpenGL 3.1 and GLSL 1.40, so shaders must not use `#version 330`
-  or later features. `gl_utils.glsl_header` adds the version line, so shader
-  bodies in `shaders.py` must not include one.
-- Keep shaders valid for both GLSL 1.40 and GLSL ES 3.00. The ES path has never
-  been run.
-- It also runs on macOS (Apple M4). `main.py` requests a 3.2 core profile
-  there, since macOS otherwise gives OpenGL 2.1. Keep that request gated on
-  `sys.platform`, because the Pi has no 3.2 core context.
+  Its desktop OpenGL stops at 3.1 with GLSL 1.40; its OpenGL ES reaches 3.1.
+- `main.py` requests OpenGL ES 3.1 on Linux and a 4.1 core profile on macOS
+  (Apple M4), which otherwise gives OpenGL 2.1. Keep that choice gated on
+  `sys.platform`: macOS has no OpenGL ES, and the Pi has no 3.2 core context.
+- `gl_utils.glsl_header` derives the `#version` line from the context Qt
+  actually created, so shader bodies in `shaders.py` must not include one.
+- Shader bodies are shared by every header, so they must stay within the
+  features common to GLSL 1.40 and GLSL ES 3.00. Do not use anything newer
+  than GLSL 1.40, even though macOS compiles them as GLSL 4.10. The ES
+  request has not yet been run on the Pi.
 - Use PyQt6, not PySide6. `PySide6.QtOpenGLWidgets` isn't installed here.
 - Avoid dependencies beyond PyQt6, PyOpenGL and NumPy.
 
