@@ -2,6 +2,13 @@
 
 Newest first.
 
+## 2026-11-01 — Release v0.1.0
+
+- Added `.bumpversion.cfg` and `__version__` in `src/main.py` so bump2version
+  owns the version number. Merged `develop` into `main` and tagged `v0.1.0`.
+
+**Next:** Nothing queued.
+
 ## 2026-11-01 — Application icon from a screenshot
 
 - Added `tools/make_icon.py`, which locates the black client area below the

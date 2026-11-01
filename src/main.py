@@ -33,6 +33,8 @@ Run the self-test, which simulates mouse input and then exits::
 import sys
 from pathlib import Path
 
+__version__ = "0.1.0"
+
 from PyQt6.QtCore import QTimer
 from PyQt6.QtGui import QIcon, QSurfaceFormat
 from PyQt6.QtWidgets import QApplication
