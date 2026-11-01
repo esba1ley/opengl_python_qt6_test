@@ -33,6 +33,7 @@ Run the self-test, which simulates mouse input and then exits::
 import sys
 
 from PyQt6.QtCore import QTimer
+from PyQt6.QtGui import QSurfaceFormat
 from PyQt6.QtWidgets import QApplication
 
 import selftest
@@ -47,6 +48,14 @@ def main():
     int
         The application's exit status.
     """
+    if sys.platform == "darwin":
+        # macOS only offers OpenGL 2.1 unless a core profile is requested,
+        # and Qt needs the request in the default format before the
+        # application exists so the shared context matches.
+        surface = QSurfaceFormat()
+        surface.setVersion(3, 2)
+        surface.setProfile(QSurfaceFormat.OpenGLContextProfile.CoreProfile)
+        QSurfaceFormat.setDefaultFormat(surface)
     app = QApplication(sys.argv)
     widget = CubeWidget()
     widget.show()

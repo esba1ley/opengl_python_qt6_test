@@ -54,6 +54,16 @@ sudo apt install python3-pyqt6 python3-opengl python3-numpy
 The program has been run on a Raspberry Pi with a V3D 7.1 GPU, under Wayland,
 using OpenGL 3.1 from Mesa.
 
+On macOS, `main.py` requests an OpenGL 3.2 core profile, because macOS only
+offers OpenGL 2.1 otherwise. Apple's core profile ignores line widths above one
+pixel, so the axes draw thinner than on the Pi. In a conda environment, install
+the dependencies with:
+
+```
+conda install pyopengl numpy
+pip install PyQt6
+```
+
 ## Running
 
 Run these commands from this directory:
