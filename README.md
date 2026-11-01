@@ -54,6 +54,16 @@ sudo apt install python3-pyqt6 python3-opengl python3-numpy
 The program has been run on a Raspberry Pi with a V3D 7.1 GPU, under Wayland,
 using OpenGL 3.1 from Mesa.
 
+On macOS, `main.py` requests an OpenGL 3.2 core profile, because macOS only
+offers OpenGL 2.1 otherwise. Apple's core profile ignores line widths above one
+pixel, so the axes draw thinner than on the Pi. In a conda environment, install
+the dependencies with:
+
+```
+conda install pyopengl numpy
+pip install PyQt6
+```
+
 ## Running
 
 Run these commands from this directory:
@@ -79,6 +89,17 @@ status 0 only if everything passed.
 
 The light stays fixed in the scene, so its dot doesn't move when you rotate the
 cube.
+
+## Icon
+
+`icon.png` is the application icon, which Qt shows in the Dock or taskbar
+while the program runs. It is cropped from a screenshot of the window by
+`tools/make_icon.py`, which finds the sphere, masks it to a disc and scales it
+to 512 pixels. To regenerate it from a new screenshot:
+
+```
+python3 tools/make_icon.py tools/ScreenGrab.png icon.png
+```
 
 ## Configuration
 

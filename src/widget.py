@@ -31,7 +31,7 @@ class CubeWidget(QOpenGLWidget):
         self.setWindowTitle("Qt6 OpenGL test: drag to rotate, wheel to zoom")
         self.resize(640, 640)
 
-        surface = QSurfaceFormat()
+        surface = QSurfaceFormat.defaultFormat()  # keeps any profile set in main.py
         surface.setDepthBufferSize(24)  # without this, faces draw in the wrong order
         surface.setSamples(4)
         self.setFormat(surface)
