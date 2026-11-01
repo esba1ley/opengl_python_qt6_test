@@ -4,6 +4,7 @@ from PyQt6.QtCore import QPointF, Qt
 from PyQt6.QtGui import QSurfaceFormat
 from PyQt6.QtOpenGLWidgets import QOpenGLWidget
 
+import config
 from context import SceneContext
 from cube import CubeRenderer
 from overlay import OverlayRenderer
@@ -72,7 +73,7 @@ class CubeWidget(QOpenGLWidget):
         Qt calls this whenever the widget needs repainting.
         """
         GL.glEnable(GL.GL_DEPTH_TEST)
-        GL.glClearColor(0.1, 0.1, 0.15, 1.0)
+        GL.glClearColor(*config.BACKGROUND_COLOR, 1.0)
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
         self.cube.paint(self.ctx)
         self.overlay.paint(self.ctx)

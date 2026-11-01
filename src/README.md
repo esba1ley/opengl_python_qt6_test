@@ -70,7 +70,7 @@ Each module imports only the modules listed on its row:
 | Module | Imports |
 |---|---|
 | `main.py` | `selftest`, `widget` |
-| `widget.py` | `context`, `cube`, `overlay` |
+| `widget.py` | `config`, `context`, `cube`, `overlay` |
 | `cube.py` | `config`, `geometry`, `gl_utils`, `shaders`, `textures` |
 | `overlay.py` | `config`, `geometry`, `gl_utils`, `shaders` |
 | `context.py` | `config` |
