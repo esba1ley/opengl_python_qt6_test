@@ -43,7 +43,9 @@ output are harmless.
   touch the widget or each other.
 - `widget.py` should only translate mouse input into `SceneContext` calls.
 - `textures.py` and `geometry.py` must stay free of OpenGL calls.
-- Generate textures in code rather than adding image files.
+- Generate textures in code rather than adding image files. The one image
+  file is `icon.png`, the application icon; regenerate it with
+  `tools/make_icon.py` from a window screenshot rather than editing it.
 - Modules live directly in `src/` and import each other by name, such as
   `import config`. There is no package or install step.
 

@@ -2,6 +2,17 @@
 
 Newest first.
 
+## 2026-11-01 — Application icon from a screenshot
+
+- Added `tools/make_icon.py`, which locates the black client area below the
+  title bar, finds the sphere's bounding box, crops a padded square, masks it
+  to a soft-edged disc and scales it to 512 px. PyQt6 and NumPy only.
+- Generated `icon.png` from `ScreenGrab.png` and set it with
+  `QApplication.setWindowIcon` in `src/main.py`.
+- `--check` passes. The source screenshot is kept as `tools/ScreenGrab.png`.
+
+**Next:** Nothing queued.
+
 ## 2026-11-01 — Stop shadowed faces catching light
 
 - Confirmed the light is directional, so all rays are parallel and the cube

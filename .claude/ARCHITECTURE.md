@@ -31,3 +31,11 @@ Shader bodies carry no version line; `gl_utils.glsl_header` prepends
 Verified on Raspberry Pi (V3D 7.1, Wayland, Mesa GL 3.1) and macOS (Apple M4,
 GL 4.1 core). On macOS the axis line width is clamped to one pixel by the
 driver. No Linux desktop or Windows run yet.
+
+## Application icon
+**Status:** Frozen
+
+`icon.png` at the repository root, set with `QApplication.setWindowIcon` in
+`main.py`. Derived, not hand-drawn: `tools/make_icon.py` crops a window
+screenshot to a disc around the sphere grid. There is no `.icns` or app
+bundle, so the icon only appears while the program runs.

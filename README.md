@@ -90,6 +90,17 @@ status 0 only if everything passed.
 The light stays fixed in the scene, so its dot doesn't move when you rotate the
 cube.
 
+## Icon
+
+`icon.png` is the application icon, which Qt shows in the Dock or taskbar
+while the program runs. It is cropped from a screenshot of the window by
+`tools/make_icon.py`, which finds the sphere, masks it to a disc and scales it
+to 512 pixels. To regenerate it from a new screenshot:
+
+```
+python3 tools/make_icon.py tools/ScreenGrab.png icon.png
+```
+
 ## Configuration
 
 Settings such as colours, opacity, grid spacing, bump depth and mouse sensitivity

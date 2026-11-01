@@ -31,13 +31,16 @@ Run the self-test, which simulates mouse input and then exits::
     python3 src/main.py --check
 """
 import sys
+from pathlib import Path
 
 from PyQt6.QtCore import QTimer
-from PyQt6.QtGui import QSurfaceFormat
+from PyQt6.QtGui import QIcon, QSurfaceFormat
 from PyQt6.QtWidgets import QApplication
 
 import selftest
 from widget import CubeWidget
+
+ICON_PATH = Path(__file__).resolve().parent.parent / "icon.png"
 
 
 def main():
@@ -57,6 +60,7 @@ def main():
         surface.setProfile(QSurfaceFormat.OpenGLContextProfile.CoreProfile)
         QSurfaceFormat.setDefaultFormat(surface)
     app = QApplication(sys.argv)
+    app.setWindowIcon(QIcon(str(ICON_PATH)))
     widget = CubeWidget()
     widget.show()
     if "--check" in sys.argv:
