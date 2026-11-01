@@ -22,7 +22,21 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
     "myst_parser",
+    "sphinxcontrib.plantuml",
 ]
+
+# Diagrams under docs/diagrams/ are rendered at build time. PlantUML needs a
+# Java runtime; "plantuml" here is the MacPorts launcher on PATH. The class
+# and call-graph diagrams go through Graphviz, and PlantUML rejects the SVG
+# from conda-forge's Graphviz 13, so prefer the MacPorts dot when present.
+_macports_dot = Path("/opt/local/bin/dot")
+plantuml = "plantuml" + (f" -graphvizdot {_macports_dot}" if _macports_dot.exists() else "")
+plantuml_output_format = "svg_img"
+
+# The prose pages are the repository's Markdown READMEs, pulled in with
+# MyST's include directive so they stay the single source.
+source_suffix = {".rst": "restructuredtext", ".md": "markdown"}
+myst_heading_anchors = 3
 
 napoleon_google_docstring = False
 napoleon_numpy_docstring = True

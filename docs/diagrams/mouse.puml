@@ -1,0 +1,56 @@
+@startuml mouse
+' Sequence: mouse input. The widget only translates events into SceneContext
+' calls and then asks Qt for a repaint. Keep in step with src/widget.py and
+' src/context.py.
+skinparam shadowing false
+skinparam sequenceMessageAlign left
+
+actor User as user
+participant "Qt" as qt
+participant "CubeWidget" as widget
+participant "SceneContext" as ctx
+
+== Drag ==
+user -> qt : press a button
+qt -> widget : mousePressEvent(event)
+widget -> widget : last_pos = event.position()
+
+user -> qt : move the pointer
+qt -> widget : mouseMoveEvent(event)
+activate widget
+widget -> widget : delta = position - last_pos\nlast_pos = position
+alt left button
+  widget -> ctx : rotate_by(delta)
+  ctx -> ctx : rotation = screen_rotation(delta) * rotation
+else right button
+  widget -> ctx : move_light_by(delta)
+  ctx -> ctx : light = screen_rotation(delta).rotatedVector(light)
+else middle button
+  widget -> ctx : pan_by(delta, height())
+  ctx -> ctx : pan += delta scaled to world units at distance
+end
+widget -> qt : update()
+deactivate widget
+qt -> widget : paintGL()
+ref over widget, ctx : Painting a frame
+
+== Wheel ==
+user -> qt : turn the wheel
+qt -> widget : wheelEvent(event)
+activate widget
+widget -> ctx : zoom_by(angleDelta.y / 120)
+ctx -> ctx : distance *= ZOOM_FACTOR_PER_NOTCH ** notches\nclamped to [MIN_DISTANCE, MAX_DISTANCE]
+widget -> qt : update()
+deactivate widget
+qt -> widget : paintGL()
+
+== Double-click ==
+user -> qt : double-click
+qt -> widget : mouseDoubleClickEvent(event)
+activate widget
+widget -> ctx : reset_view()
+ctx -> ctx : default rotation, distance, pan and light
+widget -> qt : update()
+deactivate widget
+qt -> widget : paintGL()
+@enduml

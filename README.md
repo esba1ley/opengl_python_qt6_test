@@ -116,7 +116,9 @@ are in `src/config.py`.
 ## Documentation
 
 A local HTML manual, built with Sphinx in the Read the Docs style, combines this
-file, `src/README.md` and an API reference generated from the docstrings.
+file, `src/README.md`, PlantUML diagrams of how the program executes and an API
+reference generated from the docstrings. Rendering the diagrams needs
+`plantuml`, a Java runtime and Graphviz, all from MacPorts on this machine.
 Build it from the environment that runs the program:
 
 ```

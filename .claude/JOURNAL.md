@@ -2,6 +2,22 @@
 
 Newest first.
 
+## 2026-11-01 — PlantUML diagrams in the manual
+
+- Added `docs/diagrams/` with `classes`, `startup`, `frame`, `mouse` and
+  `calls` sources, `docs/diagrams.rst` to show them, and the
+  sphinxcontrib-plantuml extension in `docs/conf.py`. See `DECISIONS.md`.
+- Updated `README.md`, `.claude/CLAUDE.md`, `ARCHITECTURE.md` and
+  `docs/requirements.txt` for the PlantUML and Java prerequisites.
+- A JDK 25 was installed for PlantUML. The class and call-graph diagrams
+  then failed under the conda Graphviz 13.1 (`plantuml -testdot`: "dot
+  generates unreadable SVG file"); `conf.py` now passes the MacPorts `dot`.
+- `make -C docs html` builds with no warnings. All five diagrams were
+  rendered to PNG and checked against `src/` by eye.
+
+**Next:** Nothing queued beyond the pending Pi run of the ES context.
+
+
 ## 2026-11-01 — Sphinx documentation
 
 - Added `docs/` with `conf.py`, `index.md`, `src/README.md`, `api/` pages for

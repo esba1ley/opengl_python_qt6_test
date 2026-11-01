@@ -6,5 +6,6 @@
 :maxdepth: 2
 
 src/README
+diagrams
 api/index
 ```

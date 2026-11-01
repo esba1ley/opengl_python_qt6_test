@@ -2,3 +2,8 @@
 sphinx
 sphinx-rtd-theme
 myst-parser
+# Renders docs/diagrams/*.puml; also needs the plantuml launcher, a Java
+# runtime and Graphviz (MacPorts: plantuml, an openjdk port and graphviz).
+# conf.py prefers the MacPorts dot, since PlantUML rejects the SVG from
+# conda-forge's Graphviz 13.
+sphinxcontrib-plantuml

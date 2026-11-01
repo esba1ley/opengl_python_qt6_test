@@ -46,8 +46,13 @@ repository's `README.md` and `src/README.md` with MyST's include directive,
 so the READMEs remain the single source and the Sphinx page names mirror the
 file paths so the README's relative link resolves. `docs/api/` has one
 automodule page per module in `src/`, rendered by napoleon from the
-NumPy-style docstrings with the Read the Docs theme. Build dependencies are
-listed in `docs/requirements.txt`, separate from the program's three.
+NumPy-style docstrings with the Read the Docs theme. `docs/diagrams.rst`
+renders five hand-maintained PlantUML sources from `docs/diagrams/` through
+sphinxcontrib-plantuml: a class diagram, sequence diagrams for startup, one
+frame and mouse input, and a call graph of everything reachable from
+`main()`. Build dependencies are listed in `docs/requirements.txt`, separate
+from the program's three; the diagrams also need `plantuml`, a Java
+runtime and Graphviz, with `conf.py` preferring the MacPorts `dot`.
 
 ## Application icon
 **Status:** Frozen

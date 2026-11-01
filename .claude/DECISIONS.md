@@ -2,6 +2,30 @@
 
 Newest first.
 
+## 2026-11-01 — Hand-drawn PlantUML diagrams of execution and mouse handling
+**Status:** Accepted
+**Context:** The manual needed to show how the program executes and what it
+does on mouse events. PlantUML was the required notation, and PlantUML has no
+generator for Python call graphs.
+**Decision:** Five hand-written sources in `docs/diagrams/`, rendered at
+build time by sphinxcontrib-plantuml: a class diagram with function-only
+modules drawn as `<<module>>` boxes; sequence diagrams for startup to first
+frame, one `paintGL()` call, and mouse input with the three drag buttons as
+`alt` branches plus wheel and double-click; and a call graph of every
+function reachable from `main()`, grouped by module, with `selftest` and the
+small texture helpers omitted. A CLAUDE.md rule makes updating the diagrams
+part of any change to the call structure.
+**Consequences:** The diagrams can drift from the code, which the rule
+mitigates but does not prevent. Rendering adds `plantuml`, a Java runtime
+and Graphviz as build prerequisites; conda-forge's Graphviz 13.1 emits SVG
+that PlantUML 1.2026.6 cannot parse, so `conf.py` passes `-graphvizdot
+/opt/local/bin/dot` when that MacPorts binary exists. Rejected: generated call graphs via pyan3 or
+code2flow (Graphviz output, not PlantUML, and noisy at this size); one
+sequence diagram per mouse button (identical shape five times); including
+`selftest` in the call graph (it drives the widget from outside and would
+double the mouse edges).
+
+
 ## 2026-11-01 — Document with Sphinx, including the READMEs in place
 **Status:** Accepted
 **Context:** A browsable manual was wanted, built locally and opened by hand,

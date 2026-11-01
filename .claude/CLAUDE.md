@@ -47,6 +47,24 @@ output are harmless.
   `src/README.md` or at nothing; a link to a file that is not a docs page
   fails the build.
 - Module-level constants get a `#:` doc-comment so autodoc lists them.
+- `docs/diagrams/*.puml` are hand-maintained PlantUML diagrams of the class
+  structure, startup, a frame, mouse handling and the call graph. When a
+  call is added or removed, a method is renamed, or the draw order changes,
+  update the matching diagram in the same change. Rendering them needs
+  `plantuml`, Java and Graphviz from MacPorts; `docs/conf.py` points
+  PlantUML at `/opt/local/bin/dot` because the conda Graphviz 13 produces
+  SVG that PlantUML rejects.
+- Put runtime state in `SceneContext` and fixed settings in `config.py`. Don't
+  hard-code tunable values in other modules.
+- Renderers read from the `SceneContext` passed to `paint(ctx)`. They must not
+  touch the widget or each other.
+- `widget.py` should only translate mouse input into `SceneContext` calls.
+- `textures.py` and `geometry.py` must stay free of OpenGL calls.
+- Generate textures in code rather than adding image files. The one image
+  file is `icon.png`, the application icon; regenerate it with
+  `tools/make_icon.py` from a window screenshot rather than editing it.
+- Modules live directly in `src/` and import each other by name, such as
+  `import config`. There is no package or install step.
 
 ## Rendering rules
 

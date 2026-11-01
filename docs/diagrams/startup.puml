@@ -1,0 +1,73 @@
+@startuml startup
+' Sequence: from main() to the first frame. Keep in step with src/main.py,
+' src/widget.py and the renderers' initialize() methods.
+skinparam shadowing false
+skinparam sequenceMessageAlign left
+autonumber
+
+participant "main()" as main
+participant "Qt" as qt
+participant "CubeWidget" as widget
+participant "SceneContext" as ctx
+participant "CubeRenderer" as cube
+participant "OverlayRenderer" as overlay
+participant "gl_utils" as glu
+participant "textures" as tex
+participant "geometry" as geo
+
+main -> qt : QSurfaceFormat.setDefaultFormat()
+note right of main
+  macOS: OpenGL 4.1 core profile
+  elsewhere: OpenGL ES 3.1
+end note
+main -> qt : QApplication()
+main -> widget : CubeWidget()
+activate widget
+widget -> qt : setFormat(default + depth 24 + 4 samples)
+widget -> ctx : SceneContext()
+ctx -> ctx : reset_view()
+widget -> cube : CubeRenderer()
+widget -> overlay : OverlayRenderer()
+deactivate widget
+main -> widget : show()
+opt --check on the command line
+  main -> qt : QTimer.singleShot(1 s, selftest.check)
+end
+main -> qt : app.exec()
+
+== Qt creates the OpenGL context ==
+
+qt -> widget : initializeGL()
+activate widget
+widget -> widget : print renderer, version, GLSL version
+widget -> cube : initialize()
+activate cube
+cube -> glu : build_program(CUBE_VERTEX_BODY, CUBE_FRAGMENT_BODY)
+glu -> glu : glsl_header() from the context version
+cube -> cube : init_textures()
+cube -> tex : generate_texture_layers()
+tex --> cube : albedo, normals, layers
+cube -> glu : upload_texture_array(unit 0, albedo)
+cube -> glu : upload_texture_array(unit 1, normals)
+cube -> cube : init_vertices()
+cube -> geo : cube_vertices()
+cube -> cube : VAO + VBO, one attribute per VERTEX_ATTRIBUTES entry
+deactivate cube
+widget -> overlay : initialize()
+activate overlay
+overlay -> glu : build_program(OVERLAY_VERTEX_BODY, OVERLAY_FRAGMENT_BODY)
+overlay -> geo : grid_vertices(), axis_vertices(), with_color(origin)
+overlay -> overlay : one VAO + VBO holding grid, axes, dot
+opt desktop OpenGL only
+  overlay -> overlay : glEnable(GL_PROGRAM_POINT_SIZE)
+end
+overlay -> overlay : clamp AXIS_LINE_WIDTH to the driver's range
+deactivate overlay
+deactivate widget
+
+qt -> widget : resizeGL(width, height)
+widget -> ctx : aspect_ratio, pixel_ratio
+
+qt -> widget : paintGL()
+ref over widget, ctx, cube, overlay : Painting a frame
+@enduml
