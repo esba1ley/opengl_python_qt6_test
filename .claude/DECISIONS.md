@@ -2,6 +2,27 @@
 
 Newest first.
 
+## 2026-11-01 — Document with Sphinx, including the READMEs in place
+**Status:** Accepted
+**Context:** A browsable manual was wanted, built locally and opened by hand,
+without duplicating the prose that already lives in `README.md` and
+`src/README.md` or exposing the working notes under `.claude/`.
+**Decision:** A `docs/` Sphinx project with the Read the Docs theme. Prose
+pages use MyST's include directive to read the two READMEs from their real
+locations; the including pages are named `index` and `src/README` so the
+README's own link to `src/README.md` becomes a page cross-reference. API
+pages are one `automodule` per module, rendered by Sphinx's built-in
+napoleon in NumPy mode. The build runs with warnings as errors.
+`.claude/` is not included.
+**Consequences:** Two README links that pointed at a directory and a source
+file were reduced to inline code, since a link that is not a docs page fails
+the build. Shader constants gained `#:` doc-comments so autodoc lists them.
+Sphinx 9.1 builds cleanly with sphinx-rtd-theme 3.0.2 despite the theme's
+declared upper bound of Sphinx 8. Rejected: numpydoc (an extra dependency
+for no gain at this size); copying the READMEs into `docs/` (two sources to
+drift); a hosted Read the Docs configuration (no audience for it).
+
+
 ## 2026-11-01 — Gate bump lighting on the geometric face normal
 **Status:** Accepted
 **Context:** The cube fragment shader lit each pixel from the normal-mapped

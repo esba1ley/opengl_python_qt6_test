@@ -11,6 +11,7 @@ Run these from the repository root:
 ```
 python3 src/main.py           # open the window
 python3 src/main.py --check   # run the self-test, then exit
+make -C docs html             # build the HTML manual into docs/_build/html
 ```
 
 `--check` needs a display and exits with status 0 only if everything passed.
@@ -39,17 +40,13 @@ output are harmless.
 ## Code conventions
 
 - Use NumPy-style docstrings on every module, class, function and method.
-- Put runtime state in `SceneContext` and fixed settings in `config.py`. Don't
-  hard-code tunable values in other modules.
-- Renderers read from the `SceneContext` passed to `paint(ctx)`. They must not
-  touch the widget or each other.
-- `widget.py` should only translate mouse input into `SceneContext` calls.
-- `textures.py` and `geometry.py` must stay free of OpenGL calls.
-- Generate textures in code rather than adding image files. The one image
-  file is `icon.png`, the application icon; regenerate it with
-  `tools/make_icon.py` from a window screenshot rather than editing it.
-- Modules live directly in `src/` and import each other by name, such as
-  `import config`. There is no package or install step.
+  Sphinx renders them with napoleon, and the docs build treats warnings as
+  errors, so run `make -C docs html` after changing a docstring or a README.
+- The Sphinx pages under `docs/` include `README.md` and `src/README.md`
+  rather than copying them. Relative links in those files must point at
+  `src/README.md` or at nothing; a link to a file that is not a docs page
+  fails the build.
+- Module-level constants get a `#:` doc-comment so autodoc lists them.
 
 ## Rendering rules
 

@@ -37,6 +37,18 @@ is clamped to one pixel by the driver. The OpenGL ES 3.1 request on the Pi,
 and PyOpenGL's desktop `GL` module under an ES context, are unverified. No
 Linux desktop or Windows run yet.
 
+## Documentation
+**Status:** Frozen
+
+`docs/` holds a Sphinx project for a local HTML build only; there is no
+hosted configuration. `docs/index.md` and `docs/src/README.md` pull in the
+repository's `README.md` and `src/README.md` with MyST's include directive,
+so the READMEs remain the single source and the Sphinx page names mirror the
+file paths so the README's relative link resolves. `docs/api/` has one
+automodule page per module in `src/`, rendered by napoleon from the
+NumPy-style docstrings with the Read the Docs theme. Build dependencies are
+listed in `docs/requirements.txt`, separate from the program's three.
+
 ## Application icon
 **Status:** Frozen
 

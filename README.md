@@ -111,9 +111,21 @@ python3 tools/make_icon.py tools/ScreenGrab.png icon.png
 ## Configuration
 
 Settings such as colours, opacity, grid spacing, bump depth and mouse sensitivity
-are in [`src/config.py`](src/config.py).
+are in `src/config.py`.
+
+## Documentation
+
+A local HTML manual, built with Sphinx in the Read the Docs style, combines this
+file, `src/README.md` and an API reference generated from the docstrings.
+Build it from the environment that runs the program:
+
+```
+pip install -r docs/requirements.txt
+make -C docs html
+open docs/_build/html/index.html
+```
 
 ## Code layout
 
-The code is in [`src/`](src/). See [`src/README.md`](src/README.md) for how the
+The code is in `src/`. See [`src/README.md`](src/README.md) for how the
 modules fit together.

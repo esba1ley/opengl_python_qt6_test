@@ -1,0 +1,4 @@
+shaders
+=======
+
+.. automodule:: shaders

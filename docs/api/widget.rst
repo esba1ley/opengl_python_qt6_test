@@ -1,0 +1,4 @@
+widget
+======
+
+.. automodule:: widget

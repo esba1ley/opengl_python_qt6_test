@@ -2,6 +2,18 @@
 
 Newest first.
 
+## 2026-11-01 — Sphinx documentation
+
+- Added `docs/` with `conf.py`, `index.md`, `src/README.md`, `api/` pages for
+  all eleven modules, a `Makefile` and `requirements.txt`. See `DECISIONS.md`.
+- Added `#:` doc-comments to the four constants in `src/shaders.py`, unlinked
+  two README references that had no docs page, and added a Documentation
+  section to `README.md`. `docs/_build/` is ignored by git.
+- `make -C docs html` builds with no warnings; `--check` still passes.
+
+**Next:** Nothing queued beyond the pending Pi run of the ES context.
+
+
 ## 2026-11-01 — Newest OpenGL per platform
 
 - `src/main.py` now requests a 4.1 core profile on macOS and OpenGL ES 3.1

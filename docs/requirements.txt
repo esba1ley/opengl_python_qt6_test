@@ -1,0 +1,4 @@
+# Documentation build only. The program itself needs PyQt6, PyOpenGL and NumPy.
+sphinx
+sphinx-rtd-theme
+myst-parser
