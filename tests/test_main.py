@@ -49,10 +49,10 @@ class StubWidget:
 
 
 @pytest.fixture
-def run_main(monkeypatch):
+def run_main(monkeypatch, qapp):
     """Return a function running ``main.main`` with the given argv.
 
-    The function returns ``(status, widget, timers)``.
+    ``qapp`` is requested because ``QIcon`` needs a real application. The function returns ``(status, widget, timers)``.
     """
     FakeApplication.argv = None
     FakeApplication.icon = None
