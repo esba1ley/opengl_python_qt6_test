@@ -35,8 +35,8 @@ output are harmless.
   actually created, so shader bodies in `shaders.py` must not include one.
 - Shader bodies are shared by every header, so they must stay within the
   features common to GLSL 1.40 and GLSL ES 3.00. Do not use anything newer
-  than GLSL 1.40, even though macOS compiles them as GLSL 4.10. The ES
-  request has not yet been run on the Pi.
+  than GLSL 1.40, even though macOS compiles them as GLSL 4.10. All three
+  headers have been run: GLSL 1.40 and ES on the Pi, 4.10 on macOS.
 - Use PyQt6, not PySide6. `PySide6.QtOpenGLWidgets` isn't installed here.
 - Avoid dependencies beyond PyQt6, PyOpenGL and NumPy. Any new Python
   dependency goes in `environment.yml` and `apt-packages.txt` (runtime or

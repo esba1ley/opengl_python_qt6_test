@@ -26,15 +26,16 @@ Shader bodies carry no version line and use only features common to GLSL 1.40
 and GLSL ES 3.00. `gl_utils.glsl_header` prepends a `#version` line derived
 from the version of the current context (GLSL 1.40, 1.50, 3.30 and up, or
 GLSL ES 3.x0), plus `float` and `sampler2DArray` precision statements on ES.
-Verified under GLSL 1.40 and 4.10; the ES header has not yet been run.
+Verified under GLSL 1.40 and 4.10, and under the ES header on the Pi.
 
 ## Platform coverage
 **Status:** Open
 
-Verified on Raspberry Pi (V3D 7.1, Wayland, Mesa GL 3.1, before the switch to
-an ES request) and macOS (Apple M4, GL 4.1 core). On macOS the axis line width
-is clamped to one pixel by the driver. The OpenGL ES 3.1 request on the Pi,
-and PyOpenGL's desktop `GL` module under an ES context, are unverified. No
+Verified on Raspberry Pi (V3D 7.1, Wayland, Mesa GL 3.1 before the switch to
+an ES request, and the OpenGL ES request on 2026-11-01, through PyOpenGL's
+desktop `GL` module) and macOS (Apple M4, GL 4.1 core). On macOS the axis
+line width is clamped to one pixel by the driver. The apt and venv recipe in
+`apt-packages.txt` and the README has not been run on a Pi or Debian. No
 Linux desktop or Windows run yet.
 
 ## Documentation

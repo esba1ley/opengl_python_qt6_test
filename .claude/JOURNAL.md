@@ -2,6 +2,19 @@
 
 Newest first.
 
+## 2026-11-01 — Pi confirms the OpenGL ES context
+
+- Erik ran the program on the Pi under the OpenGL ES request from commit
+  `31e7f37`; it runs, which also confirms PyOpenGL's desktop `GL` module
+  works under an ES context. Updated `ARCHITECTURE.md` (shader targets,
+  platform coverage), `CLAUDE.md` and the README accordingly.
+- Committed the environment and apt work as `ef7bcc4`.
+
+**Next:** On the Pi, run both apt lines, the venv recipe, `--check` and
+`make -C docs html` to check the recipe in `apt-packages.txt`. Then merge
+`ft/esbailey/top-gl-version-per-platform` into `develop`.
+
+
 ## 2026-11-01 — apt lists for Debian and Raspberry Pi OS
 
 - Added `apt-packages.txt` and `apt-packages-docs.txt`, checked package
@@ -14,6 +27,7 @@ Newest first.
 
 **Next:** On the Pi, run both apt lines, the venv recipe, `--check` (also
 settling the pending OpenGL ES context question) and `make -C docs html`.
+Done for the ES context in the entry above; the apt recipe remains.
 
 
 ## 2026-11-01 — Reproducible environment

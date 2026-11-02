@@ -138,9 +138,9 @@ context that was actually created, so a platform that grants less than was
 requested still works.
 
 The program has been run on a Raspberry Pi with a V3D 7.1 GPU, under Wayland,
-using OpenGL 3.1 from Mesa, and on an Apple M4 using OpenGL 4.1 core. The
-OpenGL ES request has not yet been run on the Pi. Apple's core profile ignores
-line widths above one pixel, so the axes draw thinner there than on the Pi.
+using both OpenGL 3.1 and OpenGL ES from Mesa, and on an Apple M4 using
+OpenGL 4.1 core. Apple's core profile ignores line widths above one pixel, so
+the axes draw thinner there than on the Pi.
 
 ## Running
 
