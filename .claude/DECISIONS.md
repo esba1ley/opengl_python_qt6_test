@@ -2,6 +2,59 @@
 
 Newest first.
 
+## 2026-11-01 — Give Debian and Raspberry Pi OS commented apt lists
+**Status:** Accepted
+**Context:** The conda files cover macOS and 64-bit Linux with miniforge, but
+Raspberry Pi developers use apt, and the README had one bare install line.
+The question was also whether Pi OS needs anything Debian does not.
+**Decision:** Two commented lists, `apt-packages.txt` for runtime and
+development and `apt-packages-docs.txt` for the manual's system tools, each
+installable with `sudo apt install $(sed 's/#.*//' file)`. One list serves
+both distributions, since Pi OS Bookworm and Trixie are Debian 12 and 13
+with the same package names; the README explains the real differences
+(preinstalled graphics stack and session, firmware, 32-bit image, Pi
+archive overlay). Ruff and the Sphinx packages are taken from pip in a
+`--system-site-packages` venv rather than apt. The conda floors were
+lowered to the Bookworm versions (pyqt6 6.4, PyOpenGL 3.1.6, NumPy 1.24),
+the oldest set the program is known to run on.
+**Consequences:** A Pi developer needs two apt lines and one venv. Package
+names and versions were checked against the Debian archive, not installed
+on a Pi in this session. Rejected: apt for Sphinx too (Bookworm ships
+Sphinx 5.3, myst-parser 0.18 and sphinx-rtd-theme 1.2, and both releases
+ship sphinxcontrib-plantuml at upstream 0.5 from 2014, which predates the
+`svg_img` output format `conf.py` uses); a shell script instead of lists
+(hides what is installed and adds a thing to maintain); separate Pi OS and
+Debian lists (identical content).
+
+
+## 2026-11-01 — Pin the environment in conda files, system tools in the README
+**Status:** Accepted
+**Context:** The repository recorded its dependencies only as README prose,
+and the working environment had grown mixed: PyQt6 from pip with its own
+bundled Qt beside an unused conda-forge `qt6-main`, Graphviz from both
+conda-forge and MacPorts with PlantUML rejecting the conda one, and the JDK
+installed by hand. A fresh clone could not reproduce it.
+**Decision:** Two conda-forge environment files: `environment.yml` for the
+runtime plus `ruff` and `bump2version`, and `environment-docs.yml` layered on
+with `conda env update` for the Sphinx packages, mirrored by
+`docs/requirements.txt` for pip. PyQt6 comes from conda-forge's `pyqt6` so
+Qt is installed once. Version floors only. Everything that is not a Python
+package is documented in a README table with the MacPorts and apt commands,
+and Graphviz is deliberately excluded from the conda files.
+**Consequences:** A clone is reproducible on macOS and Linux with miniforge;
+Raspberry Pi OS keeps the apt path, which the files cannot express.
+Verifying in a fresh environment showed Ruff 0.17's default rule set (409
+rules) flagging code that Ruff 0.14's (61 rules) accepted, so `ruff.toml`
+pins the classic `E4, E7, E9, F` selection the code was written against;
+widening it is left as a separate decision. The
+existing `esb312` environment is unchanged; its pip PyQt6 and conda Graphviz
+remain a local inconsistency that the new environment avoids. Rejected:
+`pyproject.toml` with extras (pip cannot install Qt once and share it; the
+project has no package to install); a single environment file (forces the
+docs toolchain on every runtime clone); exact pins or `conda env export`
+(platform-specific builds would not resolve on the Pi).
+
+
 ## 2026-11-01 — Hand-drawn PlantUML diagrams of execution and mouse handling
 **Status:** Accepted
 **Context:** The manual needed to show how the program executes and what it

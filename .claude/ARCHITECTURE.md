@@ -54,6 +54,23 @@ frame and mouse input, and a call graph of everything reachable from
 from the program's three; the diagrams also need `plantuml`, a Java
 runtime and Graphviz, with `conf.py` preferring the MacPorts `dot`.
 
+## Environment
+**Status:** Frozen
+
+`environment.yml` is the minimum conda-forge environment to run and develop
+the program (Python 3.12, pyqt6, pyopengl, numpy, ruff, bump2version);
+`environment-docs.yml` layers the Sphinx packages onto it with
+`conda env update`, and `docs/requirements.txt` mirrors that second file for
+pip. Version floors only, no exact builds, so the same files resolve on
+arm64 macOS and Linux. `ruff.toml` pins the lint rule selection, since
+Ruff's defaults differ between versions. Non-Python prerequisites (OpenGL driver, PlantUML,
+Java, Graphviz, make) are documented in the README's system prerequisites
+table with MacPorts and apt commands, and Graphviz is kept out of the conda
+environment on purpose. Debian and Raspberry Pi OS are covered by
+`apt-packages.txt` (runtime and development) and `apt-packages-docs.txt`
+(system tools for the manual), with Ruff and the Sphinx packages from pip in
+a `--system-site-packages` venv because Debian's are missing or too old.
+
 ## Application icon
 **Status:** Frozen
 

@@ -2,6 +2,42 @@
 
 Newest first.
 
+## 2026-11-01 — apt lists for Debian and Raspberry Pi OS
+
+- Added `apt-packages.txt` and `apt-packages-docs.txt`, checked package
+  names and bookworm/trixie versions against the Debian archive, and lowered
+  the `environment.yml` floors to the bookworm versions. See `DECISIONS.md`.
+- README "Python environment" now points at the lists and a venv recipe for
+  Ruff and Sphinx; new "Raspberry Pi OS versus Debian" subsection.
+- Not run on a Pi or Debian in this session; the macOS docs build and lint
+  still pass.
+
+**Next:** On the Pi, run both apt lines, the venv recipe, `--check` (also
+settling the pending OpenGL ES context question) and `make -C docs html`.
+
+
+## 2026-11-01 — Reproducible environment
+
+- Inventoried every import and its installed origin: PyQt6 6.9.1 via pip,
+  PyOpenGL 3.1.10 and NumPy 2.3.5 via conda-forge, Sphinx tooling split
+  across both, PlantUML and Graphviz from MacPorts, Oracle JDK 25 by hand.
+- Added `environment.yml` and `environment-docs.yml`, rewrote
+  `docs/requirements.txt` to mirror the latter, and replaced the README's
+  Requirements section with Requirements, Setting up (Python environment,
+  System prerequisites table, OpenGL versions). See `DECISIONS.md`.
+- Verification: a fresh `opengl_qt6_test` environment created from the two
+  files resolved to Python 3.12.16, pyqt6 6.11.0 on one qt6-main 6.11.2,
+  PyOpenGL 3.1.10, NumPy 2.5.4, Sphinx 9.1.1, with nothing from pip. From
+  inside it `--check` passes (GL 4.1, GLSL 4.10) and `make -C docs html`
+  builds all five diagrams using the MacPorts `dot`, `plantuml` and the
+  Oracle JDK.
+- Its Ruff 0.17.3 flagged three things Ruff 0.14.10 did not, because the
+  default rule set changed. Added `ruff.toml` pinning the classic selection;
+  both versions now report 61 rules and a clean tree.
+
+**Next:** Nothing queued beyond the pending Pi run of the ES context.
+
+
 ## 2026-11-01 — PlantUML diagrams in the manual
 
 - Added `docs/diagrams/` with `classes`, `startup`, `frame`, `mouse` and

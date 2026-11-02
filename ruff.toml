@@ -1,0 +1,9 @@
+# Lint configuration. Ruff's default rule set changed between 0.14 and 0.17,
+# so the selection is pinned here to keep results identical in every
+# environment. These are the classic defaults the code was written against;
+# widening the set is a separate decision (see .claude/DECISIONS.md).
+target-version = "py310"
+line-length = 88
+
+[lint]
+select = ["E4", "E7", "E9", "F"]

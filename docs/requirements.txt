@@ -1,9 +1,8 @@
-# Documentation build only. The program itself needs PyQt6, PyOpenGL and NumPy.
-sphinx
-sphinx-rtd-theme
-myst-parser
-# Renders docs/diagrams/*.puml; also needs the plantuml launcher, a Java
-# runtime and Graphviz (MacPorts: plantuml, an openjdk port and graphviz).
-# conf.py prefers the MacPorts dot, since PlantUML rejects the SVG from
-# conda-forge's Graphviz 13.
-sphinxcontrib-plantuml
+# Documentation build only, for pip users; environment-docs.yml is the conda
+# equivalent. Keep the two in step. The program itself needs PyQt6, PyOpenGL
+# and NumPy. Rendering docs/diagrams/*.puml also needs the plantuml launcher,
+# a Java runtime and Graphviz from the system package manager; see README.md.
+sphinx>=8
+sphinx-rtd-theme>=3
+myst-parser>=4
+sphinxcontrib-plantuml>=0.30

@@ -6,9 +6,12 @@ together. Update both when behaviour or module structure changes.
 
 ## Commands
 
-Run these from the repository root:
+Run these from the repository root, inside the conda environment from
+`environment.yml` (plus `environment-docs.yml` for the manual):
 
 ```
+conda env create -f environment.yml && conda activate opengl_qt6_test
+conda env update -n opengl_qt6_test -f environment-docs.yml
 python3 src/main.py           # open the window
 python3 src/main.py --check   # run the self-test, then exit
 make -C docs html             # build the HTML manual into docs/_build/html
@@ -35,7 +38,18 @@ output are harmless.
   than GLSL 1.40, even though macOS compiles them as GLSL 4.10. The ES
   request has not yet been run on the Pi.
 - Use PyQt6, not PySide6. `PySide6.QtOpenGLWidgets` isn't installed here.
-- Avoid dependencies beyond PyQt6, PyOpenGL and NumPy.
+- Avoid dependencies beyond PyQt6, PyOpenGL and NumPy. Any new Python
+  dependency goes in `environment.yml` and `apt-packages.txt` (runtime or
+  development) or in both `environment-docs.yml` and `docs/requirements.txt`
+  (documentation), with the version floor and a matching README note. The
+  conda floors track the Debian bookworm versions in `apt-packages.txt`.
+- Lint with `ruff check src tools docs/conf.py`. The rule set is pinned in
+  `ruff.toml`; change it there, not with per-run flags.
+- Anything that is not a Python package (PlantUML, Java, Graphviz, the GL
+  driver) belongs in the README's system prerequisites table, with the
+  MacPorts and apt commands, and in `apt-packages-docs.txt` for Debian,
+  never in an environment file. In particular do not add Graphviz to the
+  conda files; see the README for why.
 
 ## Code conventions
 
