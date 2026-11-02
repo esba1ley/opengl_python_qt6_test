@@ -15,6 +15,7 @@ conda env update -n opengl_qt6_test -f environment-docs.yml
 python3 src/main.py           # open the window
 python3 src/main.py --check   # run the self-test, then exit
 pytest                        # run tests/, fail below 100% branch coverage
+pytest --no-cov tests/test_<module>.py   # run a subset (the gate needs the full run)
 make -C docs html             # build the HTML manual into docs/_build/html
 ```
 
@@ -47,7 +48,7 @@ output are harmless.
   development) or in both `environment-docs.yml` and `docs/requirements.txt`
   (documentation), with the version floor and a matching README note. The
   conda floors track the Debian bookworm versions in `apt-packages.txt`.
-- Lint with `ruff check src tools docs/conf.py`. The rule set is pinned in
+- Lint with `ruff check src tools docs/conf.py tests`. The rule set is pinned in
   `ruff.toml`; change it there, not with per-run flags.
 - Anything that is not a Python package (PlantUML, Java, Graphviz, the GL
   driver) belongs in the README's system prerequisites table, with the
@@ -86,8 +87,10 @@ output are harmless.
   them there, not with per-run flags. See `ARCHITECTURE.md` (Testing) for the
   layout and `DECISIONS.md` for why.
 - GL tests use the `gl_context`, `fbo`, `scene` and `image_to_array` fixtures
-  from `tests/conftest.py` and draw into a real offscreen context. Stub only
-  a branch this machine cannot reach, and say which in the test's docstring.
+  from `tests/conftest.py` and draw into a real offscreen context. Stubs
+  cover branches this machine cannot reach, plus `main.main()` and the
+  `__main__` guard, where only one `QApplication` may exist; say which in the
+  test's docstring.
 - A new Python test dependency follows the dependency rule above: it goes in
   `environment.yml` and `apt-packages.txt` with a version floor.
 - Modules live directly in `src/` and import each other by name, such as

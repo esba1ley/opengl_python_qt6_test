@@ -168,6 +168,9 @@ display. The suite fails if coverage of `src` drops below 100%. The test
 packages (`pytest`, `pytest-cov`, `pytest-qt`) come from `environment.yml`
 under conda or from `apt-packages.txt` on Debian.
 
+The coverage gate applies to the full run, so run a subset with
+`pytest --no-cov tests/test_<module>.py`.
+
 ## Mouse controls
 
 | Input | Action |

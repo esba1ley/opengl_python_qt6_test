@@ -32,9 +32,9 @@ covered); a lower threshold (it drifts down).
 they render correctly, and run as a normal `pytest` call.
 **Decision:** Create a real offscreen `QOpenGLContext` with a
 `QOffscreenSurface`, draw into a `QOpenGLFramebufferObject` and read pixels
-back. Stub only branches this machine cannot reach (listed under Testing in
-`ARCHITECTURE.md`).
-**Consequences:** Tests need a display and take about 2.3 s for 103 tests.
+back. Stub only branches this machine cannot reach, plus `main.main()` and the
+`__main__` guard (listed under Testing in `ARCHITECTURE.md`).
+**Consequences:** Tests need a display and take a few seconds.
 Results depend on the local GL driver; the suite has run only on the Mac so
 far. Rejected: mocking all of `OpenGL.GL` (headless and fast, but it verifies
 call sequences, not rendering).
