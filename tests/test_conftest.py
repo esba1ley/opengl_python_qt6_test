@@ -9,7 +9,7 @@ def test_gl_context_is_valid_and_current(gl_context):
     from PyQt6.QtGui import QOpenGLContext
 
     assert gl_context.isValid()
-    assert QOpenGLContext.currentContext() is not None
+    assert QOpenGLContext.currentContext() == gl_context
 
 
 def test_fbo_reads_back_as_background(fbo, image_to_array):

@@ -125,7 +125,7 @@ def test_version_matches_bumpversion():
     assert main.__version__ == cfg["bumpversion"]["current_version"]
 
 
-def test_dunder_main_guard_exits_with_status(monkeypatch):
+def test_dunder_main_guard_exits_with_status(qapp, monkeypatch):
     """Running the file as a script exits with ``main()``'s status."""
     import widget  # noqa: F401 - must be in sys.modules to patch
     import PyQt6.QtWidgets as qtwidgets

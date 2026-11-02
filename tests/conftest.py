@@ -57,6 +57,7 @@ def _gl_resources(qapp):
     surface = QOffscreenSurface()
     surface.setFormat(QSurfaceFormat.defaultFormat())
     surface.create()
+    assert surface.isValid(), "offscreen surface could not be created"
     context = QOpenGLContext()
     context.setFormat(QSurfaceFormat.defaultFormat())
     assert context.create()
@@ -84,6 +85,7 @@ def fbo(gl_context):
     fmt.setAttachment(QOpenGLFramebufferObject.Attachment.Depth)
     target = QOpenGLFramebufferObject(FBO_SIZE, FBO_SIZE, fmt)
     assert target.bind()
+    GL.glEnable(GL.GL_DEPTH_TEST)
     GL.glViewport(0, 0, FBO_SIZE, FBO_SIZE)
     GL.glClearColor(*config.BACKGROUND_COLOR, 1.0)
     GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
