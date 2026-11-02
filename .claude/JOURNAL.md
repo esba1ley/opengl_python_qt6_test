@@ -2,6 +2,21 @@
 
 Newest first.
 
+## 2026-11-01 — Pi confirms the apt recipe
+
+- Erik ran both apt lists, the `--system-site-packages` venv with Ruff and
+  `docs/requirements.txt`, `--check` inside it and `make -C docs html` on
+  the Raspberry Pi. All passed, so Debian's PlantUML 1.2020.2, Graphviz 2.42
+  and Java render the diagrams, and apt's PyQt6 and PyOpenGL run under the
+  ES context. The Pi runs Raspberry Pi OS on Debian 13.7 (trixie), so the
+  packages exercised were the trixie versions (PyQt6 6.9.0, PyOpenGL 3.1.9,
+  NumPy 2.2); the bookworm floors in `environment.yml` remain untested on
+  bookworm itself. Platform coverage in `ARCHITECTURE.md` updated.
+
+**Next:** Merge `ft/esbailey/top-gl-version-per-platform` into `develop`.
+Vanilla Debian remains untested.
+
+
 ## 2026-11-01 — Pi confirms the OpenGL ES context
 
 - Erik ran the program on the Pi under the OpenGL ES request from commit
@@ -12,7 +27,8 @@ Newest first.
 
 **Next:** On the Pi, run both apt lines, the venv recipe, `--check` and
 `make -C docs html` to check the recipe in `apt-packages.txt`. Then merge
-`ft/esbailey/top-gl-version-per-platform` into `develop`.
+`ft/esbailey/top-gl-version-per-platform` into `develop`. Done in the entry
+above.
 
 
 ## 2026-11-01 — apt lists for Debian and Raspberry Pi OS

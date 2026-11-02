@@ -35,8 +35,10 @@ Verified on Raspberry Pi (V3D 7.1, Wayland, Mesa GL 3.1 before the switch to
 an ES request, and the OpenGL ES request on 2026-11-01, through PyOpenGL's
 desktop `GL` module) and macOS (Apple M4, GL 4.1 core). On macOS the axis
 line width is clamped to one pixel by the driver. The apt and venv recipe in
-`apt-packages.txt` and the README has not been run on a Pi or Debian. No
-Linux desktop or Windows run yet.
+`apt-packages.txt`, `apt-packages-docs.txt` and the README was run on the Pi
+under Raspberry Pi OS trixie (Debian 13.7) on 2026-11-01: install, venv,
+`--check` and the docs build all passed. Not yet run on bookworm, vanilla
+Debian, another Linux desktop or Windows.
 
 ## Documentation
 **Status:** Frozen
