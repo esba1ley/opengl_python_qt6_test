@@ -58,7 +58,7 @@ test), `fbo` (a bound 256 by 256 `QOpenGLFramebufferObject` with depth),
 OpenGL code is tested against a real offscreen context: renderers draw into
 the `fbo` and the tests read pixels back. Stubs cover only branches this
 machine cannot reach: the `glsl_header` ES and older-desktop arms, both arms
-of the `overlay.py` line-width check, `main.main()` and the `__main__` guard.
+of the `overlay.py` ES check around `GL_PROGRAM_POINT_SIZE`, `main.main()` and the `__main__` guard.
 Tests that show a widget, and the real `selftest.check` run, need a display,
 like `--check`. Rationale is in `DECISIONS.md`.
 
