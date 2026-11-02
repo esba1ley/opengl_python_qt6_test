@@ -88,7 +88,10 @@ def test_compile_shader_failure(gl_context):
     """Garbage source raises with the info log as the message."""
     with pytest.raises(RuntimeError) as excinfo:
         gl_utils.compile_shader(GL.GL_VERTEX_SHADER, "this is not glsl")
-    assert str(excinfo.value).strip()
+    # The message is the info log; its wording differs between drivers, but
+    # every one names either the error or the offending token.
+    message = str(excinfo.value).lower()
+    assert "error" in message or "this" in message
 
 
 @pytest.mark.parametrize(
@@ -108,9 +111,11 @@ def test_build_program_success(gl_context, vertex, fragment):
 def test_build_program_link_failure(gl_context):
     """Mismatched varying types fail to link and raise."""
     vertex = "out vec3 v;\nvoid main() { v = vec3(0.0); gl_Position = vec4(0.0); }\n"
-    fragment = (
-        "in vec4 v;\nout vec4 color;\nvoid main() { color = v; }\n"
-    )
+    fragment = "in vec4 v;\nout vec4 color;\nvoid main() { color = v; }\n"
+    header = gl_utils.glsl_header()
+    # Both shaders compile on their own, so the failure comes from linking.
+    gl_utils.compile_shader(GL.GL_VERTEX_SHADER, header + vertex)
+    gl_utils.compile_shader(GL.GL_FRAGMENT_SHADER, header + fragment)
     with pytest.raises(RuntimeError):
         gl_utils.build_program(vertex, fragment)
 
@@ -118,7 +123,9 @@ def test_build_program_link_failure(gl_context):
 @pytest.fixture
 def cube_program(gl_context):
     """Build and bind the cube program."""
-    program = gl_utils.build_program(shaders.CUBE_VERTEX_BODY, shaders.CUBE_FRAGMENT_BODY)
+    program = gl_utils.build_program(
+        shaders.CUBE_VERTEX_BODY, shaders.CUBE_FRAGMENT_BODY
+    )
     GL.glUseProgram(program)
     yield program
     GL.glUseProgram(0)
