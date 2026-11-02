@@ -2,6 +2,18 @@
 
 Newest first.
 
+## 2026-11-01 — Release v0.2.0
+
+- Cut `rc/esbailey/v0.2.0` from `develop` and ran `bump2version minor`
+  without tagging, since the release tag belongs on the merge commit on
+  `main`, as for `v0.1.0`. Merged into `main`, tagged `v0.2.0`, and merged
+  `main` back into `develop`.
+- The release carries the per-platform OpenGL request with the derived GLSL
+  header, the Sphinx manual with PlantUML diagrams, and the conda and apt
+  environment files, all verified on macOS and Raspberry Pi OS trixie.
+
+**Next:** Nothing queued. Bookworm and vanilla Debian remain untested.
+
 ## 2026-11-01 — Pi confirms the apt recipe
 
 - Erik ran both apt lists, the `--system-site-packages` venv with Ruff and
