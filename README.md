@@ -155,6 +155,19 @@ The self-test opens the window for a few seconds, so it needs a display. It
 simulates mouse input, prints `PASS` or `FAIL` for each check, and exits with
 status 0 only if everything passed.
 
+## Testing
+
+Run the test suite from this directory:
+
+```
+pytest
+```
+
+It renders into an offscreen OpenGL context, so like `--check` it needs a
+display. The suite fails if coverage of `src` drops below 100%. The test
+packages (`pytest`, `pytest-cov`, `pytest-qt`) come from `environment.yml`
+under conda or from `apt-packages.txt` on Debian.
+
 ## Mouse controls
 
 | Input | Action |
