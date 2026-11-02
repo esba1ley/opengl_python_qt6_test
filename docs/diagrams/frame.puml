@@ -1,0 +1,67 @@
+@startuml frame
+' Sequence: one call to paintGL(). Draw order is fixed: cube, sphere grid,
+' axes, light dot. Keep in step with widget.paintGL and the renderers' paint().
+skinparam shadowing false
+skinparam sequenceMessageAlign left
+autonumber
+
+participant "Qt" as qt
+participant "CubeWidget" as widget
+participant "CubeRenderer" as cube
+participant "OverlayRenderer" as overlay
+participant "SceneContext" as ctx
+participant "OpenGL" as gl
+
+qt -> widget : paintGL()
+activate widget
+widget -> gl : enable depth test, clear colour and depth
+
+widget -> cube : paint(ctx)
+activate cube
+cube -> ctx : model_matrix()
+cube -> ctx : view_projection_matrix()
+cube -> ctx : light, camera_position()
+cube -> gl : uniforms mvp, model, lightDirection, cameraPosition
+cube -> gl : bind albedo (unit 0) and normal (unit 1) arrays
+cube -> gl : glDrawArrays(GL_TRIANGLES, 36 vertices)
+deactivate cube
+
+widget -> overlay : paint(ctx)
+activate overlay
+overlay -> ctx : camera_position(), pixel_ratio
+overlay -> gl : uniforms cameraPosition, pointSize; enable blending
+
+overlay -> overlay : paint_grid(ctx)
+overlay -> ctx : model_matrix(), view_projection_matrix()
+overlay -> gl : sideShading on, opacity SPHERE_OPACITY
+overlay -> gl : depth mask off
+overlay -> gl : glDrawArrays(GL_LINES, grid)
+overlay -> gl : depth mask on
+note right of overlay
+  Translucent lines must not write depth
+  or they cut gaps in the axes and dot.
+end note
+
+overlay -> overlay : paint_axes(ctx)
+overlay -> ctx : view_projection_matrix() * model_matrix()
+overlay -> gl : opacity 1, line width axis_width
+overlay -> gl : glDrawArrays(GL_LINES, axes)
+
+overlay -> overlay : paint_light_dot(ctx)
+overlay -> ctx : light_dot_position()
+note right of overlay
+  The light is fixed in the scene, so the
+  dot's transform ignores the model matrix.
+end note
+overlay -> gl : roundPoint on
+group two passes: faint through the cube, then solid where visible
+  overlay -> gl : depth test off, opacity HIDDEN_OPACITY
+  overlay -> gl : glDrawArrays(GL_POINTS, dot)
+  overlay -> gl : depth test on, opacity 1
+  overlay -> gl : glDrawArrays(GL_POINTS, dot)
+end
+overlay -> gl : disable blending
+deactivate overlay
+deactivate widget
+qt -> gl : swap buffers
+@enduml

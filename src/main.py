@@ -53,14 +53,21 @@ def main():
     int
         The application's exit status.
     """
+    # Ask for the newest OpenGL each platform offers. Qt needs the request in
+    # the default format before the application exists so the shared context
+    # matches. gl_utils.glsl_header adapts to whatever version is granted.
+    surface = QSurfaceFormat()
     if sys.platform == "darwin":
-        # macOS only offers OpenGL 2.1 unless a core profile is requested,
-        # and Qt needs the request in the default format before the
-        # application exists so the shared context matches.
-        surface = QSurfaceFormat()
-        surface.setVersion(3, 2)
+        # macOS has no OpenGL ES and offers only OpenGL 2.1 unless a core
+        # profile is requested. 4.1 core is the most it provides.
+        surface.setVersion(4, 1)
         surface.setProfile(QSurfaceFormat.OpenGLContextProfile.CoreProfile)
-        QSurfaceFormat.setDefaultFormat(surface)
+    else:
+        # Mesa's V3D driver stops at desktop OpenGL 3.1 but reaches OpenGL
+        # ES 3.1, which is also the path Qt and Wayland themselves use.
+        surface.setRenderableType(QSurfaceFormat.RenderableType.OpenGLES)
+        surface.setVersion(3, 1)
+    QSurfaceFormat.setDefaultFormat(surface)
     app = QApplication(sys.argv)
     app.setWindowIcon(QIcon(str(ICON_PATH)))
     widget = CubeWidget()

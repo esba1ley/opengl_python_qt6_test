@@ -1,0 +1,19 @@
+# Debian / Raspberry Pi OS system tools for building the Sphinx manual.
+#
+#     sudo apt install $(sed 's/#.*//' apt-packages-docs.txt)
+#
+# Only the non-Python tools come from apt. The Sphinx packages come from pip
+# in a venv that can see apt's PyQt6, because autodoc imports the program:
+#
+#     python3 -m venv --system-site-packages .venv
+#     . .venv/bin/activate
+#     pip install ruff -r docs/requirements.txt
+#
+# Why not apt for Sphinx too: bookworm ships Sphinx 5.3, myst-parser 0.18 and
+# sphinx-rtd-theme 1.2, below the floors in docs/requirements.txt, and both
+# bookworm and trixie ship python3-sphinxcontrib.plantuml at upstream 0.5
+# from 2014, which predates the svg_img output format docs/conf.py uses.
+
+make
+plantuml             # 1.2020.2 in both releases; pulls in a Java runtime
+graphviz             # dot, for the class and call-graph diagrams

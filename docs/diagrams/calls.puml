@@ -1,0 +1,157 @@
+@startuml calls
+' Call graph, hand-drawn: every function reachable from main(), grouped by
+' module. selftest is omitted, and the small texture helpers (smoothstep, mix,
+' uv_grid) are folded into the generators that use them. Keep in step with
+' src/; see .claude/CLAUDE.md.
+left to right direction
+skinparam shadowing false
+skinparam rectangleBorderColor #555555
+skinparam packageStyle rectangle
+
+rectangle "Qt event loop" as qt #EEEEEE
+
+package main {
+  rectangle "main()" as main_main
+}
+
+package widget {
+  rectangle "CubeWidget()" as w_init
+  rectangle "initializeGL()" as w_initgl
+  rectangle "resizeGL()" as w_resize
+  rectangle "paintGL()" as w_paint
+  rectangle "mousePressEvent()" as w_press
+  rectangle "mouseMoveEvent()" as w_move
+  rectangle "wheelEvent()" as w_wheel
+  rectangle "mouseDoubleClickEvent()" as w_dbl
+}
+
+package context {
+  rectangle "SceneContext()" as c_init
+  rectangle "reset_view()" as c_reset
+  rectangle "rotate_by()" as c_rot
+  rectangle "move_light_by()" as c_light
+  rectangle "pan_by()" as c_pan
+  rectangle "zoom_by()" as c_zoom
+  rectangle "screen_rotation()" as c_screen
+  rectangle "model_matrix()" as c_model
+  rectangle "view_projection_matrix()" as c_vp
+  rectangle "view_matrix()" as c_view
+  rectangle "projection_matrix()" as c_proj
+  rectangle "camera_position()" as c_cam
+  rectangle "light_dot_position()" as c_dot
+}
+
+package cube {
+  rectangle "CubeRenderer.initialize()" as k_init
+  rectangle "init_textures()" as k_tex
+  rectangle "init_vertices()" as k_vert
+  rectangle "CubeRenderer.paint()" as k_paint
+}
+
+package overlay {
+  rectangle "OverlayRenderer.initialize()" as o_init
+  rectangle "OverlayRenderer.paint()" as o_paint
+  rectangle "paint_grid()" as o_grid
+  rectangle "paint_axes()" as o_axes
+  rectangle "paint_light_dot()" as o_dot
+}
+
+package gl_utils {
+  rectangle "build_program()" as g_build
+  rectangle "compile_shader()" as g_compile
+  rectangle "glsl_header()" as g_header
+  rectangle "upload_texture_array()" as g_upload
+  rectangle "set_matrix()" as g_mat
+  rectangle "set_vector()" as g_vec
+}
+
+package geometry {
+  rectangle "cube_vertices()" as ge_cube
+  rectangle "grid_vertices()" as ge_grid
+  rectangle "axis_vertices()" as ge_axes
+  rectangle "sphere_points()" as ge_sphere
+  rectangle "curve_to_segments()" as ge_segs
+  rectangle "with_color()" as ge_color
+}
+
+package textures {
+  rectangle "generate_texture_layers()" as t_gen
+  rectangle "bricks() cobbles() tiles()\nweave() rivets() wood()" as t_mats
+  rectangle "fractal_noise()" as t_fractal
+  rectangle "value_noise()" as t_value
+  rectangle "height_to_normals()" as t_normals
+  rectangle "to_rgba_bytes()" as t_rgba
+}
+
+' --- startup ---
+main_main --> w_init
+w_init --> c_init
+c_init --> c_reset
+qt --> w_initgl
+qt --> w_resize
+w_initgl --> k_init
+w_initgl --> o_init
+k_init --> g_build
+k_init --> k_tex
+k_init --> k_vert
+g_build --> g_header
+g_build --> g_compile
+k_tex --> t_gen
+k_tex --> g_upload
+k_vert --> ge_cube
+t_gen --> t_mats
+t_gen --> t_normals
+t_gen --> t_rgba
+t_mats --> t_fractal
+t_fractal --> t_value
+o_init --> g_build
+o_init --> ge_grid
+o_init --> ge_axes
+o_init --> ge_color
+ge_grid --> ge_sphere
+ge_grid --> ge_segs
+ge_grid --> ge_color
+ge_axes --> ge_color
+
+' --- each frame ---
+qt --> w_paint
+w_paint --> k_paint
+w_paint --> o_paint
+k_paint --> c_model
+k_paint --> c_vp
+k_paint --> c_cam
+k_paint --> g_mat
+k_paint --> g_vec
+o_paint --> c_cam
+o_paint --> g_vec
+o_paint --> o_grid
+o_paint --> o_axes
+o_paint --> o_dot
+o_grid --> c_model
+o_grid --> c_vp
+o_grid --> g_mat
+o_axes --> c_model
+o_axes --> c_vp
+o_axes --> g_mat
+o_dot --> c_dot
+o_dot --> c_vp
+o_dot --> g_mat
+c_vp --> c_view
+c_vp --> c_proj
+
+' --- mouse ---
+qt --> w_press
+qt --> w_move
+qt --> w_wheel
+qt --> w_dbl
+w_move --> c_rot
+w_move --> c_light
+w_move --> c_pan
+w_wheel --> c_zoom
+w_dbl --> c_reset
+c_rot --> c_screen
+c_light --> c_screen
+w_move ..> w_paint : update()
+w_wheel ..> w_paint : update()
+w_dbl ..> w_paint : update()
+@enduml

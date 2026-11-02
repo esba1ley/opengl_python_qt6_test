@@ -6,11 +6,15 @@ together. Update both when behaviour or module structure changes.
 
 ## Commands
 
-Run these from the repository root:
+Run these from the repository root, inside the conda environment from
+`environment.yml` (plus `environment-docs.yml` for the manual):
 
 ```
+conda env create -f environment.yml && conda activate opengl_qt6_test
+conda env update -n opengl_qt6_test -f environment-docs.yml
 python3 src/main.py           # open the window
 python3 src/main.py --check   # run the self-test, then exit
+make -C docs html             # build the HTML manual into docs/_build/html
 ```
 
 `--check` needs a display and exits with status 0 only if everything passed.
@@ -23,20 +27,47 @@ output are harmless.
 ## Platform constraints
 
 - The development machine is a Raspberry Pi with a V3D 7.1 GPU, under Wayland.
-- It provides OpenGL 3.1 and GLSL 1.40, so shaders must not use `#version 330`
-  or later features. `gl_utils.glsl_header` adds the version line, so shader
-  bodies in `shaders.py` must not include one.
-- Keep shaders valid for both GLSL 1.40 and GLSL ES 3.00. The ES path has never
-  been run.
-- It also runs on macOS (Apple M4). `main.py` requests a 3.2 core profile
-  there, since macOS otherwise gives OpenGL 2.1. Keep that request gated on
-  `sys.platform`, because the Pi has no 3.2 core context.
+  Its desktop OpenGL stops at 3.1 with GLSL 1.40; its OpenGL ES reaches 3.1.
+- `main.py` requests OpenGL ES 3.1 on Linux and a 4.1 core profile on macOS
+  (Apple M4), which otherwise gives OpenGL 2.1. Keep that choice gated on
+  `sys.platform`: macOS has no OpenGL ES, and the Pi has no 3.2 core context.
+- `gl_utils.glsl_header` derives the `#version` line from the context Qt
+  actually created, so shader bodies in `shaders.py` must not include one.
+- Shader bodies are shared by every header, so they must stay within the
+  features common to GLSL 1.40 and GLSL ES 3.00. Do not use anything newer
+  than GLSL 1.40, even though macOS compiles them as GLSL 4.10. All three
+  headers have been run: GLSL 1.40 and ES on the Pi, 4.10 on macOS.
 - Use PyQt6, not PySide6. `PySide6.QtOpenGLWidgets` isn't installed here.
-- Avoid dependencies beyond PyQt6, PyOpenGL and NumPy.
+- Avoid dependencies beyond PyQt6, PyOpenGL and NumPy. Any new Python
+  dependency goes in `environment.yml` and `apt-packages.txt` (runtime or
+  development) or in both `environment-docs.yml` and `docs/requirements.txt`
+  (documentation), with the version floor and a matching README note. The
+  conda floors track the Debian bookworm versions in `apt-packages.txt`.
+- Lint with `ruff check src tools docs/conf.py`. The rule set is pinned in
+  `ruff.toml`; change it there, not with per-run flags.
+- Anything that is not a Python package (PlantUML, Java, Graphviz, the GL
+  driver) belongs in the README's system prerequisites table, with the
+  MacPorts and apt commands, and in `apt-packages-docs.txt` for Debian,
+  never in an environment file. In particular do not add Graphviz to the
+  conda files; see the README for why.
 
 ## Code conventions
 
 - Use NumPy-style docstrings on every module, class, function and method.
+  Sphinx renders them with napoleon, and the docs build treats warnings as
+  errors, so run `make -C docs html` after changing a docstring or a README.
+- The Sphinx pages under `docs/` include `README.md` and `src/README.md`
+  rather than copying them. Relative links in those files must point at
+  `src/README.md` or at nothing; a link to a file that is not a docs page
+  fails the build.
+- Module-level constants get a `#:` doc-comment so autodoc lists them.
+- `docs/diagrams/*.puml` are hand-maintained PlantUML diagrams of the class
+  structure, startup, a frame, mouse handling and the call graph. When a
+  call is added or removed, a method is renamed, or the draw order changes,
+  update the matching diagram in the same change. Rendering them needs
+  `plantuml`, Java and Graphviz from MacPorts; `docs/conf.py` points
+  PlantUML at `/opt/local/bin/dot` because the conda Graphviz 13 produces
+  SVG that PlantUML rejects.
 - Put runtime state in `SceneContext` and fixed settings in `config.py`. Don't
   hard-code tunable values in other modules.
 - Renderers read from the `SceneContext` passed to `paint(ctx)`. They must not
