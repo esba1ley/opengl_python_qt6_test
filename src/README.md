@@ -101,7 +101,8 @@ The renderers accept a `SceneContext` as an argument without importing
 | Add or replace a material | Add a function to `textures.py`, then update `MATERIALS` |
 | Add a new mouse control | Add a method to `SceneContext`, then call it from `widget.py` |
 | Draw something new | Add a renderer, then call it from `CubeWidget.paintGL` |
-| Add a test | Extend `check` in `selftest.py` |
+| Add a self-test check | Extend `check` in `selftest.py` |
+| Add a unit test | Add to `tests/test_<module>.py`; `pytest` fails below 100% coverage |
 
 Material functions take `(size, rng)` and return a colour image and a height map
 as float arrays from 0 to 1. `MATERIALS` needs one entry per cube face, in the

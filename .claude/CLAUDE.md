@@ -14,12 +14,16 @@ conda env create -f environment.yml && conda activate opengl_qt6_test
 conda env update -n opengl_qt6_test -f environment-docs.yml
 python3 src/main.py           # open the window
 python3 src/main.py --check   # run the self-test, then exit
+pytest                        # run tests/, fail below 100% branch coverage
 make -C docs html             # build the HTML manual into docs/_build/html
 ```
 
 `--check` needs a display and exits with status 0 only if everything passed.
 Run it after every code change. It only confirms that frames change, so also save
 a frame with `grabFramebuffer()` and look at it after any visual change.
+
+`pytest` needs a display too. Run it after every change to `src/`, together
+with `--check`.
 
 The `Qt6CTPlatformTheme` lines and the `GLib-GObject-CRITICAL` warning in the
 output are harmless.
@@ -77,6 +81,15 @@ output are harmless.
 - Generate textures in code rather than adding image files. The one image
   file is `icon.png`, the application icon; regenerate it with
   `tools/make_icon.py` from a window screenshot rather than editing it.
+- Every change to `src/` comes with tests in `tests/test_<module>.py` that keep
+  line and branch coverage at 100%. `pytest.ini` owns the thresholds; change
+  them there, not with per-run flags. See `ARCHITECTURE.md` (Testing) for the
+  layout and `DECISIONS.md` for why.
+- GL tests use the `gl_context`, `fbo`, `scene` and `image_to_array` fixtures
+  from `tests/conftest.py` and draw into a real offscreen context. Stub only
+  a branch this machine cannot reach, and say which in the test's docstring.
+- A new Python test dependency follows the dependency rule above: it goes in
+  `environment.yml` and `apt-packages.txt` with a version floor.
 - Modules live directly in `src/` and import each other by name, such as
   `import config`. There is no package or install step.
 

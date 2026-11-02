@@ -40,6 +40,31 @@ under Raspberry Pi OS trixie (Debian 13.7) on 2026-11-01: install, venv,
 `--check` and the docs build all passed. Not yet run on bookworm, vanilla
 Debian, another Linux desktop or Windows.
 
+## Testing
+**Status:** Frozen
+
+`tests/` at the repository root holds one `test_<module>.py` per `src/`
+module, plus `test_conftest.py` for the fixtures. `pytest.ini` is the only
+configuration: it sets `testpaths`, `qt_api = pyqt6`, and the coverage
+options, including `--cov-fail-under=100`, so a plain `pytest` fails when line
+or branch coverage of `src` falls below 100%. Nothing is excluded from
+coverage. `tests/conftest.py` puts `src` on `sys.path` and sets the default
+`QSurfaceFormat` as `main.py` does in `pytest_configure`, and provides the
+fixtures `gl_context` (a shared offscreen `QOpenGLContext` made current per
+test), `fbo` (a bound 256 by 256 `QOpenGLFramebufferObject` with depth),
+`scene` (a fresh `SceneContext`), `image_to_array` and the autouse
+`restore_default_format`.
+
+OpenGL code is tested against a real offscreen context: renderers draw into
+the `fbo` and the tests read pixels back. Stubs cover only branches this
+machine cannot reach: the `glsl_header` ES and older-desktop arms, both arms
+of the `overlay.py` line-width check, `main.main()` and the `__main__` guard.
+Tests that show a widget, and the real `selftest.check` run, need a display,
+like `--check`. Rationale is in `DECISIONS.md`.
+
+Verified on macOS only (GL 4.1 core, Python 3.12). Not yet run on the Pi
+(ES 3.1) or under Python 3.11 or 3.13.
+
 ## Documentation
 **Status:** Frozen
 

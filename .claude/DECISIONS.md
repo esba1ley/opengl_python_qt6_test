@@ -2,6 +2,44 @@
 
 Newest first.
 
+## 2026-11-02 — Configure pytest in pytest.ini
+**Status:** Accepted
+**Context:** pytest and coverage need configuration, and there are three
+places to put it. The repository keeps one standalone file per tool.
+**Decision:** A single `pytest.ini`, next to `ruff.toml` and
+`.bumpversion.cfg`, holding the test path, the Qt binding and the coverage
+options. No `.coveragerc`, because nothing is excluded from coverage.
+**Consequences:** One more root file, and tool settings stay greppable by
+tool. Rejected: `pyproject.toml` (the repo has none and adding one invites
+packaging questions it does not need); `.coveragerc` to exclude the
+`__main__` guard (`runpy` covers it, so excluding it would hide a branch).
+
+## 2026-11-02 — Gate the suite on 100% line and branch coverage
+**Status:** Accepted
+**Context:** The program is small (542 statements, 56 branches), so complete
+coverage is reachable, and a threshold only protects anything if it fails the
+run.
+**Decision:** `--cov-branch` and `--cov-fail-under=100` in `pytest.ini`, so
+`pytest` exits non-zero below 100%.
+**Consequences:** Every `src/` change needs tests that cover its new
+branches, and a platform-specific arm needs a stub if this machine cannot
+reach it. Rejected: line-only coverage (an untaken else-arm still counts as
+covered); a lower threshold (it drifts down).
+
+## 2026-11-02 — Test OpenGL code against a real offscreen context
+**Status:** Accepted
+**Context:** Most of `src/` issues GL calls. The suite had to say whether
+they render correctly, and run as a normal `pytest` call.
+**Decision:** Create a real offscreen `QOpenGLContext` with a
+`QOffscreenSurface`, draw into a `QOpenGLFramebufferObject` and read pixels
+back. Stub only branches this machine cannot reach: the `glsl_header` ES and
+older-desktop arms, both arms of `overlay.py:69`, `main.main()` and the
+`__main__` guard.
+**Consequences:** Tests need a display and take about 2.3 s for 103 tests.
+Results depend on the local GL driver; the suite has run only on the Mac so
+far. Rejected: mocking all of `OpenGL.GL` (headless and fast, but it verifies
+call sequences, not rendering).
+
 ## 2026-11-01 — Give Debian and Raspberry Pi OS commented apt lists
 **Status:** Accepted
 **Context:** The conda files cover macOS and 64-bit Linux with miniforge, but
