@@ -1,0 +1,29 @@
+# Minimal environment to run and develop this program, for miniforge/conda.
+#
+#     conda env create -f environment.yml
+#     conda activate opengl_qt6_test
+#
+# Everything comes from conda-forge, so Qt is installed once and PyQt6 is
+# built against it. Do not pip-install PyQt6 into this environment; that
+# brings a second copy of Qt. For the documentation build, layer
+# environment-docs.yml on top. System prerequisites that no conda file can
+# express (an OpenGL driver, a display) are listed in README.md. The version
+# floors match the Debian bookworm packages in apt-packages.txt, the oldest
+# set the program is known to run on.
+#
+# To test against the neighbouring Python versions required by the coding
+# rules, override the Python line:
+#
+#     conda env create -f environment.yml -n opengl_qt6_test_311 python=3.11
+name: opengl_qt6_test
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  # Runtime
+  - pyqt6>=6.4
+  - pyopengl>=3.1.6
+  - numpy>=1.24
+  # Development
+  - ruff
+  - bump2version

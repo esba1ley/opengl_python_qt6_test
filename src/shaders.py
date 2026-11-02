@@ -4,6 +4,8 @@ Each string is a shader body. `gl_utils.build_program` adds the version header
 that matches the current OpenGL context.
 """
 
+#: Cube vertex shader: projects each vertex and carries the face's
+#: world-space tangent frame, texture coordinates and texture layer.
 CUBE_VERTEX_BODY = """
 uniform mat4 mvp;
 uniform mat4 model;
@@ -31,6 +33,8 @@ void main() {
 }
 """
 
+#: Cube fragment shader: normal-mapped Blinn-Phong lighting from the two
+#: array textures, gated on the geometric face normal.
 CUBE_FRAGMENT_BODY = """
 uniform sampler2DArray albedoMap;
 uniform sampler2DArray normalMap;
@@ -67,6 +71,8 @@ void main() {
 }
 """
 
+#: Overlay vertex shader for the sphere grid, axes and light dot; sets the
+#: point size and passes the world position and vertex colour through.
 OVERLAY_VERTEX_BODY = """
 uniform mat4 mvp;
 uniform mat4 model;
@@ -83,6 +89,8 @@ void main() {
 }
 """
 
+#: Overlay fragment shader: optional round points and near/far side shading
+#: for the sphere grid, with a uniform opacity.
 OVERLAY_FRAGMENT_BODY = """
 uniform vec3 cameraPosition;
 uniform bool sideShading;

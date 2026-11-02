@@ -34,15 +34,43 @@ def compile_shader(kind, source):
 def glsl_header():
     """Choose the GLSL header for the current OpenGL context.
 
+    The version line follows the version the context actually provides, so
+    the same shader bodies compile under the newest GLSL each platform offers
+    and still work if a platform returns less than was requested.
+
     Returns
     -------
     str
         Version line and any precision statements. Desktop OpenGL and OpenGL
         ES need different headers, and Qt may provide either.
+
+    Notes
+    -----
+    Desktop OpenGL 3.1 and 3.2 pair with GLSL 1.40 and 1.50. From 3.3 on, the
+    GLSL version number matches the OpenGL version. OpenGL ES 3.x pairs with
+    GLSL ES 3.x0. Versions below those are not supported and get the lowest
+    header, so the compiler reports the problem.
+
+    GLSL ES fragment shaders have no default precision for ``float`` or for
+    ``sampler2DArray``, so the ES header declares both. Desktop GLSL accepts
+    and ignores precision statements.
     """
-    if QOpenGLContext.currentContext().isOpenGLES():
-        return "#version 300 es\nprecision mediump float;\n"
-    return "#version 140\n"
+    context = QOpenGLContext.currentContext()
+    major, minor = context.format().majorVersion(), context.format().minorVersion()
+    if context.isOpenGLES():
+        version = 300 + 10 * minor if major == 3 else 300
+        return (
+            f"#version {version} es\n"
+            "precision highp float;\n"
+            "precision lowp sampler2DArray;\n"
+        )
+    if (major, minor) >= (3, 3):
+        version = 100 * major + 10 * minor
+    elif (major, minor) == (3, 2):
+        version = 150
+    else:
+        version = 140
+    return f"#version {version}\n"
 
 
 def build_program(vertex_body, fragment_body):

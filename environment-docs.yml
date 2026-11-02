@@ -1,0 +1,19 @@
+# Python packages for building the Sphinx manual. Layer this onto the runtime
+# environment from environment.yml:
+#
+#     conda env update -n opengl_qt6_test -f environment-docs.yml
+#
+# PlantUML, Graphviz and a Java runtime are also required and are not Python
+# packages; install them with the system package manager (MacPorts on macOS,
+# apt on Debian). See README.md. Graphviz is deliberately not listed here:
+# conda-forge's Graphviz 13 emits SVG that PlantUML rejects, and listing it
+# would shadow the system one on the PATH. docs/requirements.txt is the pip
+# equivalent of this file; keep the two in step.
+name: opengl_qt6_test
+channels:
+  - conda-forge
+dependencies:
+  - sphinx>=8
+  - sphinx-rtd-theme>=3
+  - myst-parser>=4
+  - sphinxcontrib-plantuml>=0.30

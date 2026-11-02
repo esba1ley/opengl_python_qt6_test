@@ -1,0 +1,126 @@
+@startuml classes
+' Class diagram: who owns what, and which modules each class leans on.
+' Function-only modules are drawn as <<module>> boxes listing their public
+' functions. Keep in step with src/; see .claude/CLAUDE.md.
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+hide empty members
+
+class QOpenGLWidget <<Qt>>
+
+class CubeWidget {
+  ctx : SceneContext
+  cube : CubeRenderer
+  overlay : OverlayRenderer
+  last_pos : QPointF
+  --
+  initializeGL()
+  resizeGL(width, height)
+  paintGL()
+  --
+  mousePressEvent(event)
+  mouseMoveEvent(event)
+  wheelEvent(event)
+  mouseDoubleClickEvent(event)
+}
+
+class SceneContext {
+  rotation : QQuaternion
+  distance : float
+  pan : QVector3D
+  light : QVector3D
+  aspect_ratio : float
+  pixel_ratio : float
+  --
+  reset_view()
+  rotate_by(delta)
+  move_light_by(delta)
+  pan_by(delta, viewport_height)
+  zoom_by(notches)
+  --
+  model_matrix()
+  view_matrix()
+  projection_matrix()
+  view_projection_matrix()
+  camera_position()
+  light_dot_position()
+}
+
+class CubeRenderer {
+  program, vao, vbo
+  albedo_texture, normal_texture
+  --
+  initialize()
+  init_textures()
+  init_vertices()
+  paint(ctx)
+}
+
+class OverlayRenderer {
+  program, locs, vao, vbo
+  grid_count, axis_count, dot_first
+  axis_width
+  --
+  initialize()
+  paint(ctx)
+  paint_grid(ctx)
+  paint_axes(ctx)
+  paint_light_dot(ctx)
+}
+
+class main <<module>> {
+  main()
+}
+class selftest <<module>> {
+  check(widget)
+  send_drag(), send_wheel()
+  light_dot_is_yellow()
+}
+class gl_utils <<module>> {
+  build_program(), compile_shader()
+  glsl_header()
+  set_matrix(), set_vector()
+  upload_texture_array()
+}
+class geometry <<module>> {
+  cube_vertices()
+  grid_vertices(), axis_vertices()
+  sphere_points(), curve_to_segments()
+  with_color()
+}
+class textures <<module>> {
+  generate_texture_layers()
+  bricks(), cobbles(), tiles()
+  weave(), rivets(), wood()
+  height_to_normals(), to_rgba_bytes()
+}
+class shaders <<module>> {
+  CUBE_VERTEX_BODY, CUBE_FRAGMENT_BODY
+  OVERLAY_VERTEX_BODY, OVERLAY_FRAGMENT_BODY
+}
+class config <<module>> {
+  fixed settings
+}
+
+QOpenGLWidget <|-- CubeWidget
+CubeWidget *-- SceneContext
+CubeWidget *-- CubeRenderer
+CubeWidget *-- OverlayRenderer
+main ..> CubeWidget : creates
+main ..> selftest : --check
+selftest ..> CubeWidget : drives
+
+CubeRenderer ..> SceneContext : reads in paint()
+OverlayRenderer ..> SceneContext : reads in paint()
+CubeRenderer ..> gl_utils
+CubeRenderer ..> geometry
+CubeRenderer ..> textures
+CubeRenderer ..> shaders
+OverlayRenderer ..> gl_utils
+OverlayRenderer ..> geometry
+OverlayRenderer ..> shaders
+SceneContext ..> config
+CubeWidget ..> config
+geometry ..> config
+textures ..> config
+@enduml

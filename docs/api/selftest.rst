@@ -1,0 +1,4 @@
+selftest
+========
+
+.. automodule:: selftest
