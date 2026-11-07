@@ -2,6 +2,19 @@
 
 Newest first.
 
+## 2026-11-07 — Release v0.3.0
+
+- Cut `rc/esbailey/v0.3.0` from `develop` and ran `bump2version minor`
+  without tagging, as for `v0.2.0`. Merged into `main`, tagged `v0.3.0`, and
+  merged `main` back into `develop`.
+- The release adds the pytest suite (98 tests, 100% line and branch
+  coverage) and the test-suite pages in the manual. No module in `src/`
+  changed apart from the version number, so the program's platform coverage
+  is as for `v0.2.0`. The suite itself has run only on macOS.
+
+**Next:** Run the suite on the Pi under the ES 3.1 context, and under Python
+3.11 and 3.13.
+
 ## 2026-11-07 — Test review: weak tests fixed, rationale in the manual
 
 - Walked Erik through every test. Removed the config type check and the two
