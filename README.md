@@ -4,21 +4,31 @@ A small Python program for testing OpenGL inside a Qt6 window. It draws a
 textured, bump-mapped cube inside a latitude/longitude sphere grid, and you can
 rotate, zoom and pan the scene and move the light with the mouse.
 
-All the textures are generated in code, so there are no image files.
+All the textures are generated in code, so the program loads no image files.
+
+![The program's window: the textured cube inside the sphere grid](tools/ScreenGrab.png)
 
 ## What it draws
 
 - **Cube:** a 2x2x2 cube centred on the origin, with a different material on
   each side.
 
-  | Side | Direction | Material |
-  |---|---|---|
-  | Right | +X | Brick |
-  | Left | −X | Cobblestone |
-  | Top | +Y | Glazed teal and cream tiles |
-  | Bottom | −Y | Woven straw |
-  | Front | +Z | Riveted brushed metal |
-  | Back | −Z | Wooden planks |
+  | Side | Direction | Material | As drawn |
+  |---|---|---|---|
+  | Right | +X | Brick | ![Brick](docs/images/face-bricks.png) |
+  | Left | −X | Cobblestone | ![Cobblestone](docs/images/face-cobbles.png) |
+  | Top | +Y | Glazed teal and cream tiles | ![Glazed teal and cream tiles](docs/images/face-tiles.png) |
+  | Bottom | −Y | Woven straw | ![Woven straw](docs/images/face-weave.png) |
+  | Front | +Z | Riveted brushed metal | ![Riveted brushed metal](docs/images/face-rivets.png) |
+  | Back | −Z | Wooden planks | ![Wooden planks](docs/images/face-wood.png) |
+
+  Each face is shown head-on under the default light, as rendered by the
+  program's cube renderer. `tools/make_face_images.py` makes the images;
+  rerun it after changing a material, the cube shader or the default light:
+
+  ```
+  python3 tools/make_face_images.py docs/images
+  ```
 
 - **Sphere grid:** lines every 15° of longitude and 10° of latitude, drawn at
   30% opacity and fixed to the cube. Near-side lines are light gray and far-side

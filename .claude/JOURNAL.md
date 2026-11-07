@@ -2,6 +2,32 @@
 
 Newest first.
 
+## 2026-11-07 — Release v0.3.1
+
+- Cut `rc/esbailey/v0.3.1` from `develop` and ran `bump2version patch`
+  without tagging. Merged into `main`, tagged `v0.3.1`, and merged `main`
+  back into `develop`.
+- A documentation release: the README screenshot, the rendered face images
+  and `tools/make_face_images.py`. The program is unchanged apart from the
+  version.
+
+**Next:** As in the entries below: Pi run of the suite, Python 3.11 and 3.13,
+and the surface-format factoring.
+
+## 2026-11-07 — README screenshot and material images
+
+- Embedded `tools/ScreenGrab.png` at the top of the README, with
+  `:relative-images:` on the include in `docs/index.md` so the manual resolves
+  it too.
+- Added `tools/make_face_images.py` and the six `docs/images/face-*.png`
+  images it renders, shown in a new column of the README's material table.
+  See `DECISIONS.md`. Checked by eye against the screenshot.
+- `make -C docs html` clean, Ruff clean, `--check` passes; `src/` unchanged.
+
+**Next:** The surface-format lines now exist in three places (`main.py`,
+`tests/conftest.py`, `tools/make_face_images.py`); factoring them into a
+`main` function is the open question from 2026-11-02.
+
 ## 2026-11-07 — Release v0.3.0
 
 - Cut `rc/esbailey/v0.3.0` from `develop` and ran `bump2version minor`

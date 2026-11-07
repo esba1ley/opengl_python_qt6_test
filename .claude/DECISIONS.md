@@ -2,6 +2,23 @@
 
 Newest first.
 
+## 2026-11-07 — Render the README's material images with the program's renderer
+**Status:** Accepted
+**Context:** Erik asked for a small image of each material in the README's
+"What it draws" table, captured from the app. The project had kept to one
+image file, the icon, and the textures change whenever `textures.py` does.
+**Decision:** `tools/make_face_images.py` turns each face to the camera,
+draws it with `CubeRenderer` alone into an offscreen framebuffer under the
+default light, crops to the face and writes 128-pixel PNGs to `docs/images/`.
+The "one image file" rule now covers files the program loads; README
+illustrations are allowed when a tool regenerates them.
+**Consequences:** Six committed PNGs of 8 to 31 kB each, that go stale if a
+material or the shader changes until the tool is rerun. Rejected: cropping
+faces from window screenshots (the grid and axes cross every face, and the
+faces are foreshortened); writing the raw albedo layers (not what the app
+shows, with no bump lighting); HTML `<img>` tags to set a display width
+(Sphinx would not copy the files).
+
 ## 2026-11-07 — Document each test's purpose in its docstring and the manual
 **Status:** Accepted
 **Context:** The suite's tests said what they checked but not why they
