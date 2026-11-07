@@ -2,6 +2,18 @@
 
 Newest first.
 
+## 2026-11-07 — Release v0.3.1
+
+- Cut `rc/esbailey/v0.3.1` from `develop` and ran `bump2version patch`
+  without tagging. Merged into `main`, tagged `v0.3.1`, and merged `main`
+  back into `develop`.
+- A documentation release: the README screenshot, the rendered face images
+  and `tools/make_face_images.py`. The program is unchanged apart from the
+  version.
+
+**Next:** As in the entries below: Pi run of the suite, Python 3.11 and 3.13,
+and the surface-format factoring.
+
 ## 2026-11-07 — README screenshot and material images
 
 - Embedded `tools/ScreenGrab.png` at the top of the README, with
