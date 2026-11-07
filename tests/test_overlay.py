@@ -53,8 +53,9 @@ def record_enables(monkeypatch):
 def test_axis_width_never_exceeds_the_request(renderer):
     """The width is clamped to what the driver supports.
 
-    Drivers cap line width, macOS at one pixel, and a core profile may reject
-    wider lines with a GL error, so the width is clamped to the driver's range.
+    **WHY:** Drivers cap line width, macOS at one pixel, and a core profile may
+    reject wider lines with a GL error, so the width is clamped to the driver's
+    range.
     """
     assert 0 < renderer.axis_width <= config.AXIS_LINE_WIDTH
 
@@ -62,9 +63,9 @@ def test_axis_width_never_exceeds_the_request(renderer):
 def test_uniform_locations_are_all_found(renderer):
     """Every uniform the paint methods set exists in the program.
 
-    GLSL compilers remove uniforms the shader does not use, and setting a
-    missing uniform fails silently. A uniform renamed in the shader but not
-    here is caught by this test, not by a black frame.
+    **WHY:** GLSL compilers remove uniforms the shader does not use, and
+    setting a missing uniform fails silently. A uniform renamed in the shader
+    but not here is caught by this test, not by a black frame.
     """
     assert all(location >= 0 for location in renderer.locs.values())
 
@@ -72,8 +73,8 @@ def test_uniform_locations_are_all_found(renderer):
 def test_light_dot_is_yellow(renderer, scene, fbo):
     """The dot is drawn at its projected position in the light colour.
 
-    This reuses the self-test's own pixel check on an offscreen frame, so the
-    dot's position and colour are tested without a window.
+    **WHY:** This reuses the self-test's own pixel check on an offscreen frame,
+    so the dot's position and colour are tested without a window.
     """
     renderer.paint(scene)
     widget = types.SimpleNamespace(ctx=scene)
@@ -85,10 +86,10 @@ def test_grid_lines_are_drawn_where_projected(
 ):
     """Grid intersections land on lit pixels, with axes and dot switched off.
 
-    Projecting known intersections checks that the grid geometry, the model
-    matrix and the shader agree on where the sphere is. Switching off the axes
-    and dot keeps them from lighting the same pixels. The 3x3 window absorbs
-    one pixel of rounding.
+    **WHY:** Projecting known intersections checks that the grid geometry, the
+    model matrix and the shader agree on where the sphere is. Switching off the
+    axes and dot keeps them from lighting the same pixels. The 3x3 window
+    absorbs one pixel of rounding.
     """
     monkeypatch.setattr(renderer, "paint_axes", lambda ctx: None)
     monkeypatch.setattr(renderer, "paint_light_dot", lambda ctx: None)
@@ -107,8 +108,8 @@ def test_grid_lines_are_drawn_where_projected(
 def test_es_context_does_not_enable_program_point_size(monkeypatch, renderer):
     """OpenGL ES rejects GL_PROGRAM_POINT_SIZE, so it is not requested.
 
-    OpenGL ES rejects ``GL_PROGRAM_POINT_SIZE`` with an invalid-enum error. The
-    context is stubbed so that this branch runs on macOS too.
+    **WHY:** OpenGL ES rejects ``GL_PROGRAM_POINT_SIZE`` with an invalid-enum
+    error. The context is stubbed so that this branch runs on macOS too.
     """
     calls = record_enables(monkeypatch)
     monkeypatch.setattr(overlay, "QOpenGLContext", stub_context(True))
@@ -119,9 +120,9 @@ def test_es_context_does_not_enable_program_point_size(monkeypatch, renderer):
 def test_desktop_context_enables_program_point_size(monkeypatch, renderer):
     """Desktop OpenGL needs GL_PROGRAM_POINT_SIZE for gl_PointSize.
 
-    Desktop OpenGL ignores ``gl_PointSize`` unless this is enabled, which would
-    leave the light dot one pixel wide. The recorder swallows the call so the
-    test also runs under an ES context.
+    **WHY:** Desktop OpenGL ignores ``gl_PointSize`` unless this is enabled,
+    which would leave the light dot one pixel wide. The recorder swallows the
+    call so the test also runs under an ES context.
     """
     calls = record_enables(monkeypatch)
     monkeypatch.setattr(overlay, "QOpenGLContext", stub_context(False))

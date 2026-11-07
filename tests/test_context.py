@@ -12,9 +12,9 @@ import context
 def test_screen_rotation_zero_delta_is_identity():
     """A zero-length drag gives the identity rotation.
 
-    A zero-length drag has no rotation axis. Without this branch, normalising
-    the zero axis would give NaN and the cube would vanish after a click
-    without movement.
+    **WHY:** A zero-length drag has no rotation axis. Without this branch,
+    normalising the zero axis would give NaN and the cube would vanish after a
+    click without movement.
     """
     assert context.screen_rotation(QPointF(0.0, 0.0)) == QQuaternion()
 
@@ -22,8 +22,9 @@ def test_screen_rotation_zero_delta_is_identity():
 def test_screen_rotation_angle_follows_drag_length():
     """A drag rotates by length times degrees-per-pixel about a screen axis.
 
-    The mouse sensitivity is ``ROTATE_DEGREES_PER_PIXEL``, and a horizontal
-    drag must turn the scene about the screen's vertical axis, not the model's.
+    **WHY:** The mouse sensitivity is ``ROTATE_DEGREES_PER_PIXEL``, and a
+    horizontal drag must turn the scene about the screen's vertical axis, not
+    the model's.
     """
     q = context.screen_rotation(QPointF(10.0, 0.0))
     axis, angle = q.getAxisAndAngle()
@@ -34,8 +35,8 @@ def test_screen_rotation_angle_follows_drag_length():
 def test_reset_view_restores_defaults(scene):
     """reset_view undoes every kind of change.
 
-    The double-click reset is the user's way out of a lost view, so it must
-    undo all four kinds of change.
+    **WHY:** The double-click reset is the user's way out of a lost view, so it
+    must undo all four kinds of change.
     """
     scene.rotate_by(QPointF(30.0, 20.0))
     scene.move_light_by(QPointF(30.0, 20.0))
@@ -54,8 +55,8 @@ def test_reset_view_restores_defaults(scene):
 def test_rotate_by_changes_rotation_and_stays_normalized(scene):
     """Rotating changes the orientation and keeps a unit quaternion.
 
-    Quaternion products drift from unit length. Without renormalising, a long
-    drag session would slowly scale the cube.
+    **WHY:** Quaternion products drift from unit length. Without renormalising,
+    a long drag session would slowly scale the cube.
     """
     before = scene.rotation
     scene.rotate_by(QPointF(12.0, -7.0))
@@ -66,7 +67,8 @@ def test_rotate_by_changes_rotation_and_stays_normalized(scene):
 def test_rotate_by_zero_leaves_rotation(scene):
     """A zero drag leaves the orientation unchanged.
 
-    The zero drag again, this time through the method the widget calls.
+    **WHY:** The zero drag again, this time through the method the widget
+    calls.
     """
     before = scene.rotation
     scene.rotate_by(QPointF(0.0, 0.0))
@@ -77,8 +79,8 @@ def test_rotate_by_zero_leaves_rotation(scene):
 def test_move_light_by_keeps_unit_length_and_moves(scene):
     """Moving the light changes its direction but not its length.
 
-    The shader assumes a unit light direction, and the light dot is placed at
-    ``SPHERE_RADIUS`` along it.
+    **WHY:** The shader assumes a unit light direction, and the light dot is
+    placed at ``SPHERE_RADIUS`` along it.
     """
     before = scene.light
     scene.move_light_by(QPointF(40.0, 25.0))
@@ -89,9 +91,9 @@ def test_move_light_by_keeps_unit_length_and_moves(scene):
 def test_pan_by_scales_with_distance_and_viewport(scene):
     """Pan moves right for +x and up for +y drag (screen y is down).
 
-    Panning should keep the scene under the cursor at any zoom and window size.
-    Screen y runs down while scene y runs up; a missing sign flip would move
-    the scene against the mouse.
+    **WHY:** Panning should keep the scene under the cursor at any zoom and
+    window size. Screen y runs down while scene y runs up; a missing sign flip
+    would move the scene against the mouse.
     """
     scene.pan_by(QPointF(10.0, 20.0), 100)
     scale = 0.8 * config.DEFAULT_DISTANCE / 100
@@ -103,8 +105,8 @@ def test_pan_by_scales_with_distance_and_viewport(scene):
 def test_pan_by_zero_viewport_height_is_clamped(scene):
     """A zero-height viewport divides by 1, not 0.
 
-    Qt can report a zero-height viewport, for instance while a window is
-    minimised. The clamp keeps a pan from dividing by zero.
+    **WHY:** Qt can report a zero-height viewport, for instance while a window
+    is minimised. The clamp keeps a pan from dividing by zero.
     """
     scene.pan_by(QPointF(1.0, 0.0), 0)
     assert scene.pan.x() == pytest.approx(0.8 * config.DEFAULT_DISTANCE)
@@ -114,8 +116,8 @@ def test_pan_by_zero_viewport_height_is_clamped(scene):
 def test_zoom_by_positive_zooms_in(scene):
     """One notch multiplies the distance by the zoom factor.
 
-    One notch must scale the distance by ``ZOOM_FACTOR_PER_NOTCH``, and the
-    sign decides which way the wheel zooms.
+    **WHY:** One notch must scale the distance by ``ZOOM_FACTOR_PER_NOTCH``,
+    and the sign decides which way the wheel zooms.
     """
     scene.zoom_by(1.0)
     assert scene.distance == pytest.approx(
@@ -126,8 +128,8 @@ def test_zoom_by_positive_zooms_in(scene):
 def test_zoom_by_clamps_at_both_limits(scene):
     """Extreme zooming stops at the minimum and maximum distances.
 
-    Without the clamps the camera could enter the cube or zoom out without
-    bound. One test reaches both branches.
+    **WHY:** Without the clamps the camera could enter the cube or zoom out
+    without bound. One test reaches both branches.
     """
     scene.zoom_by(1000.0)
     assert scene.distance == config.MIN_DISTANCE
@@ -138,9 +140,10 @@ def test_zoom_by_clamps_at_both_limits(scene):
 def test_matrices_are_consistent(scene):
     """The model matrix is the rotation and the view matrix applies pan and distance.
 
-    The model matrix must apply exactly the stored rotation, and the view
-    matrix must move the origin to the pan offset at the zoom distance. The
-    cube, sphere and axes all rely on these matrices staying anchored together.
+    **WHY:** The model matrix must apply exactly the stored rotation, and the
+    view matrix must move the origin to the pan offset at the zoom distance.
+    The cube, sphere and axes all rely on these matrices staying anchored
+    together.
     """
     scene.aspect_ratio = 1.5
     scene.pan_by(QPointF(10.0, 5.0), 100)
@@ -159,8 +162,8 @@ def test_matrices_are_consistent(scene):
 def test_projection_matrix_uses_aspect_ratio(scene):
     """A wider viewport shrinks the horizontal scale term.
 
-    Without the aspect ratio the cube would stretch in any window that is not
-    square.
+    **WHY:** Without the aspect ratio the cube would stretch in any window that
+    is not square.
     """
     scene.aspect_ratio = 1.0
     square = scene.projection_matrix().column(0).x()
@@ -172,8 +175,8 @@ def test_projection_matrix_uses_aspect_ratio(scene):
 def test_camera_position_distance_equals_distance(scene):
     """Without pan, the camera is at the zoom distance on +Z; with pan, offset.
 
-    The cube shader computes specular highlights from the camera position, so
-    it must agree with the view matrix, pan included.
+    **WHY:** The cube shader computes specular highlights from the camera
+    position, so it must agree with the view matrix, pan included.
     """
     assert scene.camera_position().length() == pytest.approx(scene.distance)
     scene.pan_by(QPointF(10.0, 5.0), 100)
@@ -186,8 +189,8 @@ def test_camera_position_distance_equals_distance(scene):
 def test_light_dot_position_is_on_the_sphere(scene):
     """The light dot sits at SPHERE_RADIUS along the light direction.
 
-    The yellow dot marks the light direction on the sphere; off the sphere it
-    would float inside or outside the grid.
+    **WHY:** The yellow dot marks the light direction on the sphere; off the
+    sphere it would float inside or outside the grid.
     """
     scene.move_light_by(QPointF(15.0, -9.0))
     dot = scene.light_dot_position()

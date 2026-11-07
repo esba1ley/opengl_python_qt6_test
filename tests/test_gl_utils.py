@@ -57,8 +57,8 @@ def _stub_header(monkeypatch, major, minor, es):
 def test_glsl_header_es(monkeypatch, major, minor, version):
     """OpenGL ES contexts get a ``es`` version line and both precisions.
 
-    This machine never creates an ES context, so a stub stands in for it.
-    Before 2026-11-01 this branch produced an ES header that could never
+    **WHY:** This machine never creates an ES context, so a stub stands in for
+    it. Before 2026-11-01 this branch produced an ES header that could never
     compile, and nothing caught it.
     """
     header = _stub_header(monkeypatch, major, minor, True)
@@ -72,8 +72,9 @@ def test_glsl_header_es(monkeypatch, major, minor, version):
 def test_glsl_header_desktop(monkeypatch, major, minor, version):
     """Desktop contexts map to the matching GLSL version.
 
-    This machine always creates a 4.1 context, so a stub stands in for the
-    older versions. Each version must map to a GLSL version the driver accepts.
+    **WHY:** This machine always creates a 4.1 context, so a stub stands in for
+    the older versions. Each version must map to a GLSL version the driver
+    accepts.
     """
     assert _stub_header(monkeypatch, major, minor, False) == f"#version {version}\n"
 
@@ -81,8 +82,8 @@ def test_glsl_header_desktop(monkeypatch, major, minor, version):
 def test_glsl_header_real_context(gl_context):
     """The real header names the version the context provides.
 
-    The stubbed tests check the mapping; this one checks that the real Qt
-    context reports its version the way the stubs assume.
+    **WHY:** The stubbed tests check the mapping; this one checks that the real
+    Qt context reports its version the way the stubs assume.
     """
     fmt = gl_context.format()
     expected = 100 * fmt.majorVersion() + 10 * fmt.minorVersion()
@@ -94,8 +95,8 @@ def test_glsl_header_real_context(gl_context):
 def test_compile_shader_success(gl_context):
     """A valid vertex shader compiles to a shader name.
 
-    This is a real compile of a real shader under this machine's header, the
-    most direct check that the shader bodies suit this platform.
+    **WHY:** This is a real compile of a real shader under this machine's
+    header, the most direct check that the shader bodies suit this platform.
     """
     source = gl_utils.glsl_header() + shaders.OVERLAY_VERTEX_BODY
     shader = gl_utils.compile_shader(GL.GL_VERTEX_SHADER, source)
@@ -105,8 +106,8 @@ def test_compile_shader_success(gl_context):
 def test_compile_shader_failure(gl_context):
     """Garbage source raises with the info log as the message.
 
-    A failed compile must raise with the driver's log. Otherwise the program
-    would carry on with shader 0 and draw nothing, with no explanation.
+    **WHY:** A failed compile must raise with the driver's log. Otherwise the
+    program would carry on with shader 0 and draw nothing, with no explanation.
     """
     with pytest.raises(RuntimeError) as excinfo:
         gl_utils.compile_shader(GL.GL_VERTEX_SHADER, "this is not glsl")
@@ -127,8 +128,8 @@ def test_compile_shader_failure(gl_context):
 def test_build_program_success(gl_context, vertex, fragment):
     """The program pairs link.
 
-    Linking checks that each vertex shader's outputs match the fragment
-    shader's inputs, which compiling each shader alone does not.
+    **WHY:** Linking checks that each vertex shader's outputs match the
+    fragment shader's inputs, which compiling each shader alone does not.
     """
     program = gl_utils.build_program(vertex, fragment)
     assert GL.glIsProgram(program)
@@ -137,9 +138,9 @@ def test_build_program_success(gl_context, vertex, fragment):
 def test_build_program_link_failure(gl_context):
     """Mismatched varying types fail to link and raise.
 
-    The GLSL specification requires every driver to reject this type mismatch
-    at link time. Both shaders are compiled first, so the error must come from
-    linking.
+    **WHY:** The GLSL specification requires every driver to reject this type
+    mismatch at link time. Both shaders are compiled first, so the error must
+    come from linking.
     """
     vertex = "out vec3 v;\nvoid main() { v = vec3(0.0); gl_Position = vec4(0.0); }\n"
     fragment = "in vec4 v;\nout vec4 color;\nvoid main() { color = v; }\n"
@@ -165,8 +166,9 @@ def cube_program(gl_context):
 def test_set_matrix(cube_program):
     """Uploaded values read back column-major, i.e. transposed.
 
-    Matrix uploads are where transposition bugs live. A transposed projection
-    still draws something, just wrongly, so the bug would show only in a frame.
+    **WHY:** Matrix uploads are where transposition bugs live. A transposed
+    projection still draws something, just wrongly, so the bug would show only
+    in a frame.
     """
     values = np.arange(1.0, 17.0, dtype=np.float32)
     matrix = QMatrix4x4(*values.tolist())  # row-major constructor
@@ -181,8 +183,8 @@ def test_set_matrix(cube_program):
 def test_set_vector(cube_program):
     """Uploaded components read back in order.
 
-    A component-order mistake would move the light or the camera without any
-    error.
+    **WHY:** A component-order mistake would move the light or the camera
+    without any error.
     """
     location = GL.glGetUniformLocation(cube_program, "lightDirection")
     gl_utils.set_vector(location, QVector3D(1.0, 2.0, 3.0))
@@ -194,8 +196,8 @@ def test_set_vector(cube_program):
 def test_upload_texture_array(gl_context):
     """Width, height and depth match and no GL error is raised.
 
-    The texture array's dimensions are what the cube shader samples by layer. A
-    wrong depth would sample the wrong material for some faces.
+    **WHY:** The texture array's dimensions are what the cube shader samples by
+    layer. A wrong depth would sample the wrong material for some faces.
     """
     size, layers = 4, 2
     pixels = bytes(size * size * layers * 4)

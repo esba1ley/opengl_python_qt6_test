@@ -2,8 +2,8 @@ Test suite
 ==========
 
 One page per file in ``tests/``, generated from the docstrings. Each test's
-docstring says what it checks and, in its second paragraph, why the suite
-needs it: the bug it would catch, or the convention it pins. The fixtures
+docstring says what it checks and, in a second paragraph marked **WHY:**,
+why the suite needs it: the bug it would catch, or the convention it pins. The fixtures
 the GL tests share are on the ``conftest`` page.
 
 .. toctree::

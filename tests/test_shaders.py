@@ -16,9 +16,9 @@ BODIES = {
 def test_body_has_main_and_no_version(body):
     """Bodies define main() and leave the #version line to the header.
 
-    ``gl_utils.glsl_header`` prepends the ``#version`` line, so a body that
-    carried its own would hold two. Drivers differ in how they treat that, so
-    it could pass on one platform and fail on another.
+    **WHY:** ``gl_utils.glsl_header`` prepends the ``#version`` line, so a body
+    that carried its own would hold two. Drivers differ in how they treat that,
+    so it could pass on one platform and fail on another.
     """
     assert "#version" not in body
     assert "void main(" in body

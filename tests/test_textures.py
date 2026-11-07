@@ -18,8 +18,9 @@ def rng():
 def test_smoothstep_endpoints_and_clamping():
     """Values at or beyond the thresholds clamp; the midpoint is 0.5.
 
-    Every material uses ``smoothstep`` for its edges. Without clamping, values
-    past the thresholds would overshoot and give colours outside [0, 1].
+    **WHY:** Every material uses ``smoothstep`` for its edges. Without
+    clamping, values past the thresholds would overshoot and give colours
+    outside [0, 1].
     """
     x = np.array([-1.0, 0.0, 0.5, 1.0, 2.0])
     assert np.allclose(textures.smoothstep(0.0, 1.0, x), [0, 0, 0.5, 1, 1])
@@ -28,8 +29,8 @@ def test_smoothstep_endpoints_and_clamping():
 def test_mix_colour_with_colour_gives_image():
     """Two colours and a mask give an RGB image.
 
-    Materials blend two constant colours through a mask, which must give a full
-    RGB image.
+    **WHY:** Materials blend two constant colours through a mask, which must
+    give a full RGB image.
     """
     t = np.array([[0.0, 1.0], [0.5, 0.25]])
     out = textures.mix([0.0, 0.0, 0.0], [1.0, 1.0, 1.0], t)
@@ -40,8 +41,8 @@ def test_mix_colour_with_colour_gives_image():
 def test_mix_colour_with_image_and_image_with_colour():
     """A colour mixes with an image in either argument order.
 
-    Materials also blend a colour into an existing image, in either argument
-    order.
+    **WHY:** Materials also blend a colour into an existing image, in either
+    argument order.
     """
     image = np.full((2, 2, 3), 0.5)
     t = np.array([[0.0, 1.0], [0.0, 1.0]])
@@ -55,9 +56,9 @@ def test_mix_colour_with_image_and_image_with_colour():
 def test_mix_field_with_field_stays_2d():
     """Two 2-D fields blend to a 2-D field.
 
-    No material calls ``mix`` this way, so this test is the only one to reach
-    that branch. It stops a later caller from silently getting a 3-D result
-    back.
+    **WHY:** No material calls ``mix`` this way, so this test is the only one
+    to reach that branch. It stops a later caller from silently getting a 3-D
+    result back.
     """
     a, b = np.zeros((2, 2)), np.ones((2, 2))
     t = np.array([[0.0, 1.0], [0.5, 0.25]])
@@ -69,8 +70,9 @@ def test_mix_field_with_field_stays_2d():
 def test_uv_grid_range_and_orientation():
     """u varies along columns, v along rows, both in [0, 1).
 
-    If u and v were swapped, every texture would turn 90 degrees; if they
-    reached 1.0, periodic patterns would repeat their first row at the edge.
+    **WHY:** If u and v were swapped, every texture would turn 90 degrees; if
+    they reached 1.0, periodic patterns would repeat their first row at the
+    edge.
     """
     u, v = textures.uv_grid(SIZE)
     assert u.shape == v.shape == (SIZE, SIZE)
@@ -83,8 +85,8 @@ def test_uv_grid_range_and_orientation():
 def test_value_noise_in_unit_range(rng):
     """Value noise has the requested shape and range.
 
-    Materials use the noise directly as a blend weight, which must stay in [0,
-    1].
+    **WHY:** Materials use the noise directly as a blend weight, which must
+    stay in [0, 1].
     """
     noise = textures.value_noise(SIZE, 4, rng)
     assert noise.shape == (SIZE, SIZE)
@@ -94,8 +96,8 @@ def test_value_noise_in_unit_range(rng):
 def test_fractal_noise_is_normalised(rng):
     """Fractal noise spans exactly [0, 1].
 
-    Materials rely on the full [0, 1] range for contrast, so the octave sum
-    must be renormalised.
+    **WHY:** Materials rely on the full [0, 1] range for contrast, so the
+    octave sum must be renormalised.
     """
     noise = textures.fractal_noise(SIZE, rng)
     assert noise.shape == (SIZE, SIZE)
@@ -108,9 +110,9 @@ def test_fractal_noise_is_normalised(rng):
 def test_material_shapes_and_ranges(material, rng):
     """Every material yields colour (n, n, 3) in [0, 1] and height (n, n).
 
-    Every material feeds the same texture array, so each must return the same
-    shapes and a colour range the byte packer can encode. Size 32 keeps the run
-    fast.
+    **WHY:** Every material feeds the same texture array, so each must return
+    the same shapes and a colour range the byte packer can encode. Size 32
+    keeps the run fast.
     """
     color, height = material(SIZE, rng)
     assert color.shape == (SIZE, SIZE, 3)
@@ -121,8 +123,8 @@ def test_material_shapes_and_ranges(material, rng):
 def test_materials_match_cube_face_count():
     """There is one material per cube face layer.
 
-    The cube has six faces and six texture layers. A seventh material would
-    have no face, and a fifth would leave one face without a texture.
+    **WHY:** The cube has six faces and six texture layers. A seventh material
+    would have no face, and a fifth would leave one face without a texture.
     """
     assert len(textures.MATERIALS) == 6
 
@@ -130,8 +132,8 @@ def test_materials_match_cube_face_count():
 def test_height_to_normals_flat_field():
     """A flat field encodes the straight-up normal (0.5, 0.5, 1.0).
 
-    This is the encoding that the cube shader decodes. A flat surface must
-    encode straight up, or every face would look tilted.
+    **WHY:** This is the encoding that the cube shader decodes. A flat surface
+    must encode straight up, or every face would look tilted.
     """
     normals = textures.height_to_normals(np.zeros((8, 8)))
     assert normals.shape == (8, 8, 3)
@@ -141,8 +143,8 @@ def test_height_to_normals_flat_field():
 def test_height_to_normals_slope_tilts_normal():
     """A ramp along u tilts the x component below 0.5 and keeps unit length.
 
-    A sign error here turns bumps into dents. The decoded normal must also stay
-    unit length for the lighting to be correct.
+    **WHY:** A sign error here turns bumps into dents. The decoded normal must
+    also stay unit length for the lighting to be correct.
     """
     ramp = np.tile(np.linspace(0.0, 1.0, 8), (8, 1))
     normals = textures.height_to_normals(ramp)
@@ -155,8 +157,8 @@ def test_height_to_normals_slope_tilts_normal():
 def test_to_rgba_bytes_length_dtype_and_clipping():
     """Output is packed RGBA8, clipped, with opaque alpha.
 
-    Values outside [0, 1] must clip, not wrap, or a slightly negative value
-    would turn white. The byte count must match what the texture upload
+    **WHY:** Values outside [0, 1] must clip, not wrap, or a slightly negative
+    value would turn white. The byte count must match what the texture upload
     expects.
     """
     images = [np.full((2, 2, 3), -1.0), np.full((2, 2, 3), 2.0)]
@@ -171,8 +173,8 @@ def test_to_rgba_bytes_length_dtype_and_clipping():
 def test_generate_texture_layers_sizes(monkeypatch):
     """Both buffers hold one RGBA8 layer per material.
 
-    A buffer of the wrong size makes the texture upload read past its end. The
-    texture size is reduced to 32 to keep the run fast.
+    **WHY:** A buffer of the wrong size makes the texture upload read past its
+    end. The texture size is reduced to 32 to keep the run fast.
     """
     monkeypatch.setattr(config, "TEXTURE_SIZE", SIZE)
     albedo, normals, layers = textures.generate_texture_layers()

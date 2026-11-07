@@ -92,8 +92,8 @@ output are harmless.
   `__main__` guard, where only one `QApplication` may exist; say which in the
   test's docstring.
 - Every test docstring has two parts: a one-line summary of what it checks,
-  then a paragraph on why the suite needs it (the bug it would catch, or
-  the convention it pins). `docs/tests/` renders them, so run
+  then a paragraph starting with `**WHY:**` on why the suite needs it (the
+  bug it would catch, or the convention it pins). `docs/tests/` renders them, so run
   `make -C docs html` after changing a test docstring, and add a page there
   for a new test file.
 - A new Python test dependency follows the dependency rule above: it goes in
