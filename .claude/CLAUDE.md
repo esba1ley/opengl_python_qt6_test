@@ -64,7 +64,8 @@ output are harmless.
 - The Sphinx pages under `docs/` include `README.md` and `src/README.md`
   rather than copying them. Relative links in those files must point at
   `src/README.md` or at nothing; a link to a file that is not a docs page
-  fails the build.
+  fails the build. Images are fine: the include in `docs/index.md` uses
+  `:relative-images:`, so image paths stay relative to the README.
 - Module-level constants get a `#:` doc-comment so autodoc lists them.
 - `docs/diagrams/*.puml` are hand-maintained PlantUML diagrams of the class
   structure, startup, a frame, mouse handling and the call graph. When a
@@ -80,8 +81,12 @@ output are harmless.
 - `widget.py` should only translate mouse input into `SceneContext` calls.
 - `textures.py` and `geometry.py` must stay free of OpenGL calls.
 - Generate textures in code rather than adding image files. The one image
-  file is `icon.png`, the application icon; regenerate it with
-  `tools/make_icon.py` from a window screenshot rather than editing it.
+  file the program loads is `icon.png`, the application icon; regenerate it
+  with `tools/make_icon.py` from a window screenshot rather than editing it.
+- `docs/images/face-*.png` illustrate the README's material table. They are
+  rendered, not drawn: rerun `tools/make_face_images.py docs/images` after
+  changing a material, the cube shader or the default light, and look at
+  them.
 - Every change to `src/` comes with tests in `tests/test_<module>.py` that keep
   line and branch coverage at 100%. `pytest.ini` owns the thresholds; change
   them there, not with per-run flags. See `ARCHITECTURE.md` (Testing) for the
