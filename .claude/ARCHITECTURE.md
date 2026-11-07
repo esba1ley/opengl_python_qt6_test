@@ -111,3 +111,14 @@ a `--system-site-packages` venv because Debian's are missing or too old.
 `main.py`. Derived, not hand-drawn: `tools/make_icon.py` crops a window
 screenshot to a disc around the sphere grid. There is no `.icns` or app
 bundle, so the icon only appears while the program runs.
+
+## README illustrations
+**Status:** Frozen
+
+`tools/ScreenGrab.png` is shown at the top of the README, and six
+`docs/images/face-<material>.png` images, 128 pixels square, sit in its
+material table. The face images are rendered by `tools/make_face_images.py`
+with the program's own `CubeRenderer` in an offscreen context, each face
+turned to the camera under `config.DEFAULT_LIGHT`, without the overlay. The
+include in `docs/index.md` uses `:relative-images:` so the same paths work on
+GitHub and in the manual.
