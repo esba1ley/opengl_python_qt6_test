@@ -2,6 +2,22 @@
 
 Newest first.
 
+## 2026-11-07 — Document each test's purpose in its docstring and the manual
+**Status:** Accepted
+**Context:** The suite's tests said what they checked but not why they
+existed, so the case for each one lived only in a review conversation. Erik
+asked whether that rationale was in the documentation; it was not.
+**Decision:** Each test docstring gains a second paragraph on the bug it
+would catch or the convention it pins, and `docs/tests/` renders the test
+files with autodoc, one page per file, as `docs/api/` does for `src/`.
+`docs/conf.py` puts the repository root on `sys.path` and mocks `pytest`.
+**Consequences:** The rationale sits next to the test and is updated in the
+same edit; changing a test docstring now needs a docs build. Rejected: a
+hand-written page in `docs/` (a second copy that drifts the first time a
+test changes); rationale in `ARCHITECTURE.md` (it describes structure, not
+individual tests, and is outside the manual); requiring real `pytest` in
+the docs build (the pip-only `docs/requirements.txt` route lacks it).
+
 ## 2026-11-02 — Configure pytest in pytest.ini
 **Status:** Accepted
 **Context:** pytest and coverage need configuration, and there are three

@@ -102,7 +102,7 @@ The renderers accept a `SceneContext` as an argument without importing
 | Add a new mouse control | Add a method to `SceneContext`, then call it from `widget.py` |
 | Draw something new | Add a renderer, then call it from `CubeWidget.paintGL` |
 | Add a self-test check | Extend `check` in `selftest.py` |
-| Add a unit test | Add to `tests/test_<module>.py`; `pytest` fails below 100% coverage |
+| Add a unit test | Add to `tests/test_<module>.py`, with a docstring saying what it checks and why; `pytest` fails below 100% coverage |
 
 Material functions take `(size, rng)` and return a colour image and a height map
 as float arrays from 0 to 1. `MATERIALS` needs one entry per cube face, in the

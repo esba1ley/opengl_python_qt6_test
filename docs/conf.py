@@ -7,8 +7,11 @@ program, plus the packages in ``requirements.txt``.
 import sys
 from pathlib import Path
 
-# Modules live directly in src/ and import each other by name.
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
+# Modules live directly in src/ and import each other by name. The test
+# pages import tests/ as a package from the repository root.
+_repo = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(_repo / "src"))
+sys.path.insert(0, str(_repo))
 
 import main  # noqa: E402
 
@@ -40,6 +43,10 @@ myst_heading_anchors = 3
 
 napoleon_google_docstring = False
 napoleon_numpy_docstring = True
+
+# The test modules import pytest only for decorators and assertions, so it is
+# mocked: the pip route in requirements.txt then builds without it.
+autodoc_mock_imports = ["pytest"]
 
 autodoc_member_order = "bysource"
 autodoc_default_options = {

@@ -14,6 +14,7 @@ from PyQt6.QtWidgets import QApplication
 
 import main
 
+#: The repository root.
 REPO_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -78,7 +79,11 @@ def run_main(monkeypatch, qapp):
 
 
 def test_darwin_requests_41_core(run_main):
-    """On macOS the default format is a 4.1 core profile."""
+    """On macOS the default format is a 4.1 core profile.
+
+    Without this request macOS gives OpenGL 2.1, which cannot compile the
+    shaders. This is the failure of the first macOS run.
+    """
     status, widget, timers = run_main(["prog"], "darwin")
     fmt = QSurfaceFormat.defaultFormat()
     assert status == 7
@@ -91,7 +96,10 @@ def test_darwin_requests_41_core(run_main):
 
 
 def test_linux_requests_es_31(run_main):
-    """Elsewhere the default format is OpenGL ES 3.1."""
+    """Elsewhere the default format is OpenGL ES 3.1.
+
+    This is the Raspberry Pi's path, which nothing else exercises on macOS.
+    """
     status, _, timers = run_main(["prog"], "linux")
     fmt = QSurfaceFormat.defaultFormat()
     assert status == 7
@@ -101,7 +109,11 @@ def test_linux_requests_es_31(run_main):
 
 
 def test_check_registers_selftest_timer(run_main, monkeypatch):
-    """``--check`` schedules the self-test on the widget after 1000 ms."""
+    """``--check`` schedules the self-test on the widget after 1000 ms.
+
+    ``--check`` must run the self-test on the window it opened, once the window
+    has had time to show.
+    """
     status, widget, timers = run_main(["prog", "--check"], "darwin")
     assert status == 7
     assert len(timers) == 1
@@ -113,20 +125,33 @@ def test_check_registers_selftest_timer(run_main, monkeypatch):
 
 
 def test_icon_path_exists():
-    """The application icon is where ``ICON_PATH`` says."""
+    """The application icon is where ``ICON_PATH`` says.
+
+    A moved or missing icon fails silently at run time; it would only be
+    noticed as a missing Dock icon.
+    """
     assert main.ICON_PATH == REPO_DIR / "icon.png"
     assert main.ICON_PATH.is_file()
 
 
 def test_version_matches_bumpversion():
-    """``__version__`` agrees with ``.bumpversion.cfg``."""
+    """``__version__`` agrees with ``.bumpversion.cfg``.
+
+    If bump2version stopped rewriting ``__version__``, the program and the
+    manual would report a stale version after a release.
+    """
     cfg = configparser.ConfigParser()
     cfg.read(REPO_DIR / ".bumpversion.cfg")
     assert main.__version__ == cfg["bumpversion"]["current_version"]
 
 
 def test_dunder_main_guard_exits_with_status(qapp, monkeypatch):
-    """Running the file as a script exits with ``main()``'s status."""
+    """Running the file as a script exits with ``main()``'s status.
+
+    The exit status is what makes ``--check`` usable from scripts. The
+    application is a fake because only one ``QApplication`` may exist per
+    process and pytest-qt already owns it.
+    """
     import widget  # noqa: F401 - must be in sys.modules to patch
     import PyQt6.QtWidgets as qtwidgets
 

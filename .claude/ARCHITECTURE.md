@@ -76,7 +76,10 @@ repository's `README.md` and `src/README.md` with MyST's include directive,
 so the READMEs remain the single source and the Sphinx page names mirror the
 file paths so the README's relative link resolves. `docs/api/` has one
 automodule page per module in `src/`, rendered by napoleon from the
-NumPy-style docstrings with the Read the Docs theme. `docs/diagrams.rst`
+NumPy-style docstrings with the Read the Docs theme. `docs/tests/` does the
+same for each file in `tests/`, `conftest.py` included, so the reason for
+each test is rendered from its docstring; `conf.py` mocks `pytest` so the
+pages build without it. `docs/diagrams.rst`
 renders five hand-maintained PlantUML sources from `docs/diagrams/` through
 sphinxcontrib-plantuml: a class diagram, sequence diagrams for startup, one
 frame and mouse input, and a call graph of everything reachable from

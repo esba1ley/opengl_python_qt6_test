@@ -203,8 +203,9 @@ are in `src/config.py`.
 ## Documentation
 
 A local HTML manual, built with Sphinx in the Read the Docs style, combines this
-file, `src/README.md`, PlantUML diagrams of how the program executes and an API
-reference generated from the docstrings. It needs the Sphinx packages from
+file, `src/README.md`, PlantUML diagrams of how the program executes, an API
+reference generated from the docstrings, and a page per test file saying what
+each test checks and why. It needs the Sphinx packages from
 `environment-docs.yml` (or `docs/requirements.txt` for pip) and the PlantUML,
 Java and Graphviz entries from the system prerequisites table above.
 

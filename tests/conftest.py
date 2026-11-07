@@ -20,6 +20,7 @@ from PyQt6.QtOpenGL import (
     QOpenGLFramebufferObjectFormat,
 )
 
+#: The program's source directory, put on ``sys.path``.
 SRC_DIR = Path(__file__).resolve().parent.parent / "src"
 
 #: Side length in pixels of the framebuffer object the ``fbo`` fixture makes.

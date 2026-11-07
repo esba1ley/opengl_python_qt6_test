@@ -3,6 +3,7 @@ import pytest
 
 import shaders
 
+#: Every shader body, keyed by its name in ``shaders``.
 BODIES = {
     "CUBE_VERTEX_BODY": shaders.CUBE_VERTEX_BODY,
     "CUBE_FRAGMENT_BODY": shaders.CUBE_FRAGMENT_BODY,
@@ -13,22 +14,12 @@ BODIES = {
 
 @pytest.mark.parametrize("body", BODIES.values(), ids=BODIES.keys())
 def test_body_has_main_and_no_version(body):
-    """Bodies define main() and leave the #version line to the header."""
+    """Bodies define main() and leave the #version line to the header.
+
+    ``gl_utils.glsl_header`` prepends the ``#version`` line, so a body that
+    carried its own would hold two. Drivers differ in how they treat that, so
+    it could pass on one platform and fail on another.
+    """
     assert "#version" not in body
     assert "void main(" in body
 
-
-@pytest.mark.parametrize(
-    "body", [shaders.CUBE_VERTEX_BODY, shaders.OVERLAY_VERTEX_BODY]
-)
-def test_vertex_bodies_write_gl_position(body):
-    """Both vertex shaders write gl_Position."""
-    assert "gl_Position =" in body
-
-
-@pytest.mark.parametrize(
-    "body", [shaders.CUBE_FRAGMENT_BODY, shaders.OVERLAY_FRAGMENT_BODY]
-)
-def test_fragment_bodies_declare_frag_color(body):
-    """Both fragment shaders declare the out variable the programs bind."""
-    assert "out vec4 fragColor;" in body

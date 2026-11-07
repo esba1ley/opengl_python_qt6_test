@@ -52,7 +52,12 @@ def exit_codes(monkeypatch):
 
 
 def test_send_drag_delivers_press_move_release(qtbot):
-    """A drag is a press at the centre, a move, then a release."""
+    """A drag is a press at the centre, a move, then a release.
+
+    ``--check`` drives the widget only through these synthetic events. If the
+    helper sent the wrong button or position, the self-test would measure
+    nothing.
+    """
     target = Recorder()
     selftest.send_drag(target, Qt.MouseButton.RightButton, 20, -10)
     kinds = [event.type() for event in target.events]
@@ -70,7 +75,11 @@ def test_send_drag_delivers_press_move_release(qtbot):
 
 
 def test_send_wheel_delivers_notches(qtbot):
-    """A wheel turn arrives as one event of 120 units per notch."""
+    """A wheel turn arrives as one event of 120 units per notch.
+
+    Qt reports 120 units per wheel notch, and the widget converts back from
+    those units.
+    """
     target = Recorder()
     selftest.send_wheel(target, -2)
     (event,) = target.events
@@ -79,7 +88,11 @@ def test_send_wheel_delivers_notches(qtbot):
 
 
 def test_check_passes_on_a_real_widget(qtbot, capsys, exit_codes):
-    """The real self-test passes all six checks and exits with status 0."""
+    """The real self-test passes all six checks and exits with status 0.
+
+    This runs ``--check`` inside pytest, so a self-test regression shows up in
+    the suite and not only in a manual run.
+    """
     window = CubeWidget()
     qtbot.addWidget(window)
     window.show()
@@ -99,7 +112,12 @@ def test_check_passes_on_a_real_widget(qtbot, capsys, exit_codes):
 
 
 def test_check_fails_on_a_blank_widget(qapp, capsys, exit_codes):
-    """Identical black frames fail every check and exit with status 1."""
+    """Identical black frames fail every check and exit with status 1.
+
+    A self-test that cannot fail proves nothing; this shows it reports FAIL and
+    exits 1. The reset check compares the last frame with the first, so it
+    passes when every frame is identical; this test records that limit.
+    """
     selftest.check(BlackWidget())
     lines = capsys.readouterr().out.splitlines()
     assert exit_codes == [1]

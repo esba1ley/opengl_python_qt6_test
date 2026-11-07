@@ -2,6 +2,22 @@
 
 Newest first.
 
+## 2026-11-07 — Test review: weak tests fixed, rationale in the manual
+
+- Walked Erik through every test. Removed the config type check and the two
+  shader text matches (the compile and link tests already cover them),
+  dropped the `vp == p * v` restatement from `test_context.py`, replaced the
+  overlay's 500-lit-pixel threshold with projected grid intersections that
+  must land on lit pixels (axes and dot switched off), and made the
+  double-click test change pan and light before resetting.
+- Added a rationale paragraph to all 82 test function docstrings and the
+  `docs/tests/` pages that render them. See `DECISIONS.md`.
+- `pytest`: 98 passed, 100% line and branch coverage. Ruff clean,
+  `--check` passes, `make -C docs html` clean with every test rendered.
+
+**Next:** Unchanged from the 2026-11-02 entry: Pi run, Python 3.11 and 3.13
+environments, surface-format factoring, shader log decoding.
+
 ## 2026-11-02 — pytest suite at 100% branch coverage
 
 - Committed the plan first at `.claude/PLAN.md`, then executed it by
