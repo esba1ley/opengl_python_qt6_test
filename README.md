@@ -155,6 +155,22 @@ The self-test opens the window for a few seconds, so it needs a display. It
 simulates mouse input, prints `PASS` or `FAIL` for each check, and exits with
 status 0 only if everything passed.
 
+## Testing
+
+Run the test suite from this directory:
+
+```
+pytest
+```
+
+It renders into an offscreen OpenGL context, so like `--check` it needs a
+display. The suite fails if coverage of `src` drops below 100%. The test
+packages (`pytest`, `pytest-cov`, `pytest-qt`) come from `environment.yml`
+under conda or from `apt-packages.txt` on Debian.
+
+The coverage gate applies to the full run, so run a subset with
+`pytest --no-cov tests/test_<module>.py`.
+
 ## Mouse controls
 
 | Input | Action |
@@ -187,8 +203,9 @@ are in `src/config.py`.
 ## Documentation
 
 A local HTML manual, built with Sphinx in the Read the Docs style, combines this
-file, `src/README.md`, PlantUML diagrams of how the program executes and an API
-reference generated from the docstrings. It needs the Sphinx packages from
+file, `src/README.md`, PlantUML diagrams of how the program executes, an API
+reference generated from the docstrings, and a page per test file saying what
+each test checks and why. It needs the Sphinx packages from
 `environment-docs.yml` (or `docs/requirements.txt` for pip) and the PlantUML,
 Java and Graphviz entries from the system prerequisites table above.
 

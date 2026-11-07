@@ -2,6 +2,40 @@
 
 Newest first.
 
+## 2026-11-07 — Test review: weak tests fixed, rationale in the manual
+
+- Walked Erik through every test. Removed the config type check and the two
+  shader text matches (the compile and link tests already cover them),
+  dropped the `vp == p * v` restatement from `test_context.py`, replaced the
+  overlay's 500-lit-pixel threshold with projected grid intersections that
+  must land on lit pixels (axes and dot switched off), and made the
+  double-click test change pan and light before resetting.
+- Added a rationale paragraph to all 82 test function docstrings and the
+  `docs/tests/` pages that render them. See `DECISIONS.md`.
+- `pytest`: 98 passed, 100% line and branch coverage. Ruff clean,
+  `--check` passes, `make -C docs html` clean with every test rendered.
+
+**Next:** Unchanged from the 2026-11-02 entry: Pi run, Python 3.11 and 3.13
+environments, surface-format factoring, shader log decoding.
+
+## 2026-11-02 — pytest suite at 100% branch coverage
+
+- Committed the plan first at `.claude/PLAN.md`, then executed it by
+  subagent, one commit per task, on `ft/esbailey/pytest-suite`.
+- Added `pytest.ini`, `tests/conftest.py` and one `tests/test_<module>.py`
+  per module in `src/`. `pytest -W error`: 103 passed in 2.3 s, 100% line and
+  branch coverage (542 statements, 56 branches).
+- Added `pytest`, `pytest-cov` and `pytest-qt` to `environment.yml` and
+  `apt-packages.txt`, and a Testing subsection to the README.
+- Recorded the design in `ARCHITECTURE.md` (Testing) and three entries in
+  `DECISIONS.md`.
+
+**Next:** Run the suite on the Pi under the ES 3.1 context. Create Python
+3.11 and 3.13 environments and run it there. Decide whether to factor the
+seven surface-format lines out of `main.py` into a function shared with
+`tests/conftest.py`. Make `gl_utils` decode the shader and program log
+instead of raising `RuntimeError` with its bytes repr (a small `src` change).
+
 ## 2026-11-01 — Release v0.2.0
 
 - Cut `rc/esbailey/v0.2.0` from `develop` and ran `bump2version minor`

@@ -14,12 +14,17 @@ conda env create -f environment.yml && conda activate opengl_qt6_test
 conda env update -n opengl_qt6_test -f environment-docs.yml
 python3 src/main.py           # open the window
 python3 src/main.py --check   # run the self-test, then exit
+pytest                        # run tests/, fail below 100% branch coverage
+pytest --no-cov tests/test_<module>.py   # run a subset (the gate needs the full run)
 make -C docs html             # build the HTML manual into docs/_build/html
 ```
 
 `--check` needs a display and exits with status 0 only if everything passed.
 Run it after every code change. It only confirms that frames change, so also save
 a frame with `grabFramebuffer()` and look at it after any visual change.
+
+`pytest` needs a display too. Run it after every change to `src/`, together
+with `--check`.
 
 The `Qt6CTPlatformTheme` lines and the `GLib-GObject-CRITICAL` warning in the
 output are harmless.
@@ -43,7 +48,7 @@ output are harmless.
   development) or in both `environment-docs.yml` and `docs/requirements.txt`
   (documentation), with the version floor and a matching README note. The
   conda floors track the Debian bookworm versions in `apt-packages.txt`.
-- Lint with `ruff check src tools docs/conf.py`. The rule set is pinned in
+- Lint with `ruff check src tools docs/conf.py tests`. The rule set is pinned in
   `ruff.toml`; change it there, not with per-run flags.
 - Anything that is not a Python package (PlantUML, Java, Graphviz, the GL
   driver) belongs in the README's system prerequisites table, with the
@@ -77,6 +82,22 @@ output are harmless.
 - Generate textures in code rather than adding image files. The one image
   file is `icon.png`, the application icon; regenerate it with
   `tools/make_icon.py` from a window screenshot rather than editing it.
+- Every change to `src/` comes with tests in `tests/test_<module>.py` that keep
+  line and branch coverage at 100%. `pytest.ini` owns the thresholds; change
+  them there, not with per-run flags. See `ARCHITECTURE.md` (Testing) for the
+  layout and `DECISIONS.md` for why.
+- GL tests use the `gl_context`, `fbo`, `scene` and `image_to_array` fixtures
+  from `tests/conftest.py` and draw into a real offscreen context. Stubs
+  cover branches this machine cannot reach, plus `main.main()` and the
+  `__main__` guard, where only one `QApplication` may exist; say which in the
+  test's docstring.
+- Every test docstring has two parts: a one-line summary of what it checks,
+  then a paragraph starting with `**WHY:**` on why the suite needs it (the
+  bug it would catch, or the convention it pins). `docs/tests/` renders them, so run
+  `make -C docs html` after changing a test docstring, and add a page there
+  for a new test file.
+- A new Python test dependency follows the dependency rule above: it goes in
+  `environment.yml` and `apt-packages.txt` with a version floor.
 - Modules live directly in `src/` and import each other by name, such as
   `import config`. There is no package or install step.
 
