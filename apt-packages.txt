@@ -19,3 +19,6 @@ qt6-wayland          # Qt's native Wayland plugin; Qt recommends it, so usually 
 bumpversion          # bump2version, same tool under Debian's name
 python3-venv         # for ruff and the docs tooling, which are not in apt or too old
 python3-pip
+python3-pytest       # pytest 7.2 or newer
+python3-pytest-cov   # coverage plugin, 4.0 or newer
+python3-pytestqt     # pytest-qt, 4.2 or newer

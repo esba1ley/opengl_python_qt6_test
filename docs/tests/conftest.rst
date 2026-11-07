@@ -1,0 +1,4 @@
+conftest
+========
+
+.. automodule:: tests.conftest

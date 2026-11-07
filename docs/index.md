@@ -8,4 +8,5 @@
 src/README
 diagrams
 api/index
+tests/index
 ```
