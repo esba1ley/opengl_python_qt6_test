@@ -321,14 +321,8 @@ def bricks(size, rng):
     """
     u, v = uv_grid(size)
     rows, columns = 8, 4
-    row = np.floor(v * rows)
-    x = u * columns + 0.5 * (row % 2)
-    column = np.floor(x)
-    fx, fy = x - column, v * rows - row
-    edge = np.minimum(
-        np.minimum(fx, 1 - fx) / columns, np.minimum(fy, 1 - fy) / rows
-    )
-    mask = smoothstep(0.008, 0.02, edge)
+    column, row, fx, fy = cell_lattice(u, v, columns, rows, stagger=0.5)
+    mask = smoothstep(0.008, 0.02, edge_distance(fx, fy, columns, rows))
     noise = fractal_noise(size, rng, cells=8)
     shade = rng.random((rows, columns + 2))[row.astype(int), column.astype(int)]
     brick = mix([0.62, 0.22, 0.16], [0.80, 0.36, 0.24], shade * 0.6 + noise * 0.4)
@@ -354,12 +348,7 @@ def cobbles(size, rng):
     """
     u, v = uv_grid(size)
     points = rng.random((40, 2))
-    distance = np.hypot(
-        u[..., None] - points[:, 0], v[..., None] - points[:, 1]
-    ).astype(np.float32)
-    nearest = distance.argmin(axis=2)
-    closest = np.partition(distance, 1, axis=2)
-    gap = closest[..., 1] - closest[..., 0]
+    nearest, gap = voronoi(u, v, points)
     mask = smoothstep(0.0, 0.05, gap)
     noise = fractal_noise(size, rng, cells=8)
     shade = rng.random(len(points))[nearest]
@@ -386,12 +375,9 @@ def tiles(size, rng):
         Float height field of shape ``(size, size)``, where 1 is highest.
     """
     u, v = uv_grid(size)
-    count = 4
-    fx, fy = u * count % 1.0, v * count % 1.0
-    edge = np.minimum(np.minimum(fx, 1 - fx), np.minimum(fy, 1 - fy)) / count
-    mask = smoothstep(0.004, 0.03, edge)
-    checker = (np.floor(u * count) + np.floor(v * count)) % 2
-    glaze = mix([0.10, 0.48, 0.50], [0.82, 0.86, 0.80], checker)
+    column, row, fx, fy = cell_lattice(u, v, 4, 4)
+    mask = smoothstep(0.004, 0.03, edge_distance(fx, fy, 4, 4))
+    glaze = mix([0.10, 0.48, 0.50], [0.82, 0.86, 0.80], checker(column, row))
     return mix([0.30, 0.28, 0.26], glaze, smoothstep(0.0, 0.3, mask)), mask
 
 
@@ -419,7 +405,7 @@ def wood(size, rng):
     offset = rng.random(planks)[plank.astype(int)]
     wobble = fractal_noise(size, rng, cells=3, octaves=4)
     grain = 0.5 + 0.5 * np.sin(38.0 * (x + 0.5 * wobble + offset) + 3.0 * v)
-    gap = smoothstep(0.0, 0.03, np.minimum(x, 1 - x))
+    gap = smoothstep(0.0, 0.03, seam(x))
     color = mix([0.36, 0.20, 0.09], [0.68, 0.45, 0.24], grain * (0.6 + 0.4 * offset))
     return mix([0.08, 0.05, 0.03], color, gap), gap * (0.85 + 0.15 * grain)
 
@@ -442,14 +428,12 @@ def rivets(size, rng):
         Float height field of shape ``(size, size)``, where 1 is highest.
     """
     u, v = uv_grid(size)
-    count = 5
-    fx, fy = u * count % 1.0 - 0.5, v * count % 1.0 - 0.5
-    radius = np.hypot(fx, fy) / 0.16
-    dome = np.sqrt(np.clip(1.0 - radius * radius, 0.0, 1.0))
+    _, _, fx, fy = cell_lattice(u, v, 5, 5)
+    bump = dome(fx - 0.5, fy - 0.5, 0.16)
     brushed = np.tile(rng.random((size, 1)), (1, size))
     brushed = 0.5 * brushed + 0.5 * fractal_noise(size, rng, cells=6)
     color = mix([0.42, 0.44, 0.48], [0.62, 0.64, 0.68], brushed)
-    return mix(color, [0.74, 0.74, 0.76], dome), 0.8 * dome + 0.04 * brushed
+    return mix(color, [0.74, 0.74, 0.76], bump), 0.8 * bump + 0.04 * brushed
 
 
 def weave(size, rng):
@@ -471,9 +455,8 @@ def weave(size, rng):
         Float height field of shape ``(size, size)``, where 1 is highest.
     """
     u, v = uv_grid(size)
-    count = 10
-    fx, fy = u * count % 1.0, v * count % 1.0
-    over = (np.floor(u * count) + np.floor(v * count)) % 2 == 0
+    column, row, fx, fy = cell_lattice(u, v, 10, 10)
+    over = checker(column, row) == 0
     across = np.sin(np.pi * fy) * (0.55 + 0.45 * np.sin(np.pi * fx))
     along = np.sin(np.pi * fx) * (0.55 + 0.45 * np.sin(np.pi * fy))
     height = np.where(over, across, along)

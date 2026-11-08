@@ -92,6 +92,8 @@ class textures <<module>> {
   generate_texture_layers()
   bricks(), cobbles(), tiles()
   weave(), rivets(), wood()
+  seam(), cell_lattice(), edge_distance()
+  checker(), voronoi(), dome()
   height_to_normals(), to_rgba_bytes()
 }
 class shaders <<module>> {
