@@ -1,6 +1,6 @@
 # From arrays to GPU textures
 
-The materials leave six colour images and six height fields in NumPy arrays.
+The materials leave six colour images and six height fields in [NumPy](https://numpy.org/doc/stable/) arrays.
 This page covers what happens between those arrays and the first frame: where
 the random numbers come from, how a height field becomes a normal map, how
 the images are packed and uploaded, and how the GPU reads them back.
@@ -269,3 +269,13 @@ Each face of the cube reads its own layer of the two textures, chosen by a
 per-vertex attribute; [the geometry page](geometry.md) explains it under
 {ref}`guide-layers`, and {ref}`guide-cube-buffer` how it reaches the
 shader.
+
+## Further reading
+
+- The OpenGL Wiki on [array textures](https://wikis.khronos.org/opengl/Array_Texture).
+- Reference pages: [`glTexImage3D`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glTexImage3D.xhtml), [`glTexParameter`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glTexParameter.xhtml) and [`glGenerateMipmap`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGenerateMipmap.xhtml).
+- NumPy's [random `Generator`](https://numpy.org/doc/stable/reference/random/generator.html) and [data types](https://numpy.org/doc/stable/reference/arrays.dtypes.html).
+- LearnOpenGL, [Normal Mapping](https://learnopengl.com/Advanced-Lighting/Normal-Mapping).
+
+The {ref}`references page <references>` lists the rest, with the
+authors' tutorials for each part of the program.

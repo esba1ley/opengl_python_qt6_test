@@ -2,6 +2,25 @@
 
 Newest first.
 
+## 2026-11-08 — References and further reading
+
+- `docs/references.md`: new top-level page after the guide, linking the
+  documentation and the authors' tutorials for Python, the runtime,
+  development and documentation packages, Qt 6 (by the classes the program
+  uses), OpenGL, OpenGL ES and GLSL (a table of the specifications per
+  platform), platform notes and the two quaternion-convention papers.
+- `docs/guide/*.md`: a "Further reading" list at the end of each page;
+  `index.md` points at the references page.
+- `README.md`, `src/README.md`, `docs/diagrams.rst` and the guide pages:
+  the first prose mention of each package on a page (PyQt6, PyOpenGL,
+  NumPy, Qt, ctypes, the test, docs and environment tools) links to its
+  documentation. Headings, code and existing links are left alone.
+- Every link checked on 2026-11-08 with `curl` and Sphinx's linkcheck;
+  the Khronos wiki and SourceForge refuse automated requests, so those were
+  confirmed through redirects and search instead.
+- `README.md`, `.claude/CLAUDE.md` and `.claude/ARCHITECTURE.md` mention the
+  page; reason in `DECISIONS.md`.
+
 ## 2026-11-08 — Guide from the window to the frame
 
 - `docs/guide/`: new pages `window`, `context`, `spaces`, `geometry`,

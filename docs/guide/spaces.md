@@ -119,7 +119,7 @@ double-click calls it again. The defaults come from {py:mod}`config`:
 - `rotation` is a `QQuaternion`, the cube's orientation.
   `QQuaternion.fromEulerAngles(pitch, yaw, roll)` builds a rotation of
   `roll` degrees about $z$, then `pitch` about $x$, then `yaw` about $y$, in
-  that order, as Qt's documentation states. With roll 0 the default is a
+  that order, as [Qt](https://doc.qt.io/qt-6/)'s documentation states. With roll 0 the default is a
   tilt of 25° about $x$, towards the viewer at the top, followed by a turn
   of −35° about $y$, which brings the +X face into view on the right.
 - `distance` is 6: the camera is 6 units from the origin.
@@ -221,7 +221,7 @@ far side ([the shaders](shaders.md)).
 `QMatrix4x4.perspective(verticalAngle, aspectRatio, nearPlane, farPlane)`
 multiplies the matrix by a perspective projection. Qt's documentation does
 not print the matrix, so it was checked in Qt's source (`qmatrix4x4.cpp`,
-`QMatrix4x4::perspective`) and numerically against the installed PyQt6. It
+`QMatrix4x4::perspective`) and numerically against the installed [PyQt6](https://www.riverbankcomputing.com/static/Docs/PyQt6/). It
 is the classic `gluPerspective` matrix. With $\theta$ the vertical field of
 view, $f = \cot(\theta/2)$, $a$ the aspect ratio and $n$, $F$ the near and
 far distances:
@@ -475,3 +475,14 @@ errors were below $10^{-6}$, float32 rounding. Taking Qt's components
 in scalar-last order without conjugating gives the wrong matrix: in the same
 check, its largest error was 1.6.
 ```
+
+## Further reading
+
+- [`QMatrix4x4`](https://doc.qt.io/qt-6/qmatrix4x4.html), including [`perspective`](https://doc.qt.io/qt-6/qmatrix4x4.html#perspective), and [`QVector3D`](https://doc.qt.io/qt-6/qvector3d.html).
+- [`QQuaternion`](https://doc.qt.io/qt-6/qquaternion.html), including [`fromAxisAndAngle`](https://doc.qt.io/qt-6/qquaternion.html#fromAxisAndAngle).
+- The OpenGL Wiki on [vertex post-processing](https://wikis.khronos.org/opengl/Vertex_Post-Processing): clipping, the perspective divide and the viewport.
+- LearnOpenGL, [Coordinate Systems](https://learnopengl.com/Getting-started/Coordinate-Systems).
+- On quaternion conventions: Solà, [*Quaternion kinematics for the error-state Kalman filter*](https://arxiv.org/abs/1711.02508), section 3, and Trawny and Roumeliotis, [*Indirect Kalman Filter for 3D Attitude Estimation*](https://mars.cs.umn.edu/tr/reports/Trawny05b.pdf), section 1.
+
+The {ref}`references page <references>` lists the rest, with the
+authors' tutorials for each part of the program.

@@ -24,7 +24,7 @@ caption: >-
 :dedent: 8
 ```
 
-Qt binds the widget's framebuffer and sets the viewport before calling
+[Qt](https://doc.qt.io/qt-6/) binds the widget's framebuffer and sets the viewport before calling
 `paintGL`, and sets nothing else ({ref}`guide-gl-overrides`). Its
 documentation also warns that state set in `initializeGL` may not persist.
 So the frame sets what it needs itself.
@@ -207,7 +207,7 @@ range in `GL_ALIASED_LINE_WIDTH_RANGE`; a wider width is normally clamped to
 the largest it supports. macOS is the exception. Its 4.1 core context is
 **forward-compatible**, and a forward-compatible context removes wide lines:
 `glLineWidth` with a value above 1.0 fails with `GL_INVALID_VALUE` (OpenGL 4.1
-core specification, section E.2.1), which PyOpenGL raises as an exception.
+core specification, section E.2.1), which [PyOpenGL](https://pyopengl.sourceforge.net/documentation/) raises as an exception.
 On a Mac with an M4 chip the range reads $[1, 1]$, so taking the smaller of
 `config.AXIS_LINE_WIDTH` (2) and the top of the range gives 1 there and
 avoids the error. Where the driver allows 2, the axes are 2 pixels wide.
@@ -293,3 +293,12 @@ else is drawn until the next `update()` ({ref}`guide-mouse`).
 This page followed the frame draw call by draw call. The shaders page
 follows a single fragment of the same frame, from its texture coordinates to
 the colour written here: {ref}`guide-one-pixel`.
+
+## Further reading
+
+- [`QOpenGLWidget::paintGL`](https://doc.qt.io/qt-6/qopenglwidget.html#paintGL).
+- The OpenGL Wiki on [the depth test](https://wikis.khronos.org/opengl/Depth_Test) and [blending](https://wikis.khronos.org/opengl/Blending).
+- Reference pages: [`glClear`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glClear.xhtml), [`glEnable`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glEnable.xhtml), [`glBlendFuncSeparate`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glBlendFuncSeparate.xhtml), [`glDepthMask`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glDepthMask.xhtml) and [`glLineWidth`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glLineWidth.xhtml).
+
+The {ref}`references page <references>` lists the rest, with the
+authors' tutorials for each part of the program.

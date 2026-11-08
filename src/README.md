@@ -52,13 +52,13 @@ them.
 
 | Module | Scope | OpenGL context needed? |
 |---|---|---|
-| `main.py` | Starts the Qt application, handles `--check`, and requests the OpenGL surface format (`request_surface_format`) | No |
+| `main.py` | Starts the [Qt](https://doc.qt.io/qt-6/) application, handles `--check`, and requests the OpenGL surface format (`request_surface_format`) | No |
 | `context.py` | `SceneContext`, the shared state and its matrices | No |
 | `widget.py` | `CubeWidget`, which handles mouse input and paints frames | Yes |
 | `cube.py` | `CubeRenderer`, which draws the textured cube | Yes |
 | `overlay.py` | `OverlayRenderer`, which draws the sphere grid, axes and light dot | Yes |
 | `geometry.py` | Vertex data for the cube (its faces are named in `CUBE_FACES`), sphere grid and axes | No |
-| `textures.py` | Shared patterns, procedural materials that record their steps, and normal maps, using only NumPy | No |
+| `textures.py` | Shared patterns, procedural materials that record their steps, and normal maps, using only [NumPy](https://numpy.org/doc/stable/) | No |
 | `shaders.py` | GLSL source for both renderers, including the cube's debug views | No |
 | `gl_utils.py` | Helpers for shaders, uniforms and textures | Yes |
 | `config.py` | Settings shared by the other modules | No |

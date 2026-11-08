@@ -35,7 +35,7 @@ with the context current:
 of 15. `vertex_count` is $540 / 15 = 36$, the number of vertices to draw.
 
 A Python list holds pointers to Python objects, not numbers laid side by
-side, so OpenGL cannot read it. `GL.GLfloat * len(vertices)` is a ctypes
+side, so OpenGL cannot read it. `GL.GLfloat * len(vertices)` is a [ctypes](https://docs.python.org/3/library/ctypes.html)
 type, an array of 540 C `float`s, and calling it with `*vertices` creates one
 filled with the values. A C `float` is 4 bytes, `FLOAT_SIZE`, so the array
 is 2160 bytes.
@@ -102,7 +102,7 @@ The arguments of `glVertexAttribPointer`:
 - `GL.GLvoidp(offset * FLOAT_SIZE)`, the offset in bytes of the attribute's
   first value from the start of the buffer. The C parameter is a pointer, a
   leftover from when vertex data was read from the application's memory, so
-  PyOpenGL wants the offset wrapped as a `void *`.
+  [PyOpenGL](https://pyopengl.sourceforge.net/documentation/) wants the offset wrapped as a `void *`.
 
 `offset` counts floats and grows by each attribute's size, so the offsets
 follow from the order and sizes in `VERTEX_ATTRIBUTES`:
@@ -157,7 +157,7 @@ and the light dot into one buffer:
 
 The three arrays all have six columns, a position and a colour
 ({ref}`guide-sphere-grid`), so `np.vstack` stacks them into one array of
-$10{,}440 + 6 + 1 = 10{,}447$ rows. `astype(np.float32)` matters: NumPy's
+$10{,}440 + 6 + 1 = 10{,}447$ rows. `astype(np.float32)` matters: [NumPy](https://numpy.org/doc/stable/)'s
 default is 64-bit floats, and `GL_FLOAT` is 32 bits. `tobytes()` writes the
 rows one after another, each row's six numbers together, which is again an
 interleaved layout. `data.nbytes` is $10{,}447 \times 6 \times 4 =
@@ -195,3 +195,12 @@ the `mvp` and `model` matrices, the light direction and the camera position
 them to every vertex as it is drawn. Sending a few matrices per frame is far
 cheaper than rewriting 10,000 vertices, and it is why the buffers can be
 `GL_STATIC_DRAW`.
+
+## Further reading
+
+- The OpenGL Wiki on [vertex specification](https://wikis.khronos.org/opengl/Vertex_Specification): vertex array objects, buffers and attribute formats.
+- Reference pages: [`glGenVertexArrays`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGenVertexArrays.xhtml), [`glBindVertexArray`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glBindVertexArray.xhtml), [`glBufferData`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glBufferData.xhtml), [`glVertexAttribPointer`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glVertexAttribPointer.xhtml) and [`glDrawArrays`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glDrawArrays.xhtml).
+- Python's [`ctypes`](https://docs.python.org/3/library/ctypes.html), and [PyOpenGL for OpenGL programmers](https://pyopengl.sourceforge.net/documentation/opengl_diffs.html) on how PyOpenGL accepts arrays.
+
+The {ref}`references page <references>` lists the rest, with the
+authors' tutorials for each part of the program.

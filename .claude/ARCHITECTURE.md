@@ -153,6 +153,11 @@ the frame build-up, the widget's real `paintGL` with the overlay's steps
 switched on one at a time. They are committed and regenerated only when a
 material, a pattern, the geometry, the cube shader or the default frame
 changes.
+Each page ends with a "Further reading" list of external links for its
+topic. `docs/references.md`, a top-level page after the chapter, gathers
+them with the authors' tutorials for Python, the packages, Qt 6, OpenGL,
+OpenGL ES and GLSL. The links are plain URLs, not intersphinx, so the
+build needs no network.
 
 ## Application icon
 **Status:** Frozen

@@ -210,7 +210,7 @@ The poles, $\phi = \pm 90°$, are on the $z$ axis. Longitude is measured
 from $+x$ towards $+y$, so $(\phi, \lambda) = (0°, 0°)$ is on $+x$ and
 $(0°, 90°)$ on $+y$; the README's
 [sphere coordinates table](../index.md#sphere-coordinates) lists the axes.
-The function works on whole NumPy arrays at once: `np.stack(..., axis=-1)`
+The function works on whole [NumPy](https://numpy.org/doc/stable/) arrays at once: `np.stack(..., axis=-1)`
 puts the three coordinates in the last axis, so $n$ angles give an array of
 shape $(n, 3)$.
 
@@ -312,3 +312,12 @@ config.LIGHT_DOT_COLOR)`, a yellow point at the origin. It is drawn with
 {py:meth}`~context.SceneContext.light_dot_position`, moves it onto the
 sphere instead of the model matrix ({ref}`guide-matrices`). The overlay
 draws it twice, faint and then solid ({ref}`guide-frame-light-dot`).
+
+## Further reading
+
+- NumPy: [the absolute basics](https://numpy.org/doc/stable/user/absolute_beginners.html), [broadcasting](https://numpy.org/doc/stable/user/basics.broadcasting.html) and [indexing](https://numpy.org/doc/stable/user/basics.indexing.html).
+- [`glDrawArrays`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glDrawArrays.xhtml), and the primitive types it draws (`GL_TRIANGLES`, `GL_LINES`, `GL_POINTS`).
+- LearnOpenGL, [Normal Mapping](https://learnopengl.com/Advanced-Lighting/Normal-Mapping): why each face carries a tangent and a bitangent.
+
+The {ref}`references page <references>` lists the rest, with the
+authors' tutorials for each part of the program.

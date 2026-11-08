@@ -2,7 +2,7 @@
 
 Before anything is drawn, the program has to open a window, get an OpenGL
 context from the operating system and wait for the user to do something.
-Qt does most of that work. This page follows the program from `main()` to
+[Qt](https://doc.qt.io/qt-6/) does most of that work. This page follows the program from `main()` to
 the first frame, then shows what happens when the mouse moves, and how the
 self-test drives the same code without a user.
 
@@ -198,7 +198,7 @@ Version:  4.1 Metal - 90.5
 GLSL:     4.10
 ```
 
-PyOpenGL returns them as bytes, hence `.decode()`. They are the first thing
+[PyOpenGL](https://pyopengl.sourceforge.net/documentation/) returns them as bytes, hence `.decode()`. They are the first thing
 to look at when the program fails on a new machine.
 
 ```{literalinclude} ../../src/widget.py
@@ -357,3 +357,16 @@ restores the first image exactly.
 `QApplication.exit(status)` tells the event loop to stop. `app.exec()` in
 `main` then returns `status`, and `sys.exit` passes it on: 0 if every check
 passed, 1 otherwise.
+
+## Further reading
+
+- [`QApplication`](https://doc.qt.io/qt-6/qapplication.html) and [`QCoreApplication::exec`](https://doc.qt.io/qt-6/qcoreapplication.html#exec), the application object and its event loop.
+- [The event system](https://doc.qt.io/qt-6/eventsandfilters.html): how events reach a widget.
+- [`QOpenGLWidget`](https://doc.qt.io/qt-6/qopenglwidget.html): the three OpenGL methods, when Qt calls them, and the framebuffer it composites.
+- [`QSurfaceFormat::setDefaultFormat`](https://doc.qt.io/qt-6/qsurfaceformat.html#setDefaultFormat): why the format must be set before the application exists.
+- [`QWidget::update`](https://doc.qt.io/qt-6/qwidget.html#update), [`QMouseEvent`](https://doc.qt.io/qt-6/qmouseevent.html), [`QWheelEvent`](https://doc.qt.io/qt-6/qwheelevent.html) and [`QTimer`](https://doc.qt.io/qt-6/qtimer.html).
+- [High DPI](https://doc.qt.io/qt-6/highdpi.html): device-independent pixels.
+- Qt's [Hello GL2](https://doc.qt.io/qt-6/qtopengl-hellogl2-example.html) example, the same widget structure in C++.
+
+The {ref}`references page <references>` lists the rest, with the
+authors' tutorials for each part of the program.

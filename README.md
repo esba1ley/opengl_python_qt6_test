@@ -1,6 +1,6 @@
 # Qt6 OpenGL Test
 
-A worked example of procedural textures and shaders in OpenGL with PyQt6. The
+A worked example of procedural textures and shaders in OpenGL with [PyQt6](https://www.riverbankcomputing.com/static/Docs/PyQt6/). The
 vehicle is a small program that draws a textured, bump-mapped cube inside a
 latitude/longitude sphere grid, and lets you rotate, zoom and pan the scene and
 move the light with the mouse.
@@ -13,7 +13,8 @@ The "How it works" chapter of the [manual](https://esba1ley.github.io/opengl_pyt
 loop to a lit pixel: the OpenGL context, the coordinate spaces, the geometry
 and the vertex buffers, then the textures from noise to pixel (the building
 blocks, each material step by step, how the textures reach the GPU, and both
-shaders line by line), and last one whole frame.
+shaders line by line), and last one whole frame. A references page links the
+documentation and tutorials for Python, the packages, [Qt 6](https://doc.qt.io/qt-6/) and OpenGL.
 
 ![The default view: the textured cube inside the sphere grid](docs/images/screenshot.png)
 
@@ -71,8 +72,8 @@ shaders line by line), and last one whole frame.
 
 - Python 3.11 or later; 3.12 is the version developed against
 - PyQt6, including the `QtOpenGLWidgets` module
-- PyOpenGL
-- NumPy
+- [PyOpenGL](https://pyopengl.sourceforge.net/documentation/)
+- [NumPy](https://numpy.org/doc/stable/)
 - OpenGL 3.1 or later, or OpenGL ES 3.0 or later, and a display
 
 ## Setting up
@@ -82,7 +83,7 @@ shaders line by line), and last one whole frame.
 The repository pins its Python dependencies in two conda files for
 [miniforge](https://github.com/conda-forge/miniforge). `environment.yml` is
 the minimum to run and develop the program; `environment-docs.yml` layers the
-Sphinx tooling on top:
+[Sphinx](https://www.sphinx-doc.org/en/master/) tooling on top:
 
 ```
 conda env create -f environment.yml
@@ -90,7 +91,7 @@ conda activate opengl_qt6_test
 conda env update -n opengl_qt6_test -f environment-docs.yml   # only for the docs
 ```
 
-Everything comes from conda-forge, so Qt is installed once and PyQt6 is built
+Everything comes from [conda-forge](https://conda-forge.org/docs/), so Qt is installed once and PyQt6 is built
 against it. Do not `pip install PyQt6` into that environment; the wheel
 bundles a second copy of Qt.
 
@@ -103,9 +104,9 @@ sudo apt install $(sed 's/#.*//' apt-packages.txt)
 sudo apt install $(sed 's/#.*//' apt-packages-docs.txt)   # only for the docs
 ```
 
-Ruff and the Sphinx packages are not taken from apt there: Ruff is only in
+[Ruff](https://docs.astral.sh/ruff/) and the Sphinx packages are not taken from apt there: Ruff is only in
 Debian unstable, Bookworm's Sphinx stack is below the floors in
-`docs/requirements.txt`, and both Bookworm and Trixie ship the PlantUML
+`docs/requirements.txt`, and both Bookworm and Trixie ship the [PlantUML](https://plantuml.com/)
 Sphinx extension at a 2014 release. Put them in a venv that can still see
 apt's PyQt6, which the docs build imports:
 
@@ -140,7 +141,7 @@ that matter here:
 ### System prerequisites
 
 These are not Python packages, so neither environment file installs them. On
-macOS they come from MacPorts; on Debian-based systems from apt.
+macOS they come from [MacPorts](https://www.macports.org/); on Debian-based systems from apt.
 
 | Needed for | What | macOS (MacPorts) | Debian / Raspberry Pi OS (apt) |
 |------------|------|------------------|--------------------------------|
@@ -148,7 +149,7 @@ macOS they come from MacPorts; on Debian-based systems from apt.
 | Docs | `make` | Xcode command line tools | `make` |
 | Docs | PlantUML launcher and jar | `sudo port install plantuml` | `sudo apt install plantuml` |
 | Docs | Java runtime, for PlantUML | `sudo port install openjdk21`, or any JDK that `/usr/libexec/java_home` can find | pulled in by the `plantuml` package |
-| Docs | Graphviz `dot`, for the class and call-graph diagrams | `sudo port install graphviz` | `sudo apt install graphviz` |
+| Docs | [Graphviz](https://graphviz.org/) `dot`, for the class and call-graph diagrams | `sudo port install graphviz` | `sudo apt install graphviz` |
 
 The MacPorts `plantuml` launcher is a shell script that runs whichever `java`
 is on the PATH, and Apple's `/usr/bin/java` is only a stub until a JDK is
@@ -195,7 +196,9 @@ pytest
 
 It renders into an offscreen OpenGL context, so like `--check` it needs a
 display. The suite fails if coverage of `src` drops below 100%. The test
-packages (`pytest`, `pytest-cov`, `pytest-qt`) come from `environment.yml`
+packages ([pytest](https://docs.pytest.org/en/stable/),
+[pytest-cov](https://pytest-cov.readthedocs.io/en/latest/) and
+[pytest-qt](https://pytest-qt.readthedocs.io/en/latest/)) come from `environment.yml`
 under conda or from `apt-packages.txt` on Debian.
 
 The coverage gate applies to the full run, so run a subset with
@@ -216,7 +219,7 @@ cube.
 
 The animations are made by `tools/make_control_animations.py`, which sends
 synthetic mouse and wheel events to a hidden window and records what the
-program draws. It needs Pillow, a development dependency. Rerun it after
+program draws. It needs [Pillow](https://pillow.readthedocs.io/en/stable/), a development dependency. Rerun it after
 changing the mouse handling or anything visible:
 
 ```
@@ -249,10 +252,10 @@ are in `src/config.py`.
 The manual for the latest release is published at
 <https://esba1ley.github.io/opengl_python_qt6_test/>.
 
-An HTML manual, built with Sphinx in the Read the Docs style, combines this
+An HTML manual, built with Sphinx in the [Read the Docs](https://sphinx-rtd-theme.readthedocs.io/en/stable/) style, combines this
 file, `src/README.md`, the "How it works" chapter (`docs/guide/`), PlantUML diagrams of how the program executes, an API
 reference generated from the docstrings, and a page per test file saying what
-each test checks and why. It needs the Sphinx packages from
+each test checks and why, and a references page. It needs the Sphinx packages from
 `environment-docs.yml` (or `docs/requirements.txt` for pip) and the PlantUML,
 Java and Graphviz entries from the system prerequisites table above.
 

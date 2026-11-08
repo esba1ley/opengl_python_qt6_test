@@ -2,6 +2,22 @@
 
 Newest first.
 
+## 2026-11-08 — Link outside documentation as plain URLs, per page and on one page
+**Status:** Accepted
+**Context:** Erik asked for references and links to the documentation and
+learning material for Python, the packages, Qt 6 and OpenGL. This adds to
+the Frozen Teaching guide.
+**Decision:** Each guide page ends with a short "Further reading" list for
+its topic, and `docs/references.md` gathers everything, starting with the
+authors' own tutorials. Links are plain Markdown URLs, checked by hand
+(`sphinx-build -b linkcheck`) when they are added.
+**Consequences:** Links can rot unnoticed; linkcheck is not in CI because
+Khronos's wiki and SourceForge reject automated requests, which would fail
+it on live pages. Rejected: intersphinx, which fetches inventories at build
+time, so an offline build fails under `-W`, and which covers only the Sphinx
+projects (Python, NumPy), not Qt or Khronos; links inline in the prose, which
+would interrupt the explanations.
+
 ## 2026-11-08 — Use Erik's frame notation in the docs, code names unchanged
 **Status:** Accepted
 **Context:** The spaces page names transforms and quaternions. Erik's

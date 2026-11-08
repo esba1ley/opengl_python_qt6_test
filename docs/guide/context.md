@@ -1,6 +1,6 @@
 # The OpenGL context and shader programs
 
-The previous page ended with Qt calling `initializeGL` with the widget's
+The previous page ended with [Qt](https://doc.qt.io/qt-6/) calling `initializeGL` with the widget's
 OpenGL context current. This page explains what that context is, how the
 program finds out which version of OpenGL it got, and how it turns the GLSL
 source strings in {py:mod}`shaders` into programs the GPU can run. It ends
@@ -244,7 +244,7 @@ entries in **row-major** order, row by row. `glUniformMatrix4fv` expects
 `mvp * vec4(position, 1.0)` in GLSL is the same homogeneous product Qt
 computes in `mvp.map(position)`. The two results differ only in that
 `map()` also divides by $w$, while `gl_Position` is kept before the divide. `(GL.GLfloat * 16)(...)` packs the values
-into a ctypes array of 16 C floats for PyOpenGL to pass on. The `1` is the
+into a [ctypes](https://docs.python.org/3/library/ctypes.html) array of 16 C floats for [PyOpenGL](https://pyopengl.sourceforge.net/documentation/) to pass on. The `1` is the
 number of matrices.
 
 ```{literalinclude} ../../src/gl_utils.py
@@ -272,3 +272,13 @@ Integer uniforms are set directly with `glUniform1i`:
 `pointSize`. If a call's type and size do not match the uniform's
 declaration in the shader, OpenGL records the error `GL_INVALID_OPERATION`
 and leaves the uniform unchanged.
+
+## Further reading
+
+- [`QOpenGLContext`](https://doc.qt.io/qt-6/qopenglcontext.html) and [`QSurfaceFormat`](https://doc.qt.io/qt-6/qsurfaceformat.html).
+- The OpenGL Wiki on [the OpenGL context](https://wikis.khronos.org/opengl/OpenGL_Context) and [the GLSL language](https://wikis.khronos.org/opengl/Core_Language_(GLSL)).
+- The shading-language specifications the headers select: [GLSL 1.40](https://registry.khronos.org/OpenGL/specs/gl/GLSLangSpec.1.40.pdf), [GLSL ES 3.00](https://registry.khronos.org/OpenGL/specs/es/3.0/GLSL_ES_Specification_3.00.pdf) and [GLSL 4.10](https://registry.khronos.org/OpenGL/specs/gl/GLSLangSpec.4.10.pdf).
+- Reference pages: [`glGetString`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGetString.xhtml), [`glCompileShader`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glCompileShader.xhtml), [`glLinkProgram`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glLinkProgram.xhtml), [`glGetUniformLocation`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGetUniformLocation.xhtml) and [`glUniform`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glUniform.xhtml).
+
+The {ref}`references page <references>` lists the rest, with the
+authors' tutorials for each part of the program.

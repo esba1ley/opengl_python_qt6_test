@@ -1,7 +1,7 @@
 Diagrams
 ========
 
-How the program executes, drawn with PlantUML from the code in ``src/``. The
+How the program executes, drawn with `PlantUML <https://plantuml.com/>`__ from the code in ``src/``. The
 diagrams are maintained by hand alongside the code; the sources are in
 ``docs/diagrams/``.
 

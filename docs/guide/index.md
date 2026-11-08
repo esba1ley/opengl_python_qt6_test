@@ -12,6 +12,10 @@ It assumes you know Python and a little linear algebra (vectors, dot
 products, a matrix acting on a vector), but nothing about OpenGL or GPU
 texturing.
 
+Each page ends with further reading, and the {ref}`references page
+<references>` gathers the documentation and tutorials for Python, the
+packages, [Qt 6](https://doc.qt.io/qt-6/) and OpenGL in one place.
+
 ## The path through the program
 
 The work splits into what runs once and what runs every frame.

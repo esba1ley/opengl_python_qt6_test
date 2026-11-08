@@ -110,6 +110,13 @@ output are harmless.
   images show it), rerun
   `python3 tools/make_guide_images.py docs/images/guide` and look at the
   images; commit them with the change.
+- Each guide page ends with "Further reading", and `docs/references.md`
+  lists the documentation for every dependency, Qt class and OpenGL
+  version. A new dependency, Qt class or GL topic gets its link there,
+  checked with `python3 -m sphinx -b linkcheck docs docs/_build/linkcheck`
+  (Khronos's wiki and SourceForge refuse the checker; open those by hand).
+  In the READMEs and the manual's pages, link the first prose mention of
+  a package on each page to the same URL the references page uses.
 - The chapter quotes code with `literalinclude` (`:pyobject:` for functions,
   `:start-after:` the constant's assignment line, such as
   `CUBE_VERTEX_BODY = """`, with `:end-before:` the closing quotes, for

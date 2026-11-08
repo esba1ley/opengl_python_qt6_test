@@ -1,7 +1,7 @@
 # Primitives and patterns
 
 A material is a function from a position on the face to a colour and a
-height. NumPy evaluates it for every pixel of a 512 by 512 image at once
+height. [NumPy](https://numpy.org/doc/stable/) evaluates it for every pixel of a 512 by 512 image at once
 (`config.TEXTURE_SIZE`), so each building block below takes and returns whole
 arrays. Five primitives do the numerical work; six patterns built from them
 are shared between the materials.
@@ -431,3 +431,13 @@ its cell.
 
 `dome` with a radius of 0.16 cells on a 5 by 5 lattice, the rivet layout.
 ```
+
+## Further reading
+
+- NumPy: [broadcasting](https://numpy.org/doc/stable/user/basics.broadcasting.html) and the [random `Generator`](https://numpy.org/doc/stable/reference/random/generator.html).
+- The GLSL built-ins these functions copy: [`smoothstep`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/smoothstep.xhtml) and [`mix`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/mix.xhtml).
+- *The Book of Shaders*: [shaping functions](https://thebookofshaders.com/05/), [noise](https://thebookofshaders.com/11/) and [cellular noise](https://thebookofshaders.com/12/).
+- Inigo Quilez, [Voronoi edges](https://iquilezles.org/articles/voronoilines/).
+
+The {ref}`references page <references>` lists the rest, with the
+authors' tutorials for each part of the program.
