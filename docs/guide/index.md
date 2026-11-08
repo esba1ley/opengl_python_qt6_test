@@ -4,7 +4,8 @@ Every surface on the cube is computed from numbers. No image file is loaded:
 {py:mod}`textures` builds six materials with NumPy when the program starts,
 {py:mod}`gl_utils` hands them to the GPU as textures, and the two shaders in
 {py:mod}`shaders` turn them into lit pixels every frame. This chapter follows
-that path from the first random number to the colour of one pixel.
+that path from the first random number to the colour of one pixel. It
+starts with the window and the OpenGL context the cube is drawn in.
 
 It assumes you know Python and a little linear algebra (vectors, dot
 products, a matrix acting on a vector), but nothing about GPU texturing.
@@ -76,6 +77,15 @@ python3 tools/make_guide_images.py docs/images/guide
 ```
 
 ```{toctree}
+:caption: The window and the scene
+:maxdepth: 2
+
+window
+context
+```
+
+```{toctree}
+:caption: Textures and shaders
 :maxdepth: 2
 
 primitives
