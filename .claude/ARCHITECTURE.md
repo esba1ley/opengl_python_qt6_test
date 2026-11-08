@@ -70,8 +70,12 @@ Verified on macOS only (GL 4.1 core, Python 3.12). Not yet run on the Pi
 ## Documentation
 **Status:** Frozen
 
-`docs/` holds a Sphinx project for a local HTML build only; there is no
-hosted configuration. `docs/index.md` and `docs/src/README.md` pull in the
+`docs/` holds a Sphinx project for an HTML build. `.github/workflows/docs.yml`
+builds it on GitHub Actions for every push to `develop` and `main` and
+publishes it to GitHub Pages (https://esba1ley.github.io/opengl_python_qt6_test/) from `main`
+only. The runner takes the Python packages from `environment.yml` and
+`environment-docs.yml` through miniforge and PlantUML, Java and Graphviz from
+apt. `docs/index.md` and `docs/src/README.md` pull in the
 repository's `README.md` and `src/README.md` with MyST's include directive,
 so the READMEs remain the single source and the Sphinx page names mirror the
 file paths so the README's relative link resolves. `docs/api/` has one

@@ -1,0 +1,64 @@
+# Build the Sphinx manual on every push to develop and main, and publish it to
+# GitHub Pages from main only, so the site always matches the latest release.
+# The Python packages come from the same conda files as a local build;
+# PlantUML, Java and Graphviz come from apt, as the README describes for
+# Debian. Graphviz stays out of conda on purpose; see environment-docs.yml.
+name: docs
+
+on:
+  push:
+    branches: [develop, main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docs-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        shell: bash -el {0}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install PlantUML, Java and Graphviz
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends plantuml graphviz
+
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-version: latest
+          environment-file: environment.yml
+          activate-environment: opengl_qt6_test
+
+      - name: Add the documentation packages
+        run: conda env update -n opengl_qt6_test -f environment-docs.yml
+
+      - name: Build the manual
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: make -C docs html
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/_build/html
+
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

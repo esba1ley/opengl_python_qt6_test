@@ -2,6 +2,25 @@
 
 Newest first.
 
+## 2026-11-07 — Publish the manual to GitHub Pages from main
+**Status:** Accepted
+**Context:** Erik asked to publish the manual. It had been a local build
+only, with hosting rejected on 2026-11-01 for lack of an audience. The
+build imports every `src/` module and renders PlantUML, so whatever builds
+it needs PyQt6, PyOpenGL, NumPy, PlantUML, Java and Graphviz.
+**Decision:** A GitHub Actions workflow, `.github/workflows/docs.yml`,
+builds with `make -C docs html` on pushes to `develop` and `main` and
+deploys with `actions/deploy-pages` from `main` only. Python packages come
+from the two conda files through `setup-miniconda` with miniforge; PlantUML
+and Graphviz from Ubuntu's apt, which the Pi showed renders the diagrams.
+**Consequences:** The site at https://esba1ley.github.io/opengl_python_qt6_test/
+always matches the latest release, and a broken build on `develop` is seen
+before a release. Pages must be set to deploy from GitHub Actions in the
+repository settings. Rejected: a hand-maintained `gh-pages` branch
+(generated HTML in git and a manual step per release); Read the Docs (a
+second service, with PlantUML and Graphviz to install through its own
+configuration); publishing from `develop` (it would show unreleased work).
+
 ## 2026-11-07 — Render the README's material images with the program's renderer
 **Status:** Accepted
 **Context:** Erik asked for a small image of each material in the README's
@@ -150,7 +169,8 @@ double the mouse edges).
 
 
 ## 2026-11-01 — Document with Sphinx, including the READMEs in place
-**Status:** Accepted
+**Status:** Accepted; its rejection of hosting is superseded by 2026-11-07 —
+Publish the manual to GitHub Pages from main
 **Context:** A browsable manual was wanted, built locally and opened by hand,
 without duplicating the prose that already lives in `README.md` and
 `src/README.md` or exposing the working notes under `.claude/`.
