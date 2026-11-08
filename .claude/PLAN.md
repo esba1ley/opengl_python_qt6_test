@@ -1,157 +1,186 @@
-# Plan: a "How the textures and shaders work" chapter, with `textures.py` restructured to teach
+# Plan: extend "How it works" from the window to the frame
 
 ## Context
 
-Erik wants the manual to explain, step by step, how every part of
-`src/textures.py` and `src/shaders.py` builds the cube's textured faces, with
-images of each step. He judged (2026-11-07) that the repository's purpose is
-to teach how procedural textures and shaders work in OpenGL, so the code
-itself should be restructured to read as a lesson, not merely documented.
+The "How it works" chapter (`docs/guide/`, v0.4.0) explains how
+`textures.py` and `shaders.py` build the cube's textured faces. Erik now
+wants the same depth for everything that comes before and around it: the Qt
+application, window, widget and event loop; the OpenGL context and shader
+programs; the scene's coordinate spaces and matrices; and the geometry of
+the cube, sphere grid, axes and light dot, up to the point where textures
+are applied. The reader should understand every part of setting up the GUI,
+the OpenGL scene and the geometry inside it.
 
-Decisions already made by Erik:
-- Restructure `textures.py` into shared, documented pattern functions, with
-  every material recording its named intermediate steps.
-- Show the cube fragment shader's stages both as rendered images (through a
-  debug `view` uniform in the real shader) and as equations and prose.
-- Restate the repository's purpose as teaching in the README and `CLAUDE.md`.
-- Execute with subagents on a feature branch; this plan is the first commit
-  as `.claude/PLAN.md` (replacing the pytest plan; git keeps it); one commit
-  per task; stop for Erik's review before merging.
+Decisions already made by Erik (2026-11-08):
+- **One guide, in order.** "How it works" grows into a single walk-through:
+  new pages for the window, the context and programs, the coordinate spaces,
+  the geometry and buffers, then the existing texture pages, ending with one
+  frame put together.
+- **Light-touch code changes.** Docs first; change code only where it fights
+  the explanation, with the vertex data provably unchanged.
+- **Images:** a rendered build-up of one frame, plus new geometry debug
+  views in the cube shader (texture coordinates, face layer, tangent frame).
+- **Notation:** Erik's frame notation in the docs (`T_world_model`, composed
+  rightmost first), with Qt's quaternion convention stated against his.
+  Code names stay as they are.
+- Execution as before: subagents on `ft/esbailey/scene-guide` from
+  `develop`, this plan committed first as `.claude/PLAN.md` (replacing the
+  textures plan; git keeps it), one commit per task, stop for Erik's review
+  before merging. Commit types from Erik's list only; never `feat`.
 
 ## Hard constraints
 
-- **Texture bytes are unchanged.** On this Mac (NumPy 2.3.5),
-  `hashlib.sha256(albedo + normals).hexdigest()` of
-  `textures.generate_texture_layers()` starts `70bf2f00d9547795` and must
-  still do so after every textures task. Verified by the controller after each
-  task. It is not made a permanent test: NumPy's `sin`/`hypot` may differ by
-  platform and build, so a golden hash would fail on the Pi for no fault.
-- **View 0 renders unchanged.** `tools/make_face_images.py`,
-  `tools/make_icon.py` and `tools/make_control_animations.py` regenerate
-  byte-identical files on this Mac after the shader change. If not, the GLSL
-  is reworked so the final colour expression is untouched (FMA contraction
-  can change with surrounding code) before anything else happens.
-- **Random draw order and shapes are preserved**: bricks draws fractal noise,
-  then `random((8, 6))` (keep `columns + 2`); cobbles draws `(40, 2)` points,
-  then fractal noise, then `random(40)`; rivets `random((size, 1))`, then
-  fractal noise; wood `random(5)`, then fractal noise. Recording a step never
-  moves a draw.
-- 100% line and branch coverage (`pytest.ini`), Ruff clean, `--check` passes,
-  `make -C docs html` clean with `-W`. Every new test has a summary line and a
-  `**WHY:**` paragraph. No new dependency beyond the existing set (Pillow
-  stays tools-only).
+- **Texture bytes unchanged**: `generate_texture_layers()` hash prefix
+  `70bf2f00d9547795` (command under Verification).
+- **Vertex data unchanged**: on this Mac,
+  `sha256(np.array(cube_vertices(), float64).tobytes() +
+  grid_vertices().tobytes() + axis_vertices().tobytes())` starts
+  `44f48b500c33c716`, before and after Task 1.
+- **View 0 renders unchanged** after the shader task: `make_face_images.py`,
+  `make_icon.py` and `make_control_animations.py` regenerate byte-identical
+  files. If not, rework the GLSL so the final-colour expression is untouched.
+- 100% line and branch coverage, Ruff clean, `--check` 6 PASS,
+  `make -C docs html` clean under `-W`. Every new test has a summary line and
+  a `**WHY:**` paragraph. No new dependency.
+- Every factual claim about Qt is checked against the Qt 6 documentation
+  (QOpenGLWidget, QSurfaceFormat, QCoreApplication::exec, QWidget::update,
+  QQuaternion); the writer cites the class and section in the task report.
 
 ## Design
 
-### `textures.py`
-- Six shared patterns, each a public, NumPy-docstring'd function used by at
-  least one material without distortion:
-  - `seam(f)`: `np.minimum(f, 1 - f)`, the 1-D distance to the nearest cell
-    edge (bricks, tiles, wood).
-  - `cell_lattice(u, v, columns, rows, stagger=0.0)` returns
-    `(column, row, fx, fy)`, with odd rows shifted by `stagger` (bricks 8×4
-    with stagger 0.5; tiles 4×4; rivets 5×5, centred via `fx - 0.5`; weave
-    10×10). Compute `v * rows` once and reuse it for `floor` and the fraction.
-  - `edge_distance(fx, fy, columns, rows)`:
-    `np.minimum(seam(fx) / columns, seam(fy) / rows)` (bricks, tiles; exact
-    for the tiles form too, since division by a positive constant keeps order).
-  - `checker(column, row)` returns float parity (tiles; weave compares `== 0`
-    at the call site). Keep it float so `mix` does not cast a bool.
-  - `voronoi(u, v, points)` returns `(nearest, gap)`, casting the distance
-    volume to `float32` exactly where cobbles does now and returning `gap` as
-    float32. No `asarray(float)`, no squared distances.
-  - `dome(fx, fy, radius)`, the rivet hemisphere.
-- Wood stays a 1-D lattice inline (`plank = floor(u * 5)`, `x = u * 5 - plank`)
-  using `seam(x)`; weave keeps `across`/`along` inline, since they are the
-  lesson.
-- Each material returns `Material(color, height, steps)`, a `NamedTuple` whose
-  `steps` is an ordered dict from a readable step name to a 2-D field or RGB
-  image, filled as the material builds. Never record the `(size, size, 40)`
-  distance volume, and never update a recorded array in place (rivets'
-  `brushed` is reassigned, not mutated).
-- `iter_materials(size, seed=config.TEXTURE_SEED)` yields
-  `(function, Material)` in `MATERIALS` order on one shared generator, so the
-  docs tool sees exactly the real layers. `generate_texture_layers()` consumes
-  it and keeps only colour and height, so steps (about 150 MB at 512 px) are
-  never all held at once.
-- Expression text that sets bits stays verbatim: `mix` as
-  `a*(1-t) + b*t`, weights such as `shade*0.6 + noise*0.4`, the order of terms
-  in each sum.
+### Code (light touch)
 
-### `shaders.py`, `config.py`, `context.py`, `cube.py`
-- `CUBE_FRAGMENT_BODY`: compute every term as now, assign the current final
-  expression to `vec3 result`, then
-  `if (view == 1) result = albedo; else if (view == 2) result = n * 0.5 + 0.5;`
-  and so on for diffuse, facing and specular (as grey); `fragColor =
-  vec4(result, 1.0)`. `uniform int view` needs no header change (GLSL ES 3.00
-  fragment shaders default `int` to mediump).
-- `#: CUBE_VIEWS` in `shaders.py`: the names in index order
-  (`"final", "albedo", "normal", "diffuse", "facing", "specular"`).
-- `#: DEFAULT_CUBE_VIEW = 0` in `config.py`; `SceneContext.__init__` sets
-  `self.cube_view` from it (not `reset_view`, so a double-click keeps it);
-  `CubeRenderer` looks up `view_loc` and `paint` sets it from `ctx.cube_view`,
-  which keeps the rule that renderers read only `SceneContext`.
-- Update `docs/diagrams/frame.puml`, `calls.puml` and `classes.puml` for the
-  new uniform and the new texture functions.
+- **`geometry.cube_vertices`**: replace the anonymous
+  `faces = ((0, 1), (0, -1), ...)` and the `u, v = [...]` comprehension with
+  a named, `#:`-documented module constant listing each face as
+  `(name, axis, sign)` in `MATERIALS` order (`"+X"` … `"-Z"`), and short
+  comments on the corner order and the two triangles. Output identical
+  (fingerprint above). No change to `VERTEX_ATTRIBUTES`.
+- **Surface format, queued since 2026-11-01**: move the seven
+  platform-gated lines out of `main.main()` into
+  `main.request_surface_format()`, called by `main()`,
+  `tools/offscreen.request_format` (removed; the tools call the new
+  function) and `tests/conftest.pytest_configure`. One copy, so the window
+  page can quote one function. "Nothing else in the program tests the
+  platform" stays true. Update `startup.puml` and `calls.puml`.
+- **Geometry debug views** in `CUBE_FRAGMENT_BODY`, appended after view 5 in
+  the existing `else if` chain, computed from inputs the shader already has:
+  6 `uv` = `vec3(textureCoords, 0.0)`; 7 `layer` = `vec3(textureLayer / 5.0)`
+  (six faces, layers 0 to 5); 8 `tangent`, 9 `bitangent`, 10 `face_normal` =
+  the normalised world-space vector `* 0.5 + 0.5`. Extend `CUBE_VIEWS` to
+  match. Update the debug-view line in `docs/diagrams/textures.puml`.
 
-### Images: `tools/make_guide_images.py`
-- Uses `tools/offscreen.py` and Qt to write PNGs to `docs/images/guide/`:
-  - primitives: one octave of value noise, the five-octave sum, a smoothstep
-    ramp, a `mix` of two colours by a mask;
-  - for each material, every recorded step, then its normal map
-    (`height_to_normals`), taken from `iter_materials` at 512 px and scaled to
-    160 px; fields drawn as greyscale, normals as RGB;
-  - the cube at the default view through each `CUBE_VIEWS` entry, 240 px.
-- Copies arrays before normalising for display. Expect roughly 50 images and
-  about 1 MB; regenerate only when a material or the shader changes.
+### Images (`tools/make_guide_images.py`)
 
-### Documentation chapter
-- A "How it works" toctree in `docs/` with pages:
-  `guide/index` (purpose, the pipeline end to end, a new PlantUML activity
-  diagram `docs/diagrams/textures.puml`), `guide/primitives` (`uv_grid`,
-  `smoothstep`, `mix`, `value_noise`, `fractal_noise`, the six patterns),
-  `guide/materials` (one section per material: idea, steps with maths, quoted
-  code, image row), `guide/gpu` (randomness and draw order, height to
-  normals, packing, the texture array, mipmaps and filters), `guide/shaders`
-  (both cube shaders line by line with the stage images, both overlay
-  shaders, one pixel traced from texture coordinate to colour).
-- Code is quoted with `literalinclude` from `src/` (`:pyobject:` for
-  functions; `:start-after:`/`:end-before:` the `#:` comments for shader
-  strings), so a rename fails the build instead of showing stale code.
-- Maths with MyST `dollarmath` (`myst_enable_extensions` in `docs/conf.py`);
-  rendered by MathJax, which loads from a CDN when the page is viewed.
+- The new views are written automatically by the existing view loop as
+  `view-uv.png` … `view-face-normal.png` (5 images).
+- New group: the frame built up at the default view and light, 240 px from
+  a 480 px render: `frame-1-cube.png`, `frame-2-grid.png`,
+  `frame-3-axes.png`, `frame-4-light-dot.png`. Drawn through
+  `OffscreenScene.render(paint=...)` with the real `CubeRenderer.paint` and
+  `OverlayRenderer.paint`, disabling later overlay steps by overriding
+  `paint_axes` / `paint_light_dot` on the instance (no change to `src/`), so
+  the setup in `OverlayRenderer.paint` is not duplicated. The last image is
+  the default view, as in the screenshot.
+- 60 → 69 images.
 
-## Tasks (one commit each, on `ft/esbailey/textures-guide` from `develop`)
+### Chapter pages (`docs/guide/`)
 
-0. `docs(plan): add the textures and shaders guide plan` — this file as
-   `.claude/PLAN.md`.
-1. `refactor(textures): add shared pattern functions` — the six patterns with
-   unit tests (each branch, dtype of `voronoi`'s gap, float `checker`); no
-   callers yet. Model: sonnet.
-2. `refactor(textures): build the materials from the shared patterns` —
-   tiles, weave, rivets, bricks, then wood (`seam` only), then cobbles;
-   controller checks the hash after the commit. Model: sonnet; escalate to
-   opus if the hash moves.
-3. `refactor(textures): record each material's steps` — `Material`,
-   `iter_materials`, slimmer `generate_texture_layers`; tests for step names,
-   shapes, ranges, and that `iter_materials` matches
-   `generate_texture_layers`. Hash checked again. Model: sonnet.
-4. `refactor(shaders): add a debug view to the cube fragment shader` —
-   shader, `CUBE_VIEWS`, config, context, cube, the three diagrams, tests
-   (`view_loc` found; every view renders and differs from view 0; each index
-   appears as `view == i`). Controller reruns the three image tools and
-   compares bytes. Model: sonnet.
-5. `build(tools): render the guide's step and shader images` — the tool and
-   its images, checked by contact sheet. Model: sonnet.
-6. `docs(guide): explain how the textures and shaders work` — conf.py,
-   diagram, five pages, toctree. Model: opus (the writing is the product).
-7. `docs(project): restate the repository as a teaching example` — README
-   intro and a pointer to the chapter, `src/README.md` (material recipe,
-   `Material` contract, patterns), `CLAUDE.md` (purpose, the steps and view
-   rules, regeneration rule for guide images), `ARCHITECTURE.md` (new
-   Teaching guide section; Module layout and Documentation updates; Frozen
-   changes covered by the decision), `DECISIONS.md` (purpose; refactor for
-   teaching; debug view in the real shader; images from replayed materials),
+Toctree, in reading order, with captions for three parts:
+
+1. **The window and the scene**
+   - `window.md` — `main()`: `request_surface_format` and why the default
+     format must be set before `QApplication`; the application object, the
+     icon, `CubeWidget` as a `QOpenGLWidget`, `show()`, `app.exec()` and
+     what the event loop does. The widget's life cycle: when Qt calls
+     `initializeGL`, `resizeGL` and `paintGL`, with the context current, and
+     that the widget renders into a framebuffer Qt composites. Mouse events
+     to `SceneContext` calls to `update()`, which schedules (and merges)
+     repaints. The self-test: `QTimer.singleShot` and
+     `QApplication.sendEvent`. Embeds `startup.puml` and `mouse.puml`.
+   - `context.md` — the OpenGL context and shader programs: what
+     `QSurfaceFormat` asks for (version, profile or ES, depth buffer, 4×
+     samples) and why each; the printed renderer strings; `glsl_header`;
+     `compile_shader` and `build_program`, with their error paths; uniform
+     and attribute locations; `set_matrix` (row-major copy, transposed
+     upload) and `set_vector`.
+   - `spaces.md` — coordinate spaces and the camera, in Erik's notation:
+     model, world, camera, clip, normalised device and window coordinates;
+     $T_{\text{world}\leftarrow\text{model}}$ etc. written `T_world_model`,
+     with `mvp = T_clip_camera · T_camera_world · T_world_model` mapped to
+     `projection_matrix() * view_matrix() * model_matrix()`. The perspective
+     matrix from `FOV_DEGREES`, aspect, near and far. `screen_rotation`
+     (drag to axis and angle), why it pre-multiplies (rotation about world
+     axes, which are screen axes because the camera does not rotate),
+     renormalising, zoom clamping, pan scaling, `camera_position` as the
+     inverse of the view translation, the light as a world-space direction.
+     **Convention box:** Qt's `QQuaternion` is Hamilton, scalar-first and
+     rotates vectors actively; the stored `rotation` takes model coordinates
+     to world, i.e. `R_world_model`. State the equivalent in Erik's JPL,
+     scalar-last, passive convention (expected: the conjugate, components
+     reordered) only after the controller has checked it numerically.
+   - `geometry.md` — the cube: the face table, each face's tangent frame,
+     corners, $(u, v)$ and the two triangles; the vertex layout (moved here
+     from `gpu.md`, which keeps a two-line pointer); the new views
+     `uv`, `layer`, `tangent`, `bitangent`, `face_normal` with images. The
+     sphere grid: `sphere_points`, meridians and parallels, `CURVE_STEP_DEGREES`,
+     `curve_to_segments` for `GL_LINES`, `with_color`; the axes; the light
+     dot as one point.
+   - `buffers.md` — from arrays to vertex buffers: VAO, VBO,
+     `glBufferData`, `glVertexAttribPointer` with stride and offsets, the
+     cube's six attributes against the overlay's two, and the overlay's one
+     buffer split into grid, axes and dot ranges by `glDrawArrays` first and
+     count.
+2. **Textures and shaders** — the existing `primitives`, `materials`,
+   `gpu`, `shaders` pages, with links into the new pages where they now
+   assume them (vertex layout, uniforms, spaces).
+3. **A frame**
+   - `frame.md` — one `paintGL`: depth test and clear, the cube draw, the
+     overlay's blend function (why alpha is kept), the grid without depth
+     writes, the clamped axis width, the light dot's two passes; draw order
+     and what breaks if it changes. Embeds `frame.puml` and the four
+     build-up images. Ends by linking to "One pixel, start to finish".
+- `index.md` is rewritten to cover the whole path (window → context → spaces
+  → geometry → buffers → textures → shaders → frame), with the stage table
+  extended; `textures.puml` stays as the textures part's diagram.
+- Code is quoted with `literalinclude` (`:pyobject:` for functions and
+  methods), maths with `dollarmath`, as before.
+
+## Tasks (one commit each, on `ft/esbailey/scene-guide` from `develop`)
+
+0. `docs(plan): add the scene guide plan` — this file as `.claude/PLAN.md`.
+1. `refactor(geometry): name the cube's faces` — the face table and
+   comments; tests unchanged or extended; controller checks the vertex
+   fingerprint. Model: sonnet.
+2. `refactor(main): factor the surface-format request into one function` —
+   `main.request_surface_format`, callers in `offscreen.py` and
+   `conftest.py`, `test_main.py` coverage, `startup.puml`, `calls.puml`,
+   README and ARCHITECTURE wording that names where the request lives.
+   Model: sonnet.
+3. `refactor(shaders): add geometry debug views to the cube shader` — five
+   views, `CUBE_VIEWS`, `textures.puml`; tests: a parametrised test with the
+   identity rotation so +Z faces the camera, checking the centre pixel of
+   each new view against its expected colour (uv ≈ (0.5, 0.5, 0), layer
+   0.8 grey, tangent ≈ (1, 0.5, 0.5), bitangent ≈ (0.5, 1, 0.5), face normal
+   ≈ (0.5, 0.5, 1)). Controller reruns the three image tools for byte
+   identity. Model: sonnet.
+4. `build(tools): render the frame build-up and geometry view images` —
+   tool and 9 new images, checked by contact sheet. Model: sonnet.
+5. `docs(guide): explain the window, the context and the shader programs` —
+   `window.md`, `context.md`, toctree with part captions. Model: opus.
+6. `docs(guide): explain the coordinate spaces, the geometry and the vertex
+   buffers` — `spaces.md`, `geometry.md`, `buffers.md`, the `gpu.md`
+   pointer. Controller checks the quaternion statement numerically before
+   review. Model: opus.
+7. `docs(guide): explain one frame and tie the guide together` — `frame.md`,
+   the rewritten `index.md`, cross-links from the existing four pages.
+   Model: opus.
+8. `docs(project): describe the extended guide` — README (chapter
+   description, image count), `src/README.md`, `CLAUDE.md` (view-0 rule now
+   covers 11 views; guide image list), `ARCHITECTURE.md` (Teaching guide
+   pages and images; OpenGL context selection names
+   `request_surface_format`), `DECISIONS.md` (extend the guide; light-touch
+   code; geometry views; the build-up drawn through the real renderers),
    `JOURNAL.md`. Model: sonnet.
 
 Each task gets a task review; a final whole-branch review on opus; one fix
@@ -162,23 +191,26 @@ wave if needed.
 ```
 python3 -c "import sys,hashlib; sys.path.insert(0,'src'); import textures; \
 a,n,l=textures.generate_texture_layers(); print(hashlib.sha256(a+n).hexdigest()[:16])"
-# must print 70bf2f00d9547795
-pytest                                   # 100% line and branch
+# 70bf2f00d9547795
+python3 -c "import sys,hashlib,numpy as np; sys.path.insert(0,'src'); import geometry as g; \
+print(hashlib.sha256(np.array(g.cube_vertices(),np.float64).tobytes()+g.grid_vertices().tobytes()+g.axis_vertices().tobytes()).hexdigest()[:16])"
+# 44f48b500c33c716
+pytest -W error                          # 100% line and branch
 ruff check src tools docs/conf.py tests
 python3 src/main.py --check              # 6 PASS
 python3 tools/make_face_images.py docs/images        # no git diff
 python3 tools/make_icon.py icon.png docs/images/screenshot.png   # no git diff
 python3 tools/make_control_animations.py docs/images # no git diff
-make -C docs html                        # clean, every guide image present
+python3 tools/make_guide_images.py docs/images/guide # only the 9 new files
+make -C docs html                        # clean, every image present
 ```
 
-Look at the guide images and the built chapter by eye before stopping.
+Look at the new images and the built pages by eye before stopping.
 
 ## Stop condition
 
 All tasks committed and reviewed, every verification line passing. Do not
-merge, push or delete. Report to Erik: the commit list, the hash and
-byte-identity results, image count and size, the chapter's page list, rulings
-made, and these open questions: whether to run the suite and `--check` on the
-Pi (the view-0 identity under GLES and GL 3.1 is unverified there), and
-whether the guide images should also appear in the README.
+merge, push or delete. Report to Erik: commits, the two hashes and the
+byte-identity results, image count, the page list, every ruling made, and
+the open question of re-running `pytest` and `--check` on the Pi for the
+new views under OpenGL ES.
