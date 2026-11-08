@@ -60,9 +60,9 @@ class CubeWidget(QOpenGLWidget):
         Parameters
         ----------
         width : int
-            Viewport width, in device pixels.
+            Widget width, in device-independent pixels.
         height : int
-            Viewport height, in device pixels.
+            Widget height, in device-independent pixels.
         """
         self.ctx.aspect_ratio = width / max(height, 1)
         self.ctx.pixel_ratio = self.devicePixelRatioF()

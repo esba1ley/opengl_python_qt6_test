@@ -3,7 +3,7 @@ import numpy as np
 import pytest
 from OpenGL import GL
 from PyQt6.QtCore import QPointF
-from PyQt6.QtGui import QVector3D
+from PyQt6.QtGui import QQuaternion, QVector3D
 
 import config
 import shaders
@@ -122,3 +122,54 @@ def test_specular_view_is_grey_where_the_highlight_falls(
     assert np.any(block > 0)
     assert np.all(block[..., 0] == block[..., 1])
     assert np.all(block[..., 1] == block[..., 2])
+
+
+#: Expected (red, green, blue) in 0 to 1 of the +Z face seen head-on, per
+#: geometry view.
+GEOMETRY_VIEWS = [
+    ("layer", (5 / 6, 5 / 6, 5 / 6)),
+    ("tangent", (1.0, 0.5, 0.5)),
+    ("bitangent", (0.5, 1.0, 0.5)),
+    ("face_normal", (0.5, 0.5, 1.0)),
+]
+
+
+@pytest.mark.parametrize(("name", "expected"), GEOMETRY_VIEWS)
+def test_geometry_view_shows_its_input_on_the_front_face(
+    renderer, scene, fbo, image_to_array, name, expected
+):
+    """Each geometry view colours the +Z face with its one vertex input.
+
+    **WHY:** Each view is computed from a single input (layer, tangent,
+    bitangent or normal), so a wrong input or a swapped axis would picture
+    the wrong data in the manual. With the identity rotation the +Z face
+    (layer 4) faces the camera, with tangent +X, bitangent +Y and normal +Z.
+    The layer view draws ``(layer + 1) / 6``, so layer 4 is 5/6 (212.5/255);
+    the 8-bit framebuffer rounds that to 212 or 213, within the 2/255 bound.
+    """
+    scene.rotation = QQuaternion()
+    scene.cube_view = shaders.CUBE_VIEWS.index(name)
+    renderer.paint(scene)
+    block = centre(image_to_array(fbo.toImage()))
+    rgb = block[..., 2::-1].astype(float) / 255.0
+    for channel in range(3):
+        assert np.all(np.abs(rgb[..., channel] - expected[channel]) <= 2 / 255)
+
+
+def test_uv_view_ramps_across_the_front_face(renderer, scene, fbo, image_to_array):
+    """The uv view has blue 0 and a block mean near (0.5, 0.5).
+
+    **WHY:** The view draws ``vec3(textureCoords, 0.0)``, so blue must be
+    zero and red and green must be the texture coordinates. The pan is zero
+    and the head-on face is symmetric, so the central block's mean is 0.5 to
+    within the 2/255 rounding of the 8-bit framebuffer, and red must increase
+    from left to right (u runs along +X).
+    """
+    scene.rotation = QQuaternion()
+    scene.cube_view = shaders.CUBE_VIEWS.index("uv")
+    renderer.paint(scene)
+    block = centre(image_to_array(fbo.toImage()))
+    rgb = block[..., 2::-1].astype(float) / 255.0
+    assert np.all(rgb[..., 2] == 0.0)
+    assert np.all(np.abs(rgb[..., :2].mean(axis=(0, 1)) - 0.5) <= 2 / 255)
+    assert rgb[:, -1, 0].mean() > rgb[:, 0, 0].mean()

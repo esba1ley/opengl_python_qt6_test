@@ -16,16 +16,19 @@ functions, and `iter_materials`, which replays the materials in order on one
 random generator. `generate_texture_layers` consumes it and keeps only colour
 and height. `shaders.CUBE_FRAGMENT_BODY` has a `view` uniform (`CUBE_VIEWS`)
 that `SceneContext.cube_view` sets through `CubeRenderer`; view 0 is the
-normal lit image.
+normal lit image, and `CUBE_VIEWS` has 11 names, the last five (uv, layer,
+tangent, bitangent, face_normal) showing the geometry. `geometry.CUBE_FACES`
+names the cube's six faces.
 
 ## OpenGL context selection
 **Status:** Frozen
 
-`main.py` sets the default `QSurfaceFormat` before creating the application
-and asks for the newest OpenGL each platform offers: a 4.1 core profile on
-macOS, OpenGL ES 3.1 elsewhere. `widget.py` builds its own format from
-`QSurfaceFormat.defaultFormat()` and only adds depth and multisampling, so
-the request survives. Nothing else in the program tests the platform.
+`main.request_surface_format` sets the default `QSurfaceFormat`, and `main()`
+calls it before creating the application. It asks for the newest OpenGL each
+platform offers: a 4.1 core profile on macOS, OpenGL ES 3.1 elsewhere.
+`widget.py` builds its own format from `QSurfaceFormat.defaultFormat()` and
+only adds depth and multisampling, so the request survives. Nothing else in
+the program tests the platform.
 
 ## Shader language targets
 **Status:** Frozen
@@ -57,8 +60,8 @@ module, plus `test_conftest.py` for the fixtures. `pytest.ini` is the only
 configuration: it sets `testpaths`, `qt_api = pyqt6`, and the coverage
 options, including `--cov-fail-under=100`, so a plain `pytest` fails when line
 or branch coverage of `src` falls below 100%. Nothing is excluded from
-coverage. `tests/conftest.py` puts `src` on `sys.path` and sets the default
-`QSurfaceFormat` as `main.py` does in `pytest_configure`, and provides the
+coverage. `tests/conftest.py` puts `src` on `sys.path` and calls
+`main.request_surface_format` in `pytest_configure`, and provides the
 fixtures `gl_context` (a shared offscreen `QOpenGLContext` made current per
 test), `fbo` (a bound 256 by 256 `QOpenGLFramebufferObject` with depth),
 `scene` (a fresh `SceneContext`), `image_to_array` and the autouse
@@ -83,9 +86,9 @@ the Pi's desktop GL 3.1.
 
 `docs/` holds a Sphinx project for an HTML build. `.github/workflows/docs.yml`
 builds it on GitHub Actions for every push to `develop`, `main`, `ft/**` and
-`rc/**` and
-publishes it to GitHub Pages (https://esba1ley.github.io/opengl_python_qt6_test/) from `main`
-only. The runner takes the Python packages from `environment.yml` and
+`rc/**` and publishes it to GitHub Pages
+(https://esba1ley.github.io/opengl_python_qt6_test/) from `main` only. The
+runner takes the Python packages from `environment.yml` and
 `environment-docs.yml` through miniforge and PlantUML, Java and Graphviz from
 apt. The Miniforge installer is pinned (`MINIFORGE_VERSION` in the
 workflow) and kept in the Actions cache, downloaded with retries only on a
@@ -132,17 +135,29 @@ a `--system-site-packages` venv because Debian's are missing or too old.
 **Status:** Frozen
 
 The repository doubles as a teaching example. `docs/guide/` holds the "How it
-works" chapter in five pages (`index`, `primitives`, `materials`, `gpu`,
-`shaders`), reached from `docs/index.md`. It quotes `src/` with
-`literalinclude`, so a rename fails the build, and sets its maths with MyST
-`dollarmath` (enabled in `docs/conf.py`; MathJax loads from a CDN when a page
-is viewed). `docs/diagrams/textures.puml` is its PlantUML activity diagram.
-Its 60 images are in `docs/images/guide/`, written by
-`tools/make_guide_images.py` in four groups: the primitives
+works" chapter in ten pages and an `index`, in three captioned parts,
+reached from `docs/index.md`: the window and the scene (`window`, `context`,
+`spaces`, `geometry`, `buffers`), textures and shaders (`primitives`,
+`materials`, `gpu`, `shaders`) and a frame (`frame`). `index` ties them together. It
+quotes `src/` with `literalinclude`, so a rename fails the build, and sets
+its maths with MyST `dollarmath` (enabled in `docs/conf.py`; MathJax loads
+from a CDN when a page is viewed). It embeds the PlantUML diagrams
+`textures.puml` (the texture pipeline), `startup.puml` and `mouse.puml` (in
+`window`) and `frame.puml` (in `frame`), all in `docs/diagrams/`.
+Its 69 images are in `docs/images/guide/`, written by
+`tools/make_guide_images.py` in five groups: the primitives
 (`primitive_images`), the shared patterns (`pattern_images`), every recorded
-step and normal map of each material from `textures.iter_materials`, and the
-cube drawn through each `CUBE_VIEWS` entry; they are committed and
-regenerated only when a material, a pattern or the cube shader changes.
+step and normal map of each material from `textures.iter_materials`, the
+cube drawn through each `CUBE_VIEWS` entry (shading and geometry views), and
+the frame build-up, the widget's real `paintGL` with the overlay's steps
+switched on one at a time. They are committed and regenerated only when a
+material, a pattern, the geometry, the cube shader or the default frame
+changes.
+Each page ends with a "Further reading" list of external links for its
+topic. `docs/references.md`, a top-level page after the chapter, gathers
+them with the authors' tutorials for Python, the packages, Qt 6, OpenGL,
+OpenGL ES and GLSL. The links are plain URLs, not intersphinx, so the
+build needs no network.
 
 ## Application icon
 **Status:** Frozen
@@ -159,9 +174,9 @@ masks it to a soft-edged disc and scales it to 512 pixels. There is no
 
 Every image in `docs/images/` is rendered by a tool in `tools/`; the chapter's
 images in `docs/images/guide/` are described under Teaching guide. The tools
-share `tools/offscreen.py`, which requests the program's surface format,
-makes an offscreen context current, binds a framebuffer and initialises a
-hidden `CubeWidget`'s renderers on it.
+share `tools/offscreen.py`, which requests the program's surface format with
+`main.request_surface_format`, makes an offscreen context current, binds a
+framebuffer and initialises a hidden `CubeWidget`'s renderers on it.
 
 `docs/images/screenshot.png`, the default view at 640 pixels, is shown at
 the top of the README; `tools/make_icon.py` writes it from the same render

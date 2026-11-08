@@ -1,10 +1,11 @@
 # Project Context
 
 A PyQt6 and OpenGL test program that draws a textured cube inside a sphere grid,
-and a teaching example of procedural textures and shaders: the code is meant to
-be read, and the "How it works" chapter (`docs/guide/`) explains it. See
-`README.md` for what it does and `src/README.md` for how the modules fit
-together. Update both when behaviour or module structure changes.
+and a teaching example of the whole program, from the window and the OpenGL
+context through the geometry to procedural textures and shaders: the code is
+meant to be read, and the "How it works" chapter (`docs/guide/`) explains
+it. See `README.md` for what it does and `src/README.md` for how the modules
+fit together. Update both when behaviour or module structure changes.
 
 ## Commands
 
@@ -22,7 +23,8 @@ make -C docs html             # build the HTML manual into docs/_build/html
 ```
 
 `.github/workflows/docs.yml` runs the same docs build on every push to
-`develop`, `main`, `ft/**` and `rc/**` and publishes the manual to GitHub Pages from `main`.
+`develop`, `main`, `ft/**` and `rc/**` and publishes the manual to GitHub Pages
+from `main`.
 A docs change that builds locally can still fail there, since the runner
 uses Ubuntu's PlantUML and Graphviz; check the run after pushing.
 
@@ -98,13 +100,23 @@ output are harmless.
   `steps` as it is built. Never record the distance volume, and never change
   a recorded array in place. A recorded step must not move a random draw: the
   texture bytes must stay the same unless a material is meant to change.
-- The cube shader's `view` uniform must keep view 0 identical to the lit
-  image. After a shader change, regenerate `tools/make_face_images.py`,
+- The cube shader's `view` uniform must keep view 0
+  identical to the lit image, and every view in `shaders.CUBE_VIEWS` must
+  render. After a shader change, regenerate `tools/make_face_images.py`,
   `tools/make_icon.py` and `tools/make_control_animations.py` output and
   check that git shows no change.
-- After changing a material, a pattern or the cube shader, rerun
+- After changing a material, a pattern, the geometry, the cube shader, the
+  overlay's drawing or anything visible in the default frame (the build-up
+  images show it), rerun
   `python3 tools/make_guide_images.py docs/images/guide` and look at the
   images; commit them with the change.
+- Each guide page ends with "Further reading", and `docs/references.md`
+  lists the documentation for every dependency, Qt class and OpenGL
+  version. A new dependency, Qt class or GL topic gets its link there,
+  checked with `python3 -m sphinx -b linkcheck docs docs/_build/linkcheck`
+  (Khronos's wiki and SourceForge refuse the checker; open those by hand).
+  In the READMEs and the manual's pages, link the first prose mention of
+  a package on each page to the same URL the references page uses.
 - The chapter quotes code with `literalinclude` (`:pyobject:` for functions,
   `:start-after:` the constant's assignment line, such as
   `CUBE_VERTEX_BODY = """`, with `:end-before:` the closing quotes, for
@@ -148,7 +160,8 @@ output are harmless.
 ## Rendering rules
 
 - Draw order matters: cube, sphere grid, axes, then light dot.
-- The sphere grid must not write depth, or it cuts gaps in the axes and dot.
+- The sphere grid must not write depth, or its near lines hide its own far-side
+  lines and it cuts gaps in the axes and dot.
 - The cube, sphere and axes share `ctx.model_matrix()`, which keeps them anchored.
 - The light is fixed in the scene, so the light dot ignores the model matrix.
 - The sphere's longitude runs from +X towards +Y, with its poles on the Z axis.

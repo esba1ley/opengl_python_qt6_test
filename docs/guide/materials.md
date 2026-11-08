@@ -428,3 +428,11 @@ $v$, so this material needs only a one-dimensional lattice, written inline.
   -
   -
 ```
+
+## Further reading
+
+- *The Book of Shaders*, [noise](https://thebookofshaders.com/11/) and [cellular noise](https://thebookofshaders.com/12/), for more ways to build surfaces from the same primitives.
+- Inigo Quilez's [articles](https://iquilezles.org/articles/) on procedural patterns.
+
+The {ref}`references page <references>` lists the rest, with the
+authors' tutorials for each part of the program.

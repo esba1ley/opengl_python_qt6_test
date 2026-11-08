@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Render every image the "How it works" manual chapter needs.
 
-Four groups of PNG files are written:
+Five groups of PNG files are written:
 
 * the texture primitives (one octave of noise, fractal noise, a smoothstep
   ramp and a mix), at 160 pixels;
@@ -11,7 +11,12 @@ Four groups of PNG files are written:
   160 pixels, taken from :func:`textures.iter_materials` so they show the
   real layers;
 * the cube alone, drawn once per entry of ``shaders.CUBE_VIEWS`` under a light
-  that puts the specular highlight on the front face, at 240 pixels.
+  that puts the specular highlight on the front face, at 240 pixels. The
+  entries include the geometry views (uv, layer, tangent, bitangent and face
+  normal);
+* the frame build-up: the widget's real ``paintGL`` with the overlay's steps
+  switched on one at a time (cube, grid, axes, light dot), under the default
+  light and view, at 240 pixels.
 
 Everything is generated at a larger size and smooth-scaled down. Regenerate
 the images only when a material or the cube shader changes.
@@ -24,6 +29,7 @@ Regenerate the images in ``docs/images/guide``::
 """
 import argparse
 import sys
+from contextlib import contextmanager
 from pathlib import Path
 
 import numpy as np
@@ -184,9 +190,59 @@ def slug(name):
     Returns
     -------
     str
-        Lower case with spaces turned into hyphens.
+        Lower case with spaces and underscores turned into hyphens.
     """
-    return name.lower().replace(" ", "-")
+    return name.lower().replace(" ", "-").replace("_", "-")
+
+
+def scaled(image):
+    """Smooth-scale a full-size render to the cube image size.
+
+    Parameters
+    ----------
+    image : PyQt6.QtGui.QImage
+        A render at ``VIEW_RENDER``.
+
+    Returns
+    -------
+    PyQt6.QtGui.QImage
+        The image at ``VIEW_OUTPUT`` by ``VIEW_OUTPUT``.
+    """
+    return image.scaled(
+        VIEW_OUTPUT,
+        VIEW_OUTPUT,
+        Qt.AspectRatioMode.IgnoreAspectRatio,
+        Qt.TransformationMode.SmoothTransformation,
+    )
+
+
+@contextmanager
+def disabled(overlay, *methods):
+    """Switch off overlay paint methods for the length of a ``with`` block.
+
+    Each method is replaced on the instance by a function that does nothing;
+    on exit the instance attributes are deleted, which uncovers the class
+    methods again.
+
+    Parameters
+    ----------
+    overlay : overlay.OverlayRenderer
+        The renderer to change.
+    *methods : str
+        Names of the methods to disable, such as ``"paint_axes"``.
+
+    Yields
+    ------
+    None
+    """
+    for name in methods:
+        assert hasattr(type(overlay), name), name
+        setattr(overlay, name, lambda ctx: None)
+    try:
+        yield
+    finally:
+        for name in methods:
+            delattr(overlay, name)
 
 
 def write(image, path):
@@ -249,15 +305,20 @@ def main():
     ctx.light = specular_light(ctx)
     for index, name in enumerate(shaders.CUBE_VIEWS):
         ctx.cube_view = index
-        image = scene.render(paint_cube).scaled(
-            VIEW_OUTPUT,
-            VIEW_OUTPUT,
-            Qt.AspectRatioMode.IgnoreAspectRatio,
-            Qt.TransformationMode.SmoothTransformation,
-        )
-        save(image, f"view-{name}.png")
+        save(scaled(scene.render(paint_cube)), f"view-{slug(name)}.png")
     ctx.cube_view = config.DEFAULT_CUBE_VIEW
     ctx.light = default_light
+
+    overlay = scene.widget.overlay
+    frames = (
+        ("frame-1-cube.png", ("paint",)),
+        ("frame-2-grid.png", ("paint_axes", "paint_light_dot")),
+        ("frame-3-axes.png", ("paint_light_dot",)),
+        ("frame-4-light-dot.png", ()),
+    )
+    for name, off in frames:
+        with disabled(overlay, *off):
+            save(scaled(scene.render()), name)
     scene.close()
 
     print(f"{count} images, {total / 1024:.0f} KiB")
