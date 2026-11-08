@@ -71,7 +71,8 @@ Verified on macOS only (GL 4.1 core, Python 3.12). Not yet run on the Pi
 **Status:** Frozen
 
 `docs/` holds a Sphinx project for an HTML build. `.github/workflows/docs.yml`
-builds it on GitHub Actions for every push to `develop` and `main` and
+builds it on GitHub Actions for every push to `develop`, `main`, `ft/**` and
+`rc/**` and
 publishes it to GitHub Pages (https://esba1ley.github.io/opengl_python_qt6_test/) from `main`
 only. The runner takes the Python packages from `environment.yml` and
 `environment-docs.yml` through miniforge and PlantUML, Java and Graphviz from

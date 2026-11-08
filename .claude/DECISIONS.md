@@ -9,13 +9,14 @@ only, with hosting rejected on 2026-11-01 for lack of an audience. The
 build imports every `src/` module and renders PlantUML, so whatever builds
 it needs PyQt6, PyOpenGL, NumPy, PlantUML, Java and Graphviz.
 **Decision:** A GitHub Actions workflow, `.github/workflows/docs.yml`,
-builds with `make -C docs html` on pushes to `develop` and `main` and
+builds with `make -C docs html` on pushes to `develop`, `main`, `ft/**` and
+`rc/**` and
 deploys with `actions/deploy-pages` from `main` only. Python packages come
 from the two conda files through `setup-miniconda` with miniforge; PlantUML
 and Graphviz from Ubuntu's apt, which the Pi showed renders the diagrams.
 **Consequences:** The site at https://esba1ley.github.io/opengl_python_qt6_test/
-always matches the latest release, and a broken build on `develop` is seen
-before a release. Pages must be set to deploy from GitHub Actions in the
+always matches the latest release, and a broken build is seen on the branch
+that broke it, before a release. Pages must be set to deploy from GitHub Actions in the
 repository settings. Rejected: a hand-maintained `gh-pages` branch
 (generated HTML in git and a manual step per release); Read the Docs (a
 second service, with PlantUML and Graphviz to install through its own

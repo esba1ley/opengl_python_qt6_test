@@ -20,7 +20,7 @@ make -C docs html             # build the HTML manual into docs/_build/html
 ```
 
 `.github/workflows/docs.yml` runs the same docs build on every push to
-`develop` and `main` and publishes the manual to GitHub Pages from `main`.
+`develop`, `main`, `ft/**` and `rc/**` and publishes the manual to GitHub Pages from `main`.
 A docs change that builds locally can still fail there, since the runner
 uses Ubuntu's PlantUML and Graphviz; check the run after pushing.
 

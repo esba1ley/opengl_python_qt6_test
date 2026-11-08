@@ -1,5 +1,5 @@
-# Build the Sphinx manual on every push to develop and main, and publish it to
-# GitHub Pages from main only, so the site always matches the latest release.
+# Build the Sphinx manual on every push to develop, main and the GitFlow
+# feature and release branches, and publish it to GitHub Pages from main only, so the site always matches the latest release.
 # The Python packages come from the same conda files as a local build;
 # PlantUML, Java and Graphviz come from apt, as the README describes for
 # Debian. Graphviz stays out of conda on purpose; see environment-docs.yml.
@@ -7,7 +7,7 @@ name: docs
 
 on:
   push:
-    branches: [develop, main]
+    branches: [develop, main, "ft/**", "rc/**"]
   workflow_dispatch:
 
 permissions:

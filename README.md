@@ -228,7 +228,7 @@ open docs/_build/html/index.html
 ```
 
 `.github/workflows/docs.yml` builds the same manual on GitHub for every push
-to `develop` and `main`, with warnings as errors, and publishes it from `main`
+to `develop`, `main` and the `ft/` and `rc/` branches, with warnings as errors, and publishes it from `main`
 only, so the site changes with each release.
 
 ## Code layout
