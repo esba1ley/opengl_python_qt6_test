@@ -96,7 +96,9 @@ runtime and Graphviz, with `conf.py` preferring the MacPorts `dot`.
 **Status:** Frozen
 
 `environment.yml` is the minimum conda-forge environment to run and develop
-the program (Python 3.12, pyqt6, pyopengl, numpy, ruff, bump2version);
+the program (Python 3.12, pyqt6, pyopengl, numpy; for development ruff,
+bump2version, pytest, pytest-cov, pytest-qt and Pillow, the last only for
+`tools/make_control_animations.py`);
 `environment-docs.yml` layers the Sphinx packages onto it with
 `conda env update`, and `docs/requirements.txt` mirrors that second file for
 pip. Version floors only, no exact builds, so the same files resolve on
@@ -124,6 +126,14 @@ bundle, so the icon only appears while the program runs.
 `docs/images/face-<material>.png` images, 128 pixels square, sit in its
 material table. The face images are rendered by `tools/make_face_images.py`
 with the program's own `CubeRenderer` in an offscreen context, each face
-turned to the camera under `config.DEFAULT_LIGHT`, without the overlay. The
+turned to the camera under `config.DEFAULT_LIGHT`, without the overlay.
+
+Five `docs/images/control-<gesture>.webp` animations, 240 pixels square and
+looping, sit in the mouse controls table. `tools/make_control_animations.py`
+sends synthetic events through `QApplication.sendEvent` to a hidden
+`CubeWidget`, draws each frame with the widget's own `paintGL` into an
+offscreen framebuffer at twice the size, scales it down, paints a cursor and
+a gesture label with `QPainter`, and writes lossy WebP at quality 70 with
+Pillow. Each sequence returns to its first view. The
 include in `docs/index.md` uses `:relative-images:` so the same paths work on
 GitHub and in the manual.

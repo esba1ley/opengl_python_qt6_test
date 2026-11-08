@@ -2,6 +2,27 @@
 
 Newest first.
 
+## 2026-11-07 — Animate the mouse controls as WebP rendered through the real input path
+**Status:** Accepted
+**Context:** Erik asked for an animation of each mouse control in the
+README. Frames had to come from the app, play on GitHub and in the Sphinx
+manual, and not swell the repository, since git keeps every regenerated
+version.
+**Decision:** `tools/make_control_animations.py` drives a hidden
+`CubeWidget` with synthetic events and records its own `paintGL` offscreen,
+2x supersampled, with a painted cursor and label. Output is lossy animated
+WebP at 240 pixels and quality 70, written with Pillow, which becomes a
+development dependency (`pillow>=9.4`, Debian `python3-pil`) for this tool
+only. Erik chose WebP after a comparison of formats.
+**Consequences:** About 1.1 MB for all five, against roughly 5 MB as
+animated PNG; quality 60 looked the same but 70 was kept as margin. Sphinx
+9.1 copies `.webp` images although its HTML builder does not list the type.
+Rejected: animated PNG (no dependency, but lossless and about five times
+larger); GIF (256 colours band the textures); MP4 (GitHub will not play a
+video from a repository path); calling `SceneContext` methods directly
+(would not show that the mouse mapping works); screen recordings (not
+reproducible).
+
 ## 2026-11-07 — Publish the manual to GitHub Pages from main
 **Status:** Accepted
 **Context:** Erik asked to publish the manual. It had been a local build
