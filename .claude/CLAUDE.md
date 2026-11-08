@@ -78,9 +78,11 @@ output are harmless.
   `:relative-images:`, so image paths stay relative to the README.
 - Module-level constants get a `#:` doc-comment so autodoc lists them.
 - `docs/diagrams/*.puml` are hand-maintained PlantUML diagrams of the class
-  structure, startup, a frame, mouse handling and the call graph. When a
-  call is added or removed, a method is renamed, or the draw order changes,
-  update the matching diagram in the same change. Rendering them needs
+  structure, startup, a frame, mouse handling and the call graph, plus
+  `textures.puml`, the texture pipeline. When a call is added or removed, a
+  method is renamed, or the draw order changes, update the matching diagram in
+  the same change. A change to the texture pipeline or to the cube shader's
+  stages updates `textures.puml`. Rendering them needs
   `plantuml`, Java and Graphviz from MacPorts; `docs/conf.py` points
   PlantUML at `/opt/local/bin/dot` because the conda Graphviz 13 produces
   SVG that PlantUML rejects.

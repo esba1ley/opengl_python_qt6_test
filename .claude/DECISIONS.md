@@ -10,12 +10,12 @@ questions came up: how to show fields whose values are tiny, which light to
 use for the shading views, and whether to show the whole scene.
 **Decision:** `tools/make_guide_images.py` takes every material image from
 `textures.iter_materials` at 512 pixels, scaled to 160, so it shows exactly
-the layers the program uses. (R8) A field that spans 0 to 1 is drawn as it
+the layers the program uses. A field that spans 0 to 1 is drawn as it
 is; a field whose maximum is below 0.5, or that leaves 0 to 1, is stretched
-to full range. (R9) The
+to full range. The
 view images use a light from `specular_light()` that centres the highlight on
 the +Z face, so the specular stage is visible in one place.
-(R10) The view images show the cube alone, at 240 pixels, without the sphere
+The view images show the cube alone, at 240 pixels, without the sphere
 grid, axes or light dot.
 **Consequences:** Rerunning the tool after a material or shader change keeps
 the chapter current, at about 0.8 MB of committed PNG per regeneration.

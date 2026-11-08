@@ -99,7 +99,7 @@ The renderers accept a `SceneContext` as an argument without importing
 | To do this | Change this |
 |---|---|
 | Adjust colours, opacity, spacing or sensitivity | `config.py` |
-| Add or replace a material | Follow the recipe below |
+| Replace a material | Follow the recipe below |
 | Look at one stage of the cube's shading | Set `ctx.cube_view` or `config.DEFAULT_CUBE_VIEW` to an index into `shaders.CUBE_VIEWS` |
 | Add a new mouse control | Add a method to `SceneContext`, then call it from `widget.py` |
 | Draw something new | Add a renderer, then call it from `CubeWidget.paintGL` |
@@ -128,20 +128,23 @@ the build, in build order. Every material's steps include `"colour"` and
 `"height"`, the same arrays as `color` and `height`. Nothing recorded in
 `steps` is changed afterwards.
 
-To add a material:
+To replace a material (the cube has six faces and `MATERIALS` has six entries,
+one per face, so a seventh entry fails
+`test_materials_match_cube_face_count`):
 
 1. Write `def name(size, rng)` that builds the material from the patterns,
    records each intermediate array in a `steps` dict, and returns
    `Material(color, height, steps)`.
-2. Append it to `MATERIALS`.
-3. Add a face layer: `MATERIALS` needs one entry per cube face, in the order
-   used by `cube_vertices` in `geometry.py`, so the geometry and the texture
-   array's layer count must change together.
-4. Add tests, and rerun `tools/make_guide_images.py docs/images/guide`.
+2. In `MATERIALS`, swap it for the entry at the index of the face it replaces.
+   The order matches the faces in `cube_vertices` in `geometry.py`.
+3. Rerun `tools/make_face_images.py` and `tools/make_guide_images.py
+   docs/images/guide`, and look at the results.
+4. Update the tests for the old material and add tests for the new one.
 
 All the materials share one random generator, in `MATERIALS` order, so each
-draws from where the previous one stopped. Adding a material in the middle, or
-changing how many numbers one draws, changes every material after it.
+draws from where the previous one stopped. Replacing a material, or
+changing how many numbers one draws, changes the random numbers of every
+material after it.
 `iter_materials(size, seed=None)` replays them in that order and yields
 `(function, Material)` pairs; `generate_texture_layers` uses it and keeps only the colour and
 height, so the steps of all materials are never held at once. The documentation

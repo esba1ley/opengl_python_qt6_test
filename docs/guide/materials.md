@@ -14,13 +14,18 @@ to the right and $v$ down, and the face image shows the same texture through
 that face's tangent and bitangent, so it is turned and sometimes mirrored
 ({ref}`how u and v land on the cube <guide-uv-on-cube>`).
 
-All six follow one plan:
+Most of the six follow one plan:
 
 1. lay out cells with a pattern from the [previous page](primitives.md);
 2. make a soft mask of where the gaps between cells are;
 3. vary the cells with random shades and fractal noise;
 4. `mix` a gap colour and a cell colour by the mask;
 5. build the height from the mask, with a little noise on top.
+
+Three depart from it. Tiles have no noise and no random shade: the colour
+comes from a checker pattern. Weave has no gap mask, and its colour comes from
+its height. Rivets have no gap mask either, and their height comes from the
+dome.
 
 The colours below are RGB triples from 0 to 1, copied from the code.
 

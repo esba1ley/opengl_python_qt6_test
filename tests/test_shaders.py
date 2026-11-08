@@ -24,7 +24,6 @@ def test_body_has_main_and_no_version(body):
     assert "void main(" in body
 
 
-
 def test_cube_views_match_the_shader_branches():
     """Each named view past 0 has a ``view == i`` branch in the cube shader.
 

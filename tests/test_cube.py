@@ -3,6 +3,7 @@ import numpy as np
 import pytest
 from OpenGL import GL
 from PyQt6.QtCore import QPointF
+from PyQt6.QtGui import QVector3D
 
 import config
 import shaders
@@ -99,17 +100,25 @@ def test_every_debug_view_differs_from_the_final_image(
         assert np.any(blocks[index] != blocks[0]), shaders.CUBE_VIEWS[index]
 
 
-def test_albedo_view_is_unlit_and_specular_view_is_grey(
+def test_specular_view_is_grey_where_the_highlight_falls(
     renderer, scene, fbo, image_to_array
 ):
-    """The albedo view is not the lit colour, and the specular view is grey.
+    """With the light mirrored into the camera, the specular view is grey.
 
-    **WHY:** The albedo view must show the texture without lighting, so it
-    cannot equal the lit image. The specular term is one float, drawn as
-    ``vec3(specular)``, so a colour cast would mean the wrong term is shown.
+    **WHY:** The specular term is one float, drawn as ``vec3(specular)``, so a
+    colour cast would mean the wrong term is shown. With the default light the
+    highlight may miss the examined block and the check would pass on black,
+    so the light is placed to put the highlight on the front face: the mirror
+    direction ``2 (n . v) n - v`` of the face normal ``n`` about the unit
+    vector ``v`` to the camera.
     """
-    blocks = render_views(renderer, scene, fbo, image_to_array)
-    assert np.any(blocks[1] != blocks[0])
-    specular = blocks[5]
-    assert np.all(specular[..., 0] == specular[..., 1])
-    assert np.all(specular[..., 1] == specular[..., 2])
+    normal = scene.rotation.rotatedVector(QVector3D(0, 0, 1))
+    to_camera = (scene.camera_position() - normal).normalized()
+    mirror = 2.0 * QVector3D.dotProduct(normal, to_camera) * normal - to_camera
+    scene.light = mirror.normalized()
+    scene.cube_view = shaders.CUBE_VIEWS.index("specular")
+    renderer.paint(scene)
+    block = centre(image_to_array(fbo.toImage()))
+    assert np.any(block > 0)
+    assert np.all(block[..., 0] == block[..., 1])
+    assert np.all(block[..., 1] == block[..., 2])

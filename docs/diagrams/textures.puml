@@ -43,6 +43,8 @@ partition "GPU, every frame (shaders.py)" {
   :facing gate from the face normal;
   :diffuse + 0.2 ambient,
   Blinn-Phong specular (exponent 32);
+  :debug view: uniform view picks the final colour
+  or one stage (albedo, normal, diffuse, facing, specular);
 }
 :pixel colour;
 stop

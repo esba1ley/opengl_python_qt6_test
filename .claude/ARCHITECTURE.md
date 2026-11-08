@@ -94,7 +94,7 @@ NumPy-style docstrings with the Read the Docs theme. `docs/tests/` does the
 same for each file in `tests/`, `conftest.py` included, so the reason for
 each test is rendered from its docstring; `conf.py` mocks `pytest` so the
 pages build without it. `docs/diagrams.rst`
-renders five hand-maintained PlantUML sources from `docs/diagrams/` through
+renders five of the six hand-maintained PlantUML sources in `docs/diagrams/` through
 sphinxcontrib-plantuml: a class diagram, sequence diagrams for startup, one
 frame and mouse input, and a call graph of everything reachable from
 `main()`. Build dependencies are listed in `docs/requirements.txt`, separate
