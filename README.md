@@ -183,16 +183,25 @@ The coverage gate applies to the full run, so run a subset with
 
 ## Mouse controls
 
-| Input | Action |
-|---|---|
-| Left-drag | Rotate the cube and sphere |
-| Right-drag | Move the light |
-| Middle-drag | Pan |
-| Wheel | Zoom |
-| Double-click | Reset the view and the light |
+| Input | Action | Demonstration |
+|---|---|---|
+| Left-drag | Rotate the cube and sphere | ![Left-drag rotating the cube](docs/images/control-rotate.webp) |
+| Right-drag | Move the light | ![Right-drag moving the light](docs/images/control-light.webp) |
+| Middle-drag | Pan | ![Middle-drag panning the view](docs/images/control-pan.webp) |
+| Wheel | Zoom | ![The wheel zooming in and out](docs/images/control-zoom.webp) |
+| Double-click | Reset the view and the light | ![A double-click resetting the view](docs/images/control-reset.webp) |
 
 The light stays fixed in the scene, so its dot doesn't move when you rotate the
 cube.
+
+The animations are made by `tools/make_control_animations.py`, which sends
+synthetic mouse and wheel events to a hidden window and records what the
+program draws. It needs Pillow, a development dependency. Rerun it after
+changing the mouse handling or anything visible:
+
+```
+python3 tools/make_control_animations.py docs/images
+```
 
 ## Icon
 

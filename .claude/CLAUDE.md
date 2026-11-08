@@ -48,7 +48,10 @@ output are harmless.
   than GLSL 1.40, even though macOS compiles them as GLSL 4.10. All three
   headers have been run: GLSL 1.40 and ES on the Pi, 4.10 on macOS.
 - Use PyQt6, not PySide6. `PySide6.QtOpenGLWidgets` isn't installed here.
-- Avoid dependencies beyond PyQt6, PyOpenGL and NumPy. Any new Python
+- Avoid dependencies beyond PyQt6, PyOpenGL and NumPy. Pillow is the one
+  exception, a development dependency used only by
+  `tools/make_control_animations.py`; nothing in `src/` or `tests/` may
+  import it. Any new Python
   dependency goes in `environment.yml` and `apt-packages.txt` (runtime or
   development) or in both `environment-docs.yml` and `docs/requirements.txt`
   (documentation), with the version floor and a matching README note. The
@@ -92,6 +95,11 @@ output are harmless.
   rendered, not drawn: rerun `tools/make_face_images.py docs/images` after
   changing a material, the cube shader or the default light, and look at
   them.
+- `docs/images/control-*.webp` animate the README's mouse controls table.
+  Rerun `tools/make_control_animations.py docs/images` after changing the
+  mouse handling, `config` interaction settings or anything visible, and
+  play them before committing; every regeneration adds about 1 MB to the
+  repository's history, so do not regenerate them for unrelated changes.
 - Every change to `src/` comes with tests in `tests/test_<module>.py` that keep
   line and branch coverage at 100%. `pytest.ini` owns the thresholds; change
   them there, not with per-run flags. See `ARCHITECTURE.md` (Testing) for the

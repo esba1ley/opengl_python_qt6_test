@@ -30,3 +30,4 @@ dependencies:
   - pytest>=7.2
   - pytest-cov>=4.0
   - pytest-qt>=4.2
+  - pillow>=9.4   # tools/make_control_animations.py

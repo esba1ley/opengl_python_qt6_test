@@ -5,7 +5,8 @@
 #
 # Verified against the Debian archive for bookworm (12) and trixie (13):
 # python3-pyqt6 6.4.2 / 6.9.0, python3-opengl 3.1.6 / 3.1.9,
-# python3-numpy 1.24 / 2.2. Environment.yml carries the same floors.
+# python3-numpy 1.24 / 2.2, python3-pil 9.4 / 11.1. Environment.yml carries
+# the same floors.
 
 # Runtime
 python3-pyqt6        # QtCore, QtGui, QtWidgets, QtOpenGL, QtOpenGLWidgets
@@ -22,3 +23,4 @@ python3-pip
 python3-pytest       # pytest 7.2 or newer
 python3-pytest-cov   # coverage plugin, 4.0 or newer
 python3-pytestqt     # pytest-qt, 4.2 or newer
+python3-pil          # Pillow 9.4 or newer, for tools/make_control_animations.py

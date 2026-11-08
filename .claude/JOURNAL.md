@@ -2,6 +2,19 @@
 
 Newest first.
 
+## 2026-11-07 — Animations of the mouse controls
+
+- Added `tools/make_control_animations.py` and five looping WebP animations
+  in `docs/images/`, shown in a new column of the README's mouse controls
+  table. See `DECISIONS.md`. Checked by contact sheet: each control does what
+  its label says, and each loop ends where it began.
+- Added Pillow as a development dependency to `environment.yml` and
+  `apt-packages.txt` (Debian bookworm 9.4.0, trixie 11.1.0, checked against
+  sources.debian.org).
+
+**Next:** Check the animations play on the GitHub README and the Pages site
+after release.
+
 ## 2026-11-07 — Release v0.3.2
 
 - Cut `rc/esbailey/v0.3.2` from `develop` and ran `bump2version patch`
