@@ -53,7 +53,7 @@ sets bits and every random draw were left alone: the texture bytes hash
 (`70bf2f00d9547795` on macOS) was checked after each change.
 **Consequences:** The code reads as a sequence of named steps and the tool
 can image any of them. Holding all steps at 512 pixels would take about
-150 MB, so they are consumed one material at a time. Because the materials
+120 MB (116 MiB), so they are consumed one material at a time. Because the materials
 share a generator, changing one material's draws changes the rest. Rejected:
 recording only the final stages (the guide could not show the construction);
 copying the formulas into the tool (they would drift from the program).

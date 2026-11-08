@@ -13,7 +13,7 @@ here.
 ## Texture coordinates: `uv_grid`
 
 {py:func}`textures.uv_grid` gives every pixel a position $(u, v)$, with both
-coordinates running from 0 to 1 across the image:
+coordinates running from 0 to just under 1 across the image:
 
 ```{literalinclude} ../../src/textures.py
 :language: python

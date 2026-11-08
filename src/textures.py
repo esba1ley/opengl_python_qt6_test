@@ -329,9 +329,10 @@ class Material(NamedTuple):
         Intermediate results in the order they were built, from a short
         readable step name to the array at that step: either a 2D field of
         shape ``(size, size)`` or an RGB image of shape ``(size, size, 3)``.
-        The last two entries are ``"colour"`` and ``"height"``, the same
-        arrays as `color` and `height`. Nothing recorded here is changed
-        after it is stored.
+        Every material's steps include ``"colour"`` and ``"height"``, the
+        same arrays as `color` and `height`, recorded in the order the
+        material builds them. Nothing recorded here is changed after it is
+        stored.
     """
 
     color: np.ndarray

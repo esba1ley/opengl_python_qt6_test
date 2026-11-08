@@ -130,7 +130,9 @@ works" chapter in five pages (`index`, `primitives`, `materials`, `gpu`,
 `dollarmath` (enabled in `docs/conf.py`; MathJax loads from a CDN when a page
 is viewed). `docs/diagrams/textures.puml` is its PlantUML activity diagram.
 Its 60 images are in `docs/images/guide/`, written by
-`tools/make_guide_images.py` from `textures.iter_materials` and from the
+`tools/make_guide_images.py` in four groups: the primitives
+(`primitive_images`), the shared patterns (`pattern_images`), every recorded
+step and normal map of each material from `textures.iter_materials`, and the
 cube drawn through each `CUBE_VIEWS` entry; they are committed and
 regenerated only when a material, a pattern or the cube shader changes.
 

@@ -124,8 +124,9 @@ A material function takes `(size, rng)` and returns a `Material`, a named
 tuple of `color`, `height` and `steps`. `color` is a float RGB image and
 `height` a height map, both with values from 0 to 1. `steps` is an ordered
 dict from a readable step name to the 2D field or RGB image at that point in
-the build; the last two entries are `"colour"` and `"height"`. Nothing
-recorded in `steps` is changed afterwards.
+the build, in build order. Every material's steps include `"colour"` and
+`"height"`, the same arrays as `color` and `height`. Nothing recorded in
+`steps` is changed afterwards.
 
 To add a material:
 
@@ -141,8 +142,8 @@ To add a material:
 All the materials share one random generator, in `MATERIALS` order, so each
 draws from where the previous one stopped. Adding a material in the middle, or
 changing how many numbers one draws, changes every material after it.
-`iter_materials(size, seed=None)` replays them in that order and yields each
-`Material`; `generate_texture_layers` uses it and keeps only the colour and
+`iter_materials(size, seed=None)` replays them in that order and yields
+`(function, Material)` pairs; `generate_texture_layers` uses it and keeps only the colour and
 height, so the steps of all materials are never held at once. The documentation
 tool uses the same function, so its images show exactly the layers the program
 draws.

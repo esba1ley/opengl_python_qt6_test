@@ -104,7 +104,9 @@ output are harmless.
   `python3 tools/make_guide_images.py docs/images/guide` and look at the
   images; commit them with the change.
 - The chapter quotes code with `literalinclude` (`:pyobject:` for functions,
-  `:start-after:` the `#:` comments for shader strings), so renaming a quoted
+  `:start-after:` the constant's assignment line, such as
+  `CUBE_VERTEX_BODY = """`, with `:end-before:` the closing quotes, for
+  shader strings), so renaming a quoted
   function or constant needs a `make -C docs html`.
 - Generate textures in code rather than adding image files. The one image
   file the program loads is `icon.png`, the application icon. Every image in
