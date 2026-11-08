@@ -1,0 +1,51 @@
+@startuml textures
+' Activity: from the seeded generator to one shaded pixel. Keep in step with
+' textures.generate_texture_layers, gl_utils.upload_texture_array,
+' cube.CubeRenderer.init_textures and shaders.CUBE_*_BODY.
+skinparam shadowing false
+
+start
+partition "CPU, once at start-up (textures.py)" {
+  :np.random.default_rng(TEXTURE_SEED)
+  one generator for every material;
+  :iter_materials(TEXTURE_SIZE)
+  MATERIALS in layer order;
+  repeat
+    :next material: bricks, cobbles,
+    tiles, weave, rivets, wood;
+    :uv_grid, cell_lattice / voronoi / seam,
+    smoothstep, fractal_noise, dome, checker;
+    :record each named step;
+    :keep colour (RGB) and height;
+  repeat while (more materials?) is (yes) not (no)
+  :height_to_normals(height)
+  per layer: gradient to tangent-space normal;
+  :to_rgba_bytes: clip, add alpha,
+  pack as RGBA8;
+}
+partition "Upload (gl_utils.py, cube.py)" {
+  :upload_texture_array twice:
+  albedo on unit 0, normal map on unit 1
+  2D array textures, one layer per face;
+  :glGenerateMipmap
+  LINEAR_MIPMAP_LINEAR, CLAMP_TO_EDGE;
+}
+partition "GPU, every frame (shaders.py)" {
+  :vertex shader
+  position to clip space,
+  tangent frame and position to world space;
+  :rasteriser interpolates
+  uv and the world-space vectors
+  (layer is flat);
+  :fragment shader
+  sample albedo and normal map at (uv, layer);
+  :tangent to world: n = TBN * surface;
+  :facing gate from the face normal;
+  :diffuse + 0.2 ambient,
+  Blinn-Phong specular (exponent 32);
+  :debug view: uniform view picks the final colour
+  or one stage (albedo, normal, diffuse, facing, specular);
+}
+:pixel colour;
+stop
+@enduml

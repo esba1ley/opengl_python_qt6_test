@@ -1,10 +1,17 @@
 # Qt6 OpenGL Test
 
-A small Python program for testing OpenGL inside a Qt6 window. It draws a
-textured, bump-mapped cube inside a latitude/longitude sphere grid, and you can
-rotate, zoom and pan the scene and move the light with the mouse.
+A worked example of procedural textures and shaders in OpenGL with PyQt6. The
+vehicle is a small program that draws a textured, bump-mapped cube inside a
+latitude/longitude sphere grid, and lets you rotate, zoom and pan the scene and
+move the light with the mouse.
 
 All the textures are generated in code, so the program loads no image files.
+Each material is built from a few shared patterns in small, named steps, and
+the cube's fragment shader can show any one stage of its lighting on its own.
+The "How it works" chapter of the [manual](https://esba1ley.github.io/opengl_python_qt6_test/)
+(the pages in `docs/guide/`) follows a texture from noise to pixel: the
+building blocks, each material step by step, how the textures reach the GPU,
+and both shaders line by line.
 
 ![The default view: the textured cube inside the sphere grid](docs/images/screenshot.png)
 
@@ -28,6 +35,15 @@ All the textures are generated in code, so the program loads no image files.
 
   ```
   python3 tools/make_face_images.py docs/images
+  ```
+
+  `tools/make_guide_images.py` makes the chapter's 60 images in
+  `docs/images/guide/`: the building blocks, every step of every material,
+  and the cube drawn through each of the shader's debug views. Rerun it after
+  changing a material, a pattern or the cube shader:
+
+  ```
+  python3 tools/make_guide_images.py docs/images/guide
   ```
 
 - **Sphere grid:** lines every 15° of longitude and 10° of latitude, drawn at
@@ -215,8 +231,8 @@ screenshot at the top of this file. Regenerate both after any visible change:
 python3 tools/make_icon.py icon.png docs/images/screenshot.png
 ```
 
-`tools/make_icon.py`, `tools/make_face_images.py` and
-`tools/make_control_animations.py` share `tools/offscreen.py`, which sets up
+`tools/make_icon.py`, `tools/make_face_images.py`,
+`tools/make_guide_images.py` and `tools/make_control_animations.py` share `tools/offscreen.py`, which sets up
 an offscreen OpenGL context and a hidden window whose renderers draw into it.
 
 ## Configuration
@@ -230,7 +246,7 @@ The manual for the latest release is published at
 <https://esba1ley.github.io/opengl_python_qt6_test/>.
 
 An HTML manual, built with Sphinx in the Read the Docs style, combines this
-file, `src/README.md`, PlantUML diagrams of how the program executes, an API
+file, `src/README.md`, the "How it works" chapter (`docs/guide/`), PlantUML diagrams of how the program executes, an API
 reference generated from the docstrings, and a page per test file saying what
 each test checks and why. It needs the Sphinx packages from
 `environment-docs.yml` (or `docs/requirements.txt` for pip) and the PlantUML,

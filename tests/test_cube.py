@@ -1,9 +1,12 @@
 """Tests for the cube renderer, drawn into an offscreen framebuffer."""
 import numpy as np
 import pytest
+from OpenGL import GL
 from PyQt6.QtCore import QPointF
+from PyQt6.QtGui import QVector3D
 
 import config
+import shaders
 from cube import CubeRenderer
 
 #: Pixel offset from the centre that the checks examine.
@@ -35,7 +38,7 @@ def test_uniform_locations_are_all_found(renderer):
     setting a missing uniform fails silently. A uniform renamed in the shader
     but not here is caught by this test, not by a black frame.
     """
-    for name in ("mvp_loc", "model_loc", "light_loc", "camera_loc"):
+    for name in ("mvp_loc", "model_loc", "light_loc", "camera_loc", "view_loc"):
         assert getattr(renderer, name) >= 0, name
 
 
@@ -65,3 +68,57 @@ def test_rotating_the_scene_changes_the_image(renderer, scene, fbo, image_to_arr
     renderer.paint(scene)
     after = image_to_array(fbo.toImage())
     assert np.any(before != after)
+
+
+def render_views(renderer, scene, fbo, image_to_array):
+    """Return the central block of the cube drawn in every debug view.
+
+    The depth buffer is cleared before each draw, or the depth test would
+    reject every pass after the first.
+    """
+    blocks = []
+    for index in range(len(shaders.CUBE_VIEWS)):
+        scene.cube_view = index
+        GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
+        renderer.paint(scene)
+        blocks.append(centre(image_to_array(fbo.toImage())).copy())
+    return blocks
+
+
+def test_every_debug_view_differs_from_the_final_image(
+    renderer, scene, fbo, image_to_array
+):
+    """Each view in ``CUBE_VIEWS`` renders and differs from view 0.
+
+    **WHY:** The ``view`` uniform is set by an integer index, so a branch
+    missing from the shader, or an index that does not match the name list,
+    would silently draw the final image under another stage's name in the
+    manual.
+    """
+    blocks = render_views(renderer, scene, fbo, image_to_array)
+    for index in range(1, len(blocks)):
+        assert np.any(blocks[index] != blocks[0]), shaders.CUBE_VIEWS[index]
+
+
+def test_specular_view_is_grey_where_the_highlight_falls(
+    renderer, scene, fbo, image_to_array
+):
+    """With the light mirrored into the camera, the specular view is grey.
+
+    **WHY:** The specular term is one float, drawn as ``vec3(specular)``, so a
+    colour cast would mean the wrong term is shown. With the default light the
+    highlight may miss the examined block and the check would pass on black,
+    so the light is placed to put the highlight on the front face: the mirror
+    direction ``2 (n . v) n - v`` of the face normal ``n`` about the unit
+    vector ``v`` to the camera.
+    """
+    normal = scene.rotation.rotatedVector(QVector3D(0, 0, 1))
+    to_camera = (scene.camera_position() - normal).normalized()
+    mirror = 2.0 * QVector3D.dotProduct(normal, to_camera) * normal - to_camera
+    scene.light = mirror.normalized()
+    scene.cube_view = shaders.CUBE_VIEWS.index("specular")
+    renderer.paint(scene)
+    block = centre(image_to_array(fbo.toImage()))
+    assert np.any(block > 0)
+    assert np.all(block[..., 0] == block[..., 1])
+    assert np.all(block[..., 1] == block[..., 2])

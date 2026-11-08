@@ -2,6 +2,77 @@
 
 Newest first.
 
+## 2026-11-07 — Draw the guide's images from replayed materials, with fixed display rules
+**Status:** Accepted
+**Context:** The chapter needs about 60 images of intermediate steps and
+shading stages, and they must not drift from the program. Three display
+questions came up: how to show fields whose values are tiny, which light to
+use for the shading views, and whether to show the whole scene.
+**Decision:** `tools/make_guide_images.py` takes every material image from
+`textures.iter_materials` at 512 pixels, scaled to 160, so it shows exactly
+the layers the program uses. A field that spans 0 to 1 is drawn as it
+is; a field whose maximum is below 0.5, or that leaves 0 to 1, is stretched
+to full range. The
+view images use a light from `specular_light()` that centres the highlight on
+the +Z face, so the specular stage is visible in one place.
+The view images show the cube alone, at 240 pixels, without the sphere
+grid, axes or light dot.
+**Consequences:** Rerunning the tool after a material or shader change keeps
+the chapter current, at about 0.8 MB of committed PNG per regeneration.
+Stretching hides absolute scale, so the chapter states the rule. The view images
+do not show the default scene. Rejected: stretching every field (a mask
+would lose its meaning); the default light (the highlight would not be
+centred on the face); the full scene (the overlay would clutter the face
+under study).
+
+## 2026-11-07 — Put the debug view in the real cube shader
+**Status:** Accepted
+**Context:** The guide shows albedo, normal, diffuse, facing and specular
+separately. They had to come from somewhere.
+**Decision:** `CUBE_FRAGMENT_BODY` computes every term as before, assigns the
+final expression to `result`, and a `uniform int view` replaces `result` with
+one term when it is non-zero. `CUBE_VIEWS` names the indices,
+`config.DEFAULT_CUBE_VIEW` is 0 and `SceneContext.cube_view` carries it.
+**Consequences:** One uniform on every frame, and the unused terms are still
+computed. View 0 stays byte-identical, which was checked by regenerating the
+face, icon and animation images. The images are rendered by the shader that
+ships. Rejected: copies of the shader in the tool (they would drift, and
+would not test the real one).
+
+## 2026-11-07 — Restructure `textures.py` into shared patterns and recorded steps
+**Status:** Accepted
+**Context:** The materials repeated the same geometry (cell edges, distance
+to a seam, checker parity) and only returned a finished colour and height,
+so the guide could not show how a texture is built.
+**Decision:** Factor six public patterns (`seam`, `cell_lattice`,
+`edge_distance`, `checker`, `voronoi`, `dome`) out of the materials. Each
+material returns `Material(color, height, steps)`, where `steps` records the
+named intermediates. `iter_materials` replays them on one generator and
+`generate_texture_layers` keeps only colour and height. Expression text that
+sets bits and every random draw were left alone: the texture bytes hash
+(`70bf2f00d9547795` on macOS) was checked after each change.
+**Consequences:** The code reads as a sequence of named steps and the tool
+can image any of them. Holding all steps at 512 pixels would take about
+120 MB (116 MiB), so they are consumed one material at a time. Because the materials
+share a generator, changing one material's draws changes the rest. Rejected:
+recording only the final stages (the guide could not show the construction);
+copying the formulas into the tool (they would drift from the program).
+
+## 2026-11-07 — Present the repository as a teaching example
+**Status:** Accepted
+**Context:** The program is a test of OpenGL in Qt, but its procedural
+textures and two shaders are the part worth learning from. Erik asked for
+the repository to be a worked example, with a chapter explaining how it
+works.
+**Decision:** State the teaching purpose in the README and `CLAUDE.md`, add
+the "How it works" chapter in `docs/guide/`, and accept the code changes
+above to make it readable. This touches the Frozen Module layout and
+Documentation sections of `ARCHITECTURE.md`, which now describe the new
+structure, and adds a Frozen Teaching guide section.
+**Consequences:** The code is now held to being readable, and docs builds
+fail on a stale quotation. The program's behaviour is unchanged. Rejected:
+a separate tutorial repository (the code and the explanation would drift).
+
 ## 2026-11-07 — Render the icon and README screenshot instead of capturing them
 **Status:** Accepted
 **Context:** `icon.png` was cropped by `tools/make_icon.py` from

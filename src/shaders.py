@@ -34,12 +34,15 @@ void main() {
 """
 
 #: Cube fragment shader: normal-mapped Blinn-Phong lighting from the two
-#: array textures, gated on the geometric face normal.
+#: array textures, gated on the geometric face normal. The ``view`` uniform
+#: selects a debug view of one shading stage (see ``CUBE_VIEWS``); 0 is the
+#: normal lit image.
 CUBE_FRAGMENT_BODY = """
 uniform sampler2DArray albedoMap;
 uniform sampler2DArray normalMap;
 uniform vec3 lightDirection;
 uniform vec3 cameraPosition;
+uniform int view;
 in vec3 worldPosition;
 in vec3 worldNormal;
 in vec3 worldTangent;
@@ -67,9 +70,22 @@ void main() {
     vec3 halfway = normalize(lightDirection + toCamera);
     float specular = diffuse > 0.0 ? facing * pow(max(dot(n, halfway), 0.0), 32.0) : 0.0;
 
-    fragColor = vec4(albedo * (0.2 + 0.8 * diffuse) + vec3(0.3 * specular), 1.0);
+    vec3 result = albedo * (0.2 + 0.8 * diffuse) + vec3(0.3 * specular);
+
+    // The view uniform shows one stage on its own, so the manual can picture
+    // each step of the lighting. View 0 keeps the final colour.
+    if (view == 1) result = albedo;
+    else if (view == 2) result = n * 0.5 + 0.5;
+    else if (view == 3) result = vec3(diffuse);
+    else if (view == 4) result = vec3(facing);
+    else if (view == 5) result = vec3(specular);
+    fragColor = vec4(result, 1.0);
 }
 """
+
+#: Names of the cube's debug views; index ``i`` is the value of the ``view``
+#: uniform in ``CUBE_FRAGMENT_BODY``.
+CUBE_VIEWS = ("final", "albedo", "normal", "diffuse", "facing", "specular")
 
 #: Overlay vertex shader for the sphere grid, axes and light dot; sets the
 #: point size and passes the world position and vertex colour through.

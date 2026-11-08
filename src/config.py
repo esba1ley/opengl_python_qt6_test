@@ -20,6 +20,7 @@ DEFAULT_LIGHT = QVector3D(0.4, 0.7, 1.0).normalized()
 TEXTURE_SIZE = 512
 TEXTURE_SEED = 7
 BUMP_STRENGTH = 0.03  # higher makes the surface relief look deeper
+DEFAULT_CUBE_VIEW = 0  # index into shaders.CUBE_VIEWS; 0 is the lit image
 
 # Sphere grid
 SPHERE_RADIUS = 1.85  # just outside the cube's corners, which are at sqrt(3)

@@ -105,6 +105,114 @@ def test_fractal_noise_is_normalised(rng):
     assert noise.max() == pytest.approx(1.0)
 
 
+def test_seam_values_and_symmetry():
+    """``seam`` is 0 at the edges, 0.5 at the centre and mirrors about 0.5.
+
+    **WHY:** Every edge mask measures its distance with ``seam``. A wrong
+    peak or a lopsided shape would give mortar lines or borders of unequal
+    thickness on the two sides of a cell.
+    """
+    f = np.array([0.0, 0.25, 0.5, 0.75, 1.0])
+    assert np.allclose(textures.seam(f), [0.0, 0.25, 0.5, 0.25, 0.0])
+    g = np.linspace(0.0, 1.0, 11)
+    assert np.allclose(textures.seam(g), textures.seam(1 - g))
+
+
+def test_cell_lattice_plain_grid():
+    """Without stagger, indices count cells and fractions lie in [0, 1).
+
+    **WHY:** Tiles, weave and rivets rely on the plain lattice matching
+    ``u * n % 1.0`` exactly; the fractions must also stay below 1 so a pixel
+    never falls into the next cell.
+    """
+    u, v = textures.uv_grid(16)
+    column, row, fx, fy = textures.cell_lattice(u, v, 4, 2)
+    assert column.min() == 0 and column.max() == 3
+    assert row.min() == 0 and row.max() == 1
+    assert fx.min() >= 0.0 and fx.max() < 1.0
+    assert fy.min() >= 0.0 and fy.max() < 1.0
+    assert np.array_equal(fx, u * 4 % 1.0)
+    assert np.array_equal(fy, v * 2 % 1.0)
+
+
+def test_cell_lattice_stagger_shifts_odd_rows():
+    """Stagger shifts only odd rows, by the given fraction of a cell.
+
+    **WHY:** Bricks need every other course offset by half a brick. Even
+    rows must be untouched, and the fractions must still lie in [0, 1) after
+    the shift.
+    """
+    u, v = textures.uv_grid(16)
+    plain = textures.cell_lattice(u, v, 4, 4)
+    column, row, fx, fy = textures.cell_lattice(u, v, 4, 4, stagger=0.5)
+    even = row % 2 == 0
+    assert np.array_equal(fx[even], plain[2][even])
+    assert np.array_equal(column[even], plain[0][even])
+    x = u * 4 + 0.5
+    assert np.array_equal(column[~even] + fx[~even], x[~even])
+    assert column.max() == 4
+    assert fx.min() >= 0.0 and fx.max() < 1.0
+    assert np.array_equal(fy, plain[3])
+
+
+def test_edge_distance_zero_on_edges_and_scaled():
+    """Edge distance is 0 on an edge and peaks at the cell centre, scaled.
+
+    **WHY:** The mortar width is set in texture units; the division by the
+    column and row counts is what keeps it the same on all four sides of a
+    non-square brick.
+    """
+    fx = np.array([0.0, 0.5, 0.5, 0.5])
+    fy = np.array([0.5, 0.5, 0.0, 0.25])
+    out = textures.edge_distance(fx, fy, 4, 8)
+    assert np.allclose(out, [0.0, 0.5 / 8, 0.0, 0.25 / 8])
+
+
+def test_checker_alternates_and_is_float():
+    """Neighbouring cells get opposite values, as floats.
+
+    **WHY:** The tile pattern mixes two colours by this value. A boolean
+    result would make ``mix`` cast it, so the float type is part of the
+    contract.
+    """
+    column = np.array([0.0, 1.0, 0.0, 1.0])
+    row = np.array([0.0, 0.0, 1.0, 1.0])
+    out = textures.checker(column, row)
+    assert out.dtype == np.float64
+    assert np.array_equal(out, [0.0, 1.0, 1.0, 0.0])
+
+
+def test_voronoi_nearest_gap_dtype_and_bisector():
+    """Nearest index is right, the gap is float32 and ~0 on the bisector.
+
+    **WHY:** Cobbles take their shade from the nearest point and their
+    mortar from the gap. The gap must be non-negative, and small where two
+    points are equally near, or the stones would have no borders.
+    """
+    points = np.array([[0.25, 0.5], [0.75, 0.5]])
+    u = np.array([[0.1, 0.5, 0.9]])
+    v = np.full_like(u, 0.5)
+    nearest, gap = textures.voronoi(u, v, points)
+    assert nearest.tolist() == [[0, 0, 1]]
+    assert gap.dtype == np.float32
+    assert (gap >= 0.0).all()
+    assert gap[0, 1] == pytest.approx(0.0, abs=1e-6)
+    assert gap[0, 0] == pytest.approx(0.5, abs=1e-6)
+
+
+def test_dome_centre_and_outside_radius():
+    """The dome is 1 at the centre, 0 at and beyond its radius.
+
+    **WHY:** Rivets are hemispheres on a flat plate. Without the clip, the
+    square root of a negative number would give NaN outside the radius.
+    """
+    fx = np.array([0.0, 0.16, 0.4])
+    fy = np.zeros(3)
+    out = textures.dome(fx, fy, 0.16)
+    assert np.allclose(out, [1.0, 0.0, 0.0])
+    assert not np.isnan(out).any()
+
+
 @pytest.mark.parametrize("material", textures.MATERIALS,
                          ids=[m.__name__ for m in textures.MATERIALS])
 def test_material_shapes_and_ranges(material, rng):
@@ -114,7 +222,7 @@ def test_material_shapes_and_ranges(material, rng):
     the same shapes and a colour range the byte packer can encode. Size 32
     keeps the run fast.
     """
-    color, height = material(SIZE, rng)
+    color, height, _ = material(SIZE, rng)
     assert color.shape == (SIZE, SIZE, 3)
     assert height.shape == (SIZE, SIZE)
     assert color.min() >= 0.0 and color.max() <= 1.0
@@ -181,3 +289,66 @@ def test_generate_texture_layers_sizes(monkeypatch):
     expected = SIZE * SIZE * 4 * len(textures.MATERIALS)
     assert len(albedo) == len(normals) == expected
     assert layers == len(textures.MATERIALS)
+
+
+@pytest.mark.parametrize("material", textures.MATERIALS,
+                         ids=[m.__name__ for m in textures.MATERIALS])
+def test_material_steps_are_recorded(material, rng):
+    """Every material records finite 2D or RGB steps ending in its layers.
+
+    **WHY:** The documentation draws each step as an image, so every step
+    must be a (n, n) field or (n, n, 3) image with no NaN or infinity. The
+    "colour" and "height" steps must be the very arrays returned, or the
+    pictures would not show the layers that reach the GPU.
+    """
+    result = material(SIZE, rng)
+    assert isinstance(result, textures.Material)
+    assert result.steps
+    assert result.steps["colour"] is result.color
+    assert result.steps["height"] is result.height
+    for name, step in result.steps.items():
+        assert step.shape in ((SIZE, SIZE), (SIZE, SIZE, 3)), name
+        assert np.isfinite(step).all(), name
+
+
+def test_iter_materials_follows_materials_order():
+    """`iter_materials` yields each material function, in layer order.
+
+    **WHY:** The layer index is the cube face index. Out of order, every face
+    would show another face's material.
+    """
+    pairs = list(textures.iter_materials(SIZE, seed=1))
+    assert [function for function, _ in pairs] == list(textures.MATERIALS)
+    assert all(isinstance(material, textures.Material) for _, material in pairs)
+
+
+def test_iter_materials_is_repeatable_and_defaults_to_config_seed(monkeypatch):
+    """The same seed gives the same colours; no seed uses `config.TEXTURE_SEED`.
+
+    **WHY:** The documentation images must show the layers the program really
+    builds, which needs the same seed to give the same pixels, and the default
+    to follow the configured seed when it is read, not when the module loads.
+    """
+    first = [m.color for _, m in textures.iter_materials(SIZE, seed=5)]
+    second = [m.color for _, m in textures.iter_materials(SIZE, seed=5)]
+    assert all(np.array_equal(a, b) for a, b in zip(first, second))
+    monkeypatch.setattr(config, "TEXTURE_SEED", 5)
+    default = [m.color for _, m in textures.iter_materials(SIZE)]
+    assert all(np.array_equal(a, b) for a, b in zip(first, default))
+
+
+def test_generate_texture_layers_packs_iter_materials(monkeypatch):
+    """The packed layers equal `iter_materials` colours and normals.
+
+    **WHY:** `generate_texture_layers` is a thin consumer of `iter_materials`.
+    If the two drifted apart, the documentation would describe textures the
+    program does not use.
+    """
+    monkeypatch.setattr(config, "TEXTURE_SIZE", SIZE)
+    materials = [m for _, m in textures.iter_materials(SIZE)]
+    albedo, normals, layers = textures.generate_texture_layers()
+    assert albedo == textures.to_rgba_bytes([m.color for m in materials])
+    assert normals == textures.to_rgba_bytes(
+        [textures.height_to_normals(m.height) for m in materials]
+    )
+    assert layers == len(materials)

@@ -23,3 +23,14 @@ def test_body_has_main_and_no_version(body):
     assert "#version" not in body
     assert "void main(" in body
 
+
+def test_cube_views_match_the_shader_branches():
+    """Each named view past 0 has a ``view == i`` branch in the cube shader.
+
+    **WHY:** The names in ``CUBE_VIEWS`` are indices into the shader's
+    ``if`` chain. Adding a name without a branch would show the final image
+    under that name.
+    """
+    assert len(shaders.CUBE_VIEWS) == 6
+    for index in range(1, len(shaders.CUBE_VIEWS)):
+        assert f"view == {index}" in shaders.CUBE_FRAGMENT_BODY

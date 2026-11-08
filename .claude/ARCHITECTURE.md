@@ -10,6 +10,14 @@ repeated here.
 Plain modules in `src/`, imported by name, with `SceneContext` as the single
 runtime-state holder and `config.py` for fixed settings. See `src/README.md`.
 
+`textures.py` is organised for reading: primitives, six shared patterns,
+six materials that each return `Material(color, height, steps)`, packing
+functions, and `iter_materials`, which replays the materials in order on one
+random generator. `generate_texture_layers` consumes it and keeps only colour
+and height. `shaders.CUBE_FRAGMENT_BODY` has a `view` uniform (`CUBE_VIEWS`)
+that `SceneContext.cube_view` sets through `CubeRenderer`; view 0 is the
+normal lit image.
+
 ## OpenGL context selection
 **Status:** Frozen
 
@@ -37,7 +45,8 @@ desktop `GL` module) and macOS (Apple M4, GL 4.1 core). On macOS the axis
 line width is clamped to one pixel by the driver. The apt and venv recipe in
 `apt-packages.txt`, `apt-packages-docs.txt` and the README was run on the Pi
 under Raspberry Pi OS trixie (Debian 13.7) on 2026-11-01: install, venv,
-`--check` and the docs build all passed. Not yet run on bookworm, vanilla
+`--check` and the docs build all passed, and passed again with `pytest`
+on 2026-11-08 after the teaching refactor. Not yet run on bookworm, vanilla
 Debian, another Linux desktop or Windows.
 
 ## Testing
@@ -64,8 +73,9 @@ exist per process.
 Tests that show a widget, and the real `selftest.check` run, need a display,
 like `--check`. Rationale is in `DECISIONS.md`.
 
-Verified on macOS only (GL 4.1 core, Python 3.12). Not yet run on the Pi
-(ES 3.1) or under Python 3.11 or 3.13.
+Verified on macOS (GL 4.1 core, Python 3.12) and on the Pi under its
+OpenGL ES 3.1 request with Python 3.13.5 (2026-11-08). Not yet run under
+the Pi's desktop GL 3.1 or under Python 3.11.
 
 ## Documentation
 **Status:** Frozen
@@ -76,7 +86,8 @@ builds it on GitHub Actions for every push to `develop`, `main`, `ft/**` and
 publishes it to GitHub Pages (https://esba1ley.github.io/opengl_python_qt6_test/) from `main`
 only. The runner takes the Python packages from `environment.yml` and
 `environment-docs.yml` through miniforge and PlantUML, Java and Graphviz from
-apt. `docs/index.md` and `docs/src/README.md` pull in the
+apt. `docs/guide/` is the teaching chapter (see Teaching guide).
+`docs/index.md` and `docs/src/README.md` pull in the
 repository's `README.md` and `src/README.md` with MyST's include directive,
 so the READMEs remain the single source and the Sphinx page names mirror the
 file paths so the README's relative link resolves. `docs/api/` has one
@@ -85,7 +96,7 @@ NumPy-style docstrings with the Read the Docs theme. `docs/tests/` does the
 same for each file in `tests/`, `conftest.py` included, so the reason for
 each test is rendered from its docstring; `conf.py` mocks `pytest` so the
 pages build without it. `docs/diagrams.rst`
-renders five hand-maintained PlantUML sources from `docs/diagrams/` through
+renders five of the six hand-maintained PlantUML sources in `docs/diagrams/` through
 sphinxcontrib-plantuml: a class diagram, sequence diagrams for startup, one
 frame and mouse input, and a call graph of everything reachable from
 `main()`. Build dependencies are listed in `docs/requirements.txt`, separate
@@ -111,6 +122,22 @@ environment on purpose. Debian and Raspberry Pi OS are covered by
 (system tools for the manual), with Ruff and the Sphinx packages from pip in
 a `--system-site-packages` venv because Debian's are missing or too old.
 
+## Teaching guide
+**Status:** Frozen
+
+The repository doubles as a teaching example. `docs/guide/` holds the "How it
+works" chapter in five pages (`index`, `primitives`, `materials`, `gpu`,
+`shaders`), reached from `docs/index.md`. It quotes `src/` with
+`literalinclude`, so a rename fails the build, and sets its maths with MyST
+`dollarmath` (enabled in `docs/conf.py`; MathJax loads from a CDN when a page
+is viewed). `docs/diagrams/textures.puml` is its PlantUML activity diagram.
+Its 60 images are in `docs/images/guide/`, written by
+`tools/make_guide_images.py` in four groups: the primitives
+(`primitive_images`), the shared patterns (`pattern_images`), every recorded
+step and normal map of each material from `textures.iter_materials`, and the
+cube drawn through each `CUBE_VIEWS` entry; they are committed and
+regenerated only when a material, a pattern or the cube shader changes.
+
 ## Application icon
 **Status:** Frozen
 
@@ -124,7 +151,8 @@ masks it to a soft-edged disc and scales it to 512 pixels. There is no
 ## README illustrations
 **Status:** Frozen
 
-Every image in `docs/images/` is rendered by a tool in `tools/`. The tools
+Every image in `docs/images/` is rendered by a tool in `tools/`; the chapter's
+images in `docs/images/guide/` are described under Teaching guide. The tools
 share `tools/offscreen.py`, which requests the program's surface format,
 makes an offscreen context current, binds a framebuffer and initialises a
 hidden `CubeWidget`'s renderers on it.
