@@ -89,7 +89,10 @@ only. The runner takes the Python packages from `environment.yml` and
 `environment-docs.yml` through miniforge and PlantUML, Java and Graphviz from
 apt. The Miniforge installer is pinned (`MINIFORGE_VERSION` in the
 workflow) and kept in the Actions cache, downloaded with retries only on a
-cache miss. `docs/guide/` is the teaching chapter (see Teaching guide).
+cache miss and saved only after a complete download. If it cannot be had,
+the build falls back to the runner's preinstalled Miniconda, still with
+conda-forge alone, and raises a warning; the `force-miniconda` input of a
+manual run takes that path on purpose. `docs/guide/` is the teaching chapter (see Teaching guide).
 `docs/index.md` and `docs/src/README.md` pull in the
 repository's `README.md` and `src/README.md` with MyST's include directive,
 so the READMEs remain the single source and the Sphinx page names mirror the

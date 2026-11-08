@@ -2,6 +2,24 @@
 
 Newest first.
 
+## 2026-11-08 — Fall back to the runner's Miniconda when Miniforge is unavailable
+**Status:** Accepted
+**Context:** The first `develop` build after the installer cache landed
+still failed: all seven download attempts returned HTTP 504 over two and a
+half minutes, and a branch's first build has no cached copy to use.
+**Decision:** Let the download fail without failing the job, and in that
+case set up the Miniconda preinstalled on GitHub's Ubuntu runners with
+conda-forge as the only channel, with a warning annotation. Miniforge stays
+the primary path (Erik, 2026-11-08). Split the cache into restore and save
+so the installer is saved only after a complete download; with the job now
+able to succeed after a failed download, the combined action would have
+cached an empty folder under the key. A `force-miniconda` input on manual
+runs exercises the fallback.
+**Consequences:** A release-download outage no longer stops the manual
+being built or published. A fallback build uses a different conda than a
+local miniforge build, though the same packages. Rejected: making Miniconda
+the default, which would drop the match with the local recipe.
+
 ## 2026-11-08 — Cache a pinned Miniforge installer in the docs workflow
 **Status:** Accepted
 **Context:** Two docs builds on 2026-11-08 failed before reaching the
