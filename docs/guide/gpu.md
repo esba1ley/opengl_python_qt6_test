@@ -277,8 +277,8 @@ Every vertex of the cube carries $3 + 3 + 3 + 3 + 2 + 1 = 15$ floats
 ```
 
 {py:func}`geometry.cube_vertices` writes each face's six vertices (two
-triangles) with the face's index in `faces` as the `layer`, as a float. The
-order of `faces`, $+X, -X, +Y, -Y, +Z, -Z$, matches the order of
+triangles) with the face's index in `CUBE_FACES` as the `layer`, as a float. The
+order of `CUBE_FACES`, $+X, -X, +Y, -Y, +Z, -Z$, matches the order of
 `textures.MATERIALS`, so layer 0 is the bricks on +X, and so on
 ({ref}`how u and v land on the cube <guide-uv-on-cube>` has the table). {py:meth}`cube.CubeRenderer.init_vertices`
 connects each attribute to the shader input of the same name, in this order.

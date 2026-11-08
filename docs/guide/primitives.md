@@ -46,7 +46,7 @@ and $v$ down. On the cube, each face carries its own pair of axes, set in
 ```{literalinclude} ../../src/geometry.py
 :language: python
 :pyobject: cube_vertices
-:start-at: faces = (
+:start-at: for layer
 :dedent: 4
 ```
 

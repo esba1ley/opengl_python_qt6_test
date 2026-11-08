@@ -15,32 +15,47 @@ VERTEX_ATTRIBUTES = (
     ("layer", 1),
 )
 FLOATS_PER_VERTEX = sum(size for _, size in VERTEX_ATTRIBUTES)
+#: The cube's faces as ``(name, axis, sign)``: the face whose outward normal is
+#: ``sign`` along ``axis``. The order matches ``textures.MATERIALS``, so a
+#: face's index is its texture layer.
+CUBE_FACES = (
+    ("+X", 0, 1),
+    ("-X", 0, -1),
+    ("+Y", 1, 1),
+    ("-Y", 1, -1),
+    ("+Z", 2, 1),
+    ("-Z", 2, -1),
+)
 
 
 def cube_vertices():
     """Build the vertex data for a 2x2x2 cube centred on the origin.
 
     Each face has its own vertices, so it can have its own normal, tangent axes
-    and texture layer. The face order matches ``MATERIALS``.
+    and texture layer. The face order is ``CUBE_FACES``, which matches
+    ``MATERIALS``.
 
     Returns
     -------
     list of float
         36 vertices laid out as described by ``VERTEX_ATTRIBUTES``.
     """
-    faces = ((0, 1), (0, -1), (1, 1), (1, -1), (2, 1), (2, -1))
     data = []
-    for layer, (axis, sign) in enumerate(faces):
+    for layer, (_, axis, sign) in enumerate(CUBE_FACES):
+        # The two axes in the face's plane, in increasing order: u gets the
+        # tangent and v the bitangent.
         u, v = [i for i in range(3) if i != axis]
         normal, tangent, bitangent = [0.0] * 3, [0.0] * 3, [0.0] * 3
         normal[axis] = float(sign)
         tangent[u] = 1.0
         bitangent[v] = 1.0
         corners = []
+        # Counter-clockwise in (u, v), starting at the (-1, -1) corner.
         for a, b in ((-1, -1), (1, -1), (1, 1), (-1, 1)):
             point = [0.0, 0.0, 0.0]
             point[axis], point[u], point[v] = float(sign), float(a), float(b)
             corners.append((point, (a + 1) / 2.0, (b + 1) / 2.0))
+        # Two triangles that share the diagonal from corner 0 to corner 2.
         for index in (0, 1, 2, 0, 2, 3):
             point, tex_u, tex_v = corners[index]
             data += [*point, *normal, *tangent, *bitangent, tex_u, tex_v, float(layer)]

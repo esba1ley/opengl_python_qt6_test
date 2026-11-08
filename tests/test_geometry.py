@@ -19,6 +19,24 @@ def test_cube_vertices_count_and_layers():
     assert all(np.count_nonzero(layers == k) == 6 for k in range(6))
 
 
+def test_cube_faces_table_matches_layers_and_normals():
+    """``CUBE_FACES`` is +X, -X, +Y, -Y, +Z, -Z, and each face's vertices follow it.
+
+    **WHY:** The order of the table is the texture-layer order, which is the
+    order of ``textures.MATERIALS``. Reordering it would silently put materials
+    on the wrong faces, with every other cube test still passing.
+    """
+    assert [name for name, _, _ in geometry.CUBE_FACES] == [
+        "+X", "-X", "+Y", "-Y", "+Z", "-Z"
+    ]
+    rows = np.array(geometry.cube_vertices()).reshape(6, 6, -1)
+    for layer, (_, axis, sign) in enumerate(geometry.CUBE_FACES):
+        expected_normal = np.zeros(3)
+        expected_normal[axis] = sign
+        assert np.all(rows[layer, :, -1] == layer)
+        assert np.all(rows[layer, :, 3:6] == expected_normal)
+
+
 def test_cube_vertices_lie_on_faces_with_matching_normals():
     """Each vertex sits on its face plane, offset along its own normal.
 
