@@ -2,6 +2,20 @@
 
 Newest first.
 
+## 2026-11-08 — Release v0.5.0
+
+- Cut `rc/esbailey/v0.5.0` from `develop` and ran `bump2version minor`
+  without tagging.
+- Adds the guide from the window to the frame (`window`, `context`,
+  `spaces`, `geometry`, `buffers`, `frame`), `geometry.CUBE_FACES`,
+  `main.request_surface_format`, the five geometry debug views, the frame
+  build-up images, `docs/references.md` with per-page further reading and
+  package links, and the Python 3.11 floor. Texture bytes, vertex data and
+  the lit image are unchanged.
+
+**Next:** Merge into `main`, tag `v0.5.0`, and merge `main` back into
+`develop`.
+
 ## 2026-11-08 — Pi run of the extended guide
 
 - Erik ran `pytest`, `--check` and the docs build on the Pi (OpenGL ES 3.1)
