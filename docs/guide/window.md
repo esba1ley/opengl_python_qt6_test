@@ -95,9 +95,10 @@ Line by line:
 
 The event loop is what a GUI program does most of the time. It waits for
 something to happen: a key or mouse event from the window system, a timer
-running out, a request to repaint a widget. Each one becomes an event object,
-and Qt delivers it to the widget it concerns by calling one of that widget's
-methods. Then the loop waits again. It stops when `exit()` is called, or, by
+running out, a request to repaint a widget. Input and repaint requests
+become event objects, and Qt delivers each one to the widget it concerns by
+calling one of that widget's methods; a timer that runs out calls the
+function it was given. Then the loop waits again. It stops when `exit()` is called, or, by
 default, when the last window is closed. `exec()` then returns the status
 passed to `exit()`; closing the last window quits with status 0, which means
 success.
@@ -144,10 +145,14 @@ from this framebuffer ({ref}`guide-selftest`).
     each face of the cube would simply cover the ones drawn before it, as the
     comment in the code says. 24 bits is the common choice.
   - `setSamples(4)` asks for **multisampling** with 4 samples per pixel.
-    OpenGL then samples every triangle and line at 4 points in each pixel
-    instead of one, and resolves the 4 samples into the pixel's colour. This
-    is antialiasing: it smooths the jagged edges of the cube and of the
-    grid's thin lines. Where multisampling is not supported the request may
+    Each pixel of the framebuffer then holds 4 samples of colour and depth.
+    A triangle or line still produces one fragment per covered pixel, so the
+    fragment shader normally runs once per pixel, but coverage and the depth
+    test are evaluated at each of the 4 sample points. Qt then resolves the
+    samples, copying its multisample framebuffer into a single-sample one,
+    which combines the 4 samples into one colour per pixel. This is
+    antialiasing: it smooths the jagged edges of the cube and of the grid's
+    thin lines. Where multisampling is not supported the request may
     be ignored.
 - `setFormat(surface)` gives the widget this format, which Qt uses when it
   creates the widget's context. It has to be called before the widget is
@@ -286,8 +291,9 @@ pointer. `CubeWidget` overrides four of them. The press handler is one line,
   a degree; most mice turn in steps of 15 degrees, which is 120, so dividing
   by 120 gives notches.
 - `mouseDoubleClickEvent` resets the view and the light. The widget also
-  receives the press and release events of both clicks; the presses only set
-  `last_pos`.
+  receives the first click's press and release and the second click's
+  release. The second press arrives only as the double-click event, which
+  replaces it.
 
 Every handler that changes the scene ends with `self.update()`. `update()`
 does not paint. It schedules a paint event, which Qt processes when control

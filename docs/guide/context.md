@@ -17,9 +17,9 @@ OpenGL is a long list of functions, such as `glClear` or `glDrawArrays`, and
 almost all of them act on hidden state: which shader program is in use,
 which textures are bound, whether depth testing is on, and the objects
 themselves (shaders, textures, buffers). A **context** holds one complete set
-of that state. The window system creates it, at Qt's request, attached to a
-window or an off-screen surface, and an OpenGL call always acts on the context that is
-**current**. A context can be current in only one thread, and against one
+of that state. The window system creates it, at Qt's request, for use with
+a window or an off-screen surface, and an OpenGL call always acts on the
+context that is **current**. A context can be current in only one thread, and against one
 surface, at a time.
 
 This is why nothing in the program calls OpenGL before `initializeGL`. The
@@ -217,7 +217,7 @@ active, and its location is then -1 too. Setting a value at location -1 is
 silently ignored. A misspelt name, or a uniform the shader stopped using, therefore
 gives no error, only a scene that does not change.
 `test_uniform_locations_are_all_found` in `tests/test_cube.py` checks that
-every location the cube renderer looks up in `initialize` is 0 or more.
+each of the five locations `initialize` stores is 0 or more.
 
 (guide-setting-uniforms)=
 ## Setting uniforms: `set_matrix`, `set_vector`, `glUniform1i`
@@ -240,8 +240,9 @@ entries in **row-major** order, row by row. `glUniformMatrix4fv` expects
 **column-major** order, column by column, unless its third argument,
 `transpose`, is `GL_TRUE`; then it reads the values as rows. Passing
 `GL_TRUE` therefore gives the shader the matrix as Qt holds it, so that
-`mvp * vec4(position, 1.0)` in GLSL computes the same point as
-`mvp.map(position)` does in Qt. `(GL.GLfloat * 16)(...)` packs the values
+`mvp * vec4(position, 1.0)` in GLSL is the same homogeneous product Qt
+computes in `mvp.map(position)`. The two results differ only in that
+`map()` also divides by $w$, while `gl_Position` is kept before the divide. `(GL.GLfloat * 16)(...)` packs the values
 into a ctypes array of 16 C floats for PyOpenGL to pass on. The `1` is the
 number of matrices.
 
@@ -257,7 +258,7 @@ number of matrices.
 Integer uniforms are set directly with `glUniform1i`:
 
 - **Samplers.** A sampler uniform holds the number of a texture unit, and
-  `glUniform1i` is the only way to set one.
+  `glUniform1i` (or `glUniform1iv`) is the only way to set one.
   {py:meth}`cube.CubeRenderer.init_textures` sets `albedoMap` to 0 and
   `normalMap` to 1 ({ref}`guide-texture-arrays`).
 - **Integers.** `view` in the cube's fragment shader is an `int`, set each
