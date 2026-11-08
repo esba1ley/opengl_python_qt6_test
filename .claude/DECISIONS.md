@@ -2,6 +2,21 @@
 
 Newest first.
 
+## 2026-11-08 — Cache a pinned Miniforge installer in the docs workflow
+**Status:** Accepted
+**Context:** Two docs builds on 2026-11-08 failed before reaching the
+project's code: setup-miniconda's download of the latest Miniforge from
+GitHub releases returned HTTP 504 three times.
+**Decision:** Pin the Miniforge version in the workflow, keep the installer
+in `actions/cache` under a key naming that version, fetch it with `curl
+--retry` only on a miss, and hand it to setup-miniconda as a `file://`
+`installer-url`.
+**Consequences:** Most builds make no release download. A cache is scoped to
+its branch plus the default branch, so `main`, `develop` and each new
+branch fill it once. The pin has to be raised by hand. Rejected:
+retries alone (every build still depends on the download), and switching to
+setup-micromamba (a different tool than the local miniforge recipe).
+
 ## 2026-11-08 — Raise the supported Python floor to 3.11
 **Status:** Accepted
 **Context:** The README claimed Python 3.10 or later and `ruff.toml`

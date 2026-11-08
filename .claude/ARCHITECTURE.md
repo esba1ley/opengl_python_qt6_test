@@ -87,7 +87,9 @@ builds it on GitHub Actions for every push to `develop`, `main`, `ft/**` and
 publishes it to GitHub Pages (https://esba1ley.github.io/opengl_python_qt6_test/) from `main`
 only. The runner takes the Python packages from `environment.yml` and
 `environment-docs.yml` through miniforge and PlantUML, Java and Graphviz from
-apt. `docs/guide/` is the teaching chapter (see Teaching guide).
+apt. The Miniforge installer is pinned (`MINIFORGE_VERSION` in the
+workflow) and kept in the Actions cache, downloaded with retries only on a
+cache miss. `docs/guide/` is the teaching chapter (see Teaching guide).
 `docs/index.md` and `docs/src/README.md` pull in the
 repository's `README.md` and `src/README.md` with MyST's include directive,
 so the READMEs remain the single source and the Sphinx page names mirror the

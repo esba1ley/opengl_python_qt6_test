@@ -23,6 +23,11 @@ jobs:
     defaults:
       run:
         shell: bash -el {0}
+    env:
+      # Pinned so the cache key below is stable; "latest" would miss it on
+      # every Miniforge release.
+      MINIFORGE_VERSION: 26.9.4-0
+      MINIFORGE_DIR: ${{ github.workspace }}/.miniforge-installer
     steps:
       - uses: actions/checkout@v4
 
@@ -31,9 +36,27 @@ jobs:
           sudo apt-get update
           sudo apt-get install --yes --no-install-recommends plantuml graphviz
 
+      # GitHub's release downloads time out now and then (HTTP 504), which
+      # failed whole builds. Keep the installer in the Actions cache and fetch
+      # it with retries only when the cache misses.
+      - name: Restore the Miniforge installer
+        id: miniforge-cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.MINIFORGE_DIR }}
+          key: miniforge-${{ env.MINIFORGE_VERSION }}-Linux-x86_64
+
+      - name: Download the Miniforge installer
+        if: steps.miniforge-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p "$MINIFORGE_DIR"
+          curl --fail --location --retry 6 --retry-all-errors --retry-delay 20 \
+            --output "$MINIFORGE_DIR/Miniforge3-Linux-x86_64.sh" \
+            "https://github.com/conda-forge/miniforge/releases/download/$MINIFORGE_VERSION/Miniforge3-$MINIFORGE_VERSION-Linux-x86_64.sh"
+
       - uses: conda-incubator/setup-miniconda@v3
         with:
-          miniforge-version: latest
+          installer-url: file://${{ env.MINIFORGE_DIR }}/Miniforge3-Linux-x86_64.sh
           environment-file: environment.yml
           activate-environment: opengl_qt6_test
           channels: conda-forge
