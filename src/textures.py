@@ -2,6 +2,8 @@
 
 This module only uses NumPy, so it works without an OpenGL context.
 """
+from typing import NamedTuple
+
 import numpy as np
 
 import config
@@ -302,6 +304,34 @@ def dome(fx, fy, radius):
     return np.sqrt(np.clip(1.0 - r * r, 0.0, 1.0))
 
 
+class Material(NamedTuple):
+    """The result of building one material: its layers and how it was built.
+
+    A material is built in small steps, each producing an image or a field
+    that a person can look at. Keeping them lets the documentation show how a
+    flat brick wall grows from a distance field, a mask and some noise, rather
+    than only the finished result.
+
+    Parameters
+    ----------
+    color : numpy.ndarray
+        Float RGB image of shape ``(size, size, 3)``, with values from 0 to 1.
+    height : numpy.ndarray
+        Float height field of shape ``(size, size)``, where 1 is highest.
+    steps : dict
+        Intermediate results in the order they were built, from a short
+        readable step name to the array at that step: either a 2D field of
+        shape ``(size, size)`` or an RGB image of shape ``(size, size, 3)``.
+        The last two entries are ``"colour"`` and ``"height"``, the same
+        arrays as `color` and `height`. Nothing recorded here is changed
+        after it is stored.
+    """
+
+    color: np.ndarray
+    height: np.ndarray
+    steps: dict
+
+
 def bricks(size, rng):
     """Generate a staggered red brick wall with recessed mortar.
 
@@ -314,19 +344,31 @@ def bricks(size, rng):
 
     Returns
     -------
-    color : numpy.ndarray
-        Float RGB image of shape ``(size, size, 3)``, with values from 0 to 1.
-    height : numpy.ndarray
-        Float height field of shape ``(size, size)``, where 1 is highest.
+    Material
+        The colour, the height and the build steps: ``"distance to edge"``,
+        ``"mortar mask"``, ``"surface noise"``, ``"brick shade"``,
+        ``"brick colour"``, ``"colour"`` and ``"height"``.
     """
     u, v = uv_grid(size)
     rows, columns = 8, 4
     column, row, fx, fy = cell_lattice(u, v, columns, rows, stagger=0.5)
-    mask = smoothstep(0.008, 0.02, edge_distance(fx, fy, columns, rows))
+    distance = edge_distance(fx, fy, columns, rows)
+    mask = smoothstep(0.008, 0.02, distance)
     noise = fractal_noise(size, rng, cells=8)
     shade = rng.random((rows, columns + 2))[row.astype(int), column.astype(int)]
     brick = mix([0.62, 0.22, 0.16], [0.80, 0.36, 0.24], shade * 0.6 + noise * 0.4)
-    return mix([0.62, 0.60, 0.55], brick, mask), mask * (0.85 + 0.15 * noise)
+    color = mix([0.62, 0.60, 0.55], brick, mask)
+    height = mask * (0.85 + 0.15 * noise)
+    steps = {
+        "distance to edge": distance,
+        "mortar mask": mask,
+        "surface noise": noise,
+        "brick shade": shade,
+        "brick colour": brick,
+        "colour": color,
+        "height": height,
+    }
+    return Material(color, height, steps)
 
 
 def cobbles(size, rng):
@@ -341,10 +383,10 @@ def cobbles(size, rng):
 
     Returns
     -------
-    color : numpy.ndarray
-        Float RGB image of shape ``(size, size, 3)``, with values from 0 to 1.
-    height : numpy.ndarray
-        Float height field of shape ``(size, size)``, where 1 is highest.
+    Material
+        The colour, the height and the build steps: ``"distance gap"``,
+        ``"mortar mask"``, ``"surface noise"``, ``"stone shade"``,
+        ``"stone colour"``, ``"colour"`` and ``"height"``.
     """
     u, v = uv_grid(size)
     points = rng.random((40, 2))
@@ -353,7 +395,18 @@ def cobbles(size, rng):
     noise = fractal_noise(size, rng, cells=8)
     shade = rng.random(len(points))[nearest]
     stone = mix([0.42, 0.42, 0.44], [0.72, 0.70, 0.66], shade * 0.7 + noise * 0.3)
-    return mix([0.16, 0.14, 0.12], stone, mask), mask * (0.8 + 0.2 * noise)
+    color = mix([0.16, 0.14, 0.12], stone, mask)
+    height = mask * (0.8 + 0.2 * noise)
+    steps = {
+        "distance gap": gap,
+        "mortar mask": mask,
+        "surface noise": noise,
+        "stone shade": shade,
+        "stone colour": stone,
+        "colour": color,
+        "height": height,
+    }
+    return Material(color, height, steps)
 
 
 def tiles(size, rng):
@@ -369,16 +422,28 @@ def tiles(size, rng):
 
     Returns
     -------
-    color : numpy.ndarray
-        Float RGB image of shape ``(size, size, 3)``, with values from 0 to 1.
-    height : numpy.ndarray
-        Float height field of shape ``(size, size)``, where 1 is highest.
+    Material
+        The colour, the height and the build steps: ``"distance to edge"``,
+        ``"grout mask"``, ``"checker"``, ``"glaze"``, ``"colour"`` and
+        ``"height"``.
     """
     u, v = uv_grid(size)
-    column, row, fx, fy = cell_lattice(u, v, 4, 4)
-    mask = smoothstep(0.004, 0.03, edge_distance(fx, fy, 4, 4))
-    glaze = mix([0.10, 0.48, 0.50], [0.82, 0.86, 0.80], checker(column, row))
-    return mix([0.30, 0.28, 0.26], glaze, smoothstep(0.0, 0.3, mask)), mask
+    count = 4
+    column, row, fx, fy = cell_lattice(u, v, count, count)
+    distance = edge_distance(fx, fy, count, count)
+    mask = smoothstep(0.004, 0.03, distance)
+    parity = checker(column, row)
+    glaze = mix([0.10, 0.48, 0.50], [0.82, 0.86, 0.80], parity)
+    color = mix([0.30, 0.28, 0.26], glaze, smoothstep(0.0, 0.3, mask))
+    steps = {
+        "distance to edge": distance,
+        "grout mask": mask,
+        "checker": parity,
+        "glaze": glaze,
+        "colour": color,
+        "height": mask,
+    }
+    return Material(color, mask, steps)
 
 
 def wood(size, rng):
@@ -393,10 +458,10 @@ def wood(size, rng):
 
     Returns
     -------
-    color : numpy.ndarray
-        Float RGB image of shape ``(size, size, 3)``, with values from 0 to 1.
-    height : numpy.ndarray
-        Float height field of shape ``(size, size)``, where 1 is highest.
+    Material
+        The colour, the height and the build steps: ``"plank offset"``,
+        ``"grain wobble"``, ``"grain"``, ``"plank gap"``, ``"wood colour"``,
+        ``"colour"`` and ``"height"``.
     """
     u, v = uv_grid(size)
     planks = 5
@@ -406,8 +471,21 @@ def wood(size, rng):
     wobble = fractal_noise(size, rng, cells=3, octaves=4)
     grain = 0.5 + 0.5 * np.sin(38.0 * (x + 0.5 * wobble + offset) + 3.0 * v)
     gap = smoothstep(0.0, 0.03, seam(x))
-    color = mix([0.36, 0.20, 0.09], [0.68, 0.45, 0.24], grain * (0.6 + 0.4 * offset))
-    return mix([0.08, 0.05, 0.03], color, gap), gap * (0.85 + 0.15 * grain)
+    wood_color = mix(
+        [0.36, 0.20, 0.09], [0.68, 0.45, 0.24], grain * (0.6 + 0.4 * offset)
+    )
+    color = mix([0.08, 0.05, 0.03], wood_color, gap)
+    height = gap * (0.85 + 0.15 * grain)
+    steps = {
+        "plank offset": offset,
+        "grain wobble": wobble,
+        "grain": grain,
+        "plank gap": gap,
+        "wood colour": wood_color,
+        "colour": color,
+        "height": height,
+    }
+    return Material(color, height, steps)
 
 
 def rivets(size, rng):
@@ -422,18 +500,29 @@ def rivets(size, rng):
 
     Returns
     -------
-    color : numpy.ndarray
-        Float RGB image of shape ``(size, size, 3)``, with values from 0 to 1.
-    height : numpy.ndarray
-        Float height field of shape ``(size, size)``, where 1 is highest.
+    Material
+        The colour, the height and the build steps: ``"dome"``,
+        ``"brushed streaks"``, ``"brushed finish"``, ``"plate colour"``,
+        ``"colour"`` and ``"height"``.
     """
     u, v = uv_grid(size)
-    _, _, fx, fy = cell_lattice(u, v, 5, 5)
+    count = 5
+    _, _, fx, fy = cell_lattice(u, v, count, count)
     bump = dome(fx - 0.5, fy - 0.5, 0.16)
-    brushed = np.tile(rng.random((size, 1)), (1, size))
-    brushed = 0.5 * brushed + 0.5 * fractal_noise(size, rng, cells=6)
-    color = mix([0.42, 0.44, 0.48], [0.62, 0.64, 0.68], brushed)
-    return mix(color, [0.74, 0.74, 0.76], bump), 0.8 * bump + 0.04 * brushed
+    streaks = np.tile(rng.random((size, 1)), (1, size))
+    brushed = 0.5 * streaks + 0.5 * fractal_noise(size, rng, cells=6)
+    plate = mix([0.42, 0.44, 0.48], [0.62, 0.64, 0.68], brushed)
+    color = mix(plate, [0.74, 0.74, 0.76], bump)
+    height = 0.8 * bump + 0.04 * brushed
+    steps = {
+        "dome": bump,
+        "brushed streaks": streaks,
+        "brushed finish": brushed,
+        "plate colour": plate,
+        "colour": color,
+        "height": height,
+    }
+    return Material(color, height, steps)
 
 
 def weave(size, rng):
@@ -449,19 +538,27 @@ def weave(size, rng):
 
     Returns
     -------
-    color : numpy.ndarray
-        Float RGB image of shape ``(size, size, 3)``, with values from 0 to 1.
-    height : numpy.ndarray
-        Float height field of shape ``(size, size)``, where 1 is highest.
+    Material
+        The colour, the height and the build steps: ``"over or under"`` (1
+        where the strand running across is on top), ``"strands across"``,
+        ``"strands along"``, ``"height"`` and ``"colour"``.
     """
     u, v = uv_grid(size)
-    column, row, fx, fy = cell_lattice(u, v, 10, 10)
+    count = 10
+    column, row, fx, fy = cell_lattice(u, v, count, count)
     over = checker(column, row) == 0
     across = np.sin(np.pi * fy) * (0.55 + 0.45 * np.sin(np.pi * fx))
     along = np.sin(np.pi * fx) * (0.55 + 0.45 * np.sin(np.pi * fy))
     height = np.where(over, across, along)
     color = mix([0.30, 0.22, 0.10], [0.86, 0.72, 0.42], height)
-    return color, height
+    steps = {
+        "over or under": over.astype(float),
+        "strands across": across,
+        "strands along": along,
+        "height": height,
+        "colour": color,
+    }
+    return Material(color, height, steps)
 
 
 # Texture layer order; matches the faces in cube_vertices().
@@ -512,8 +609,40 @@ def to_rgba_bytes(images):
     return (np.concatenate((rgb, alpha), axis=3) * 255.0 + 0.5).astype(np.uint8).tobytes()
 
 
+def iter_materials(size, seed=None):
+    """Build every material in layer order, one at a time.
+
+    All materials share one random generator, so each one draws from where
+    the previous one stopped. Building them through this function therefore
+    gives exactly the layers that :func:`generate_texture_layers` packs.
+
+    Parameters
+    ----------
+    size : int
+        Width and height of every texture, in pixels.
+    seed : int, optional
+        Seed for the random generator. The default, ``None``, uses
+        ``config.TEXTURE_SEED`` as it is when the function is called.
+
+    Yields
+    ------
+    function : callable
+        The material function, one of `MATERIALS`.
+    material : Material
+        The result of calling it with `size`.
+    """
+    if seed is None:
+        seed = config.TEXTURE_SEED
+    rng = np.random.default_rng(seed)
+    for function in MATERIALS:
+        yield function, function(size, rng)
+
+
 def generate_texture_layers():
     """Generate the colour and normal maps for every material.
+
+    Only each material's colour and height are kept, so the intermediate
+    steps are freed as soon as the next material starts.
 
     Returns
     -------
@@ -524,8 +653,10 @@ def generate_texture_layers():
     layers : int
         Number of layers.
     """
-    rng = np.random.default_rng(config.TEXTURE_SEED)
-    generated = [material(config.TEXTURE_SIZE, rng) for material in MATERIALS]
-    albedo = to_rgba_bytes([color for color, _ in generated])
-    normals = to_rgba_bytes([height_to_normals(height) for _, height in generated])
-    return albedo, normals, len(generated)
+    colors, heights = [], []
+    for _, material in iter_materials(config.TEXTURE_SIZE):
+        colors.append(material.color)
+        heights.append(material.height)
+    albedo = to_rgba_bytes(colors)
+    normals = to_rgba_bytes([height_to_normals(height) for height in heights])
+    return albedo, normals, len(colors)

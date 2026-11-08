@@ -90,12 +90,19 @@ class geometry <<module>> {
 }
 class textures <<module>> {
   generate_texture_layers()
+  iter_materials()
   bricks(), cobbles(), tiles()
   weave(), rivets(), wood()
   seam(), cell_lattice(), edge_distance()
   checker(), voronoi(), dome()
   height_to_normals(), to_rgba_bytes()
 }
+class Material <<NamedTuple>> {
+  color
+  height
+  steps
+}
+
 class shaders <<module>> {
   CUBE_VERTEX_BODY, CUBE_FRAGMENT_BODY
   OVERLAY_VERTEX_BODY, OVERLAY_FRAGMENT_BODY
@@ -104,6 +111,7 @@ class config <<module>> {
   fixed settings
 }
 
+textures ..> Material : returns
 QOpenGLWidget <|-- CubeWidget
 CubeWidget *-- SceneContext
 CubeWidget *-- CubeRenderer

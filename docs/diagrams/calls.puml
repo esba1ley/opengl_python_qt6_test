@@ -76,6 +76,7 @@ package geometry {
 
 package textures {
   rectangle "generate_texture_layers()" as t_gen
+  rectangle "iter_materials()" as t_iter
   rectangle "bricks() cobbles() tiles()\nweave() rivets() wood()" as t_mats
   rectangle "cell_lattice()" as t_lattice
   rectangle "edge_distance()" as t_edge
@@ -105,7 +106,8 @@ g_build --> g_compile
 k_tex --> t_gen
 k_tex --> g_upload
 k_vert --> ge_cube
-t_gen --> t_mats
+t_gen --> t_iter
+t_iter --> t_mats
 t_gen --> t_normals
 t_gen --> t_rgba
 t_mats --> t_lattice

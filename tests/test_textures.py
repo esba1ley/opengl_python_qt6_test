@@ -222,7 +222,7 @@ def test_material_shapes_and_ranges(material, rng):
     the same shapes and a colour range the byte packer can encode. Size 32
     keeps the run fast.
     """
-    color, height = material(SIZE, rng)
+    color, height, _ = material(SIZE, rng)
     assert color.shape == (SIZE, SIZE, 3)
     assert height.shape == (SIZE, SIZE)
     assert color.min() >= 0.0 and color.max() <= 1.0
@@ -289,3 +289,66 @@ def test_generate_texture_layers_sizes(monkeypatch):
     expected = SIZE * SIZE * 4 * len(textures.MATERIALS)
     assert len(albedo) == len(normals) == expected
     assert layers == len(textures.MATERIALS)
+
+
+@pytest.mark.parametrize("material", textures.MATERIALS,
+                         ids=[m.__name__ for m in textures.MATERIALS])
+def test_material_steps_are_recorded(material, rng):
+    """Every material records finite 2D or RGB steps ending in its layers.
+
+    **WHY:** The documentation draws each step as an image, so every step
+    must be a (n, n) field or (n, n, 3) image with no NaN or infinity. The
+    "colour" and "height" steps must be the very arrays returned, or the
+    pictures would not show the layers that reach the GPU.
+    """
+    result = material(SIZE, rng)
+    assert isinstance(result, textures.Material)
+    assert result.steps
+    assert result.steps["colour"] is result.color
+    assert result.steps["height"] is result.height
+    for name, step in result.steps.items():
+        assert step.shape in ((SIZE, SIZE), (SIZE, SIZE, 3)), name
+        assert np.isfinite(step).all(), name
+
+
+def test_iter_materials_follows_materials_order():
+    """`iter_materials` yields each material function, in layer order.
+
+    **WHY:** The layer index is the cube face index. Out of order, every face
+    would show another face's material.
+    """
+    pairs = list(textures.iter_materials(SIZE, seed=1))
+    assert [function for function, _ in pairs] == list(textures.MATERIALS)
+    assert all(isinstance(material, textures.Material) for _, material in pairs)
+
+
+def test_iter_materials_is_repeatable_and_defaults_to_config_seed(monkeypatch):
+    """The same seed gives the same colours; no seed uses `config.TEXTURE_SEED`.
+
+    **WHY:** The documentation images must show the layers the program really
+    builds, which needs the same seed to give the same pixels, and the default
+    to follow the configured seed when it is read, not when the module loads.
+    """
+    first = [m.color for _, m in textures.iter_materials(SIZE, seed=5)]
+    second = [m.color for _, m in textures.iter_materials(SIZE, seed=5)]
+    assert all(np.array_equal(a, b) for a, b in zip(first, second))
+    monkeypatch.setattr(config, "TEXTURE_SEED", 5)
+    default = [m.color for _, m in textures.iter_materials(SIZE)]
+    assert all(np.array_equal(a, b) for a, b in zip(first, default))
+
+
+def test_generate_texture_layers_packs_iter_materials(monkeypatch):
+    """The packed layers equal `iter_materials` colours and normals.
+
+    **WHY:** `generate_texture_layers` is a thin consumer of `iter_materials`.
+    If the two drifted apart, the documentation would describe textures the
+    program does not use.
+    """
+    monkeypatch.setattr(config, "TEXTURE_SIZE", SIZE)
+    materials = [m for _, m in textures.iter_materials(SIZE)]
+    albedo, normals, layers = textures.generate_texture_layers()
+    assert albedo == textures.to_rgba_bytes([m.color for m in materials])
+    assert normals == textures.to_rgba_bytes(
+        [textures.height_to_normals(m.height) for m in materials]
+    )
+    assert layers == len(materials)
