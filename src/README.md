@@ -155,7 +155,7 @@ draws.
 
 `CUBE_FRAGMENT_BODY` has a `uniform int view` that selects what the cube shows:
 the index into `shaders.CUBE_VIEWS` (`final`, `albedo`, `normal`, `diffuse`,
-`facing`, `specular`). `SceneContext.cube_view` holds it, starting at
-`config.DEFAULT_CUBE_VIEW` (0, the lit image), and `CubeRenderer.paint` sends it
-to the shader. Double-clicking resets the view and light but keeps `cube_view`.
+`facing`, `specular`, `uv`, `layer`, `tangent`, `bitangent`, `face_normal`).
+`SceneContext.cube_view` holds it, starting at `config.DEFAULT_CUBE_VIEW` (0,
+the lit image), and `CubeRenderer.paint` sends it to the shader. Double-clicking resets the view and light but keeps `cube_view`.
 The program has no control for changing it; the guide's images set it from code.
