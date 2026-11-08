@@ -2,6 +2,23 @@
 
 Newest first.
 
+## 2026-11-07 — Teaching example: patterns, steps, debug view and guide chapter
+
+- Factored six shared patterns out of `src/textures.py`; materials now return
+  `Material(color, height, steps)` and `iter_materials` replays them. Texture
+  bytes unchanged (sha256 prefix `70bf2f00d9547795`).
+- Added the `view` uniform to the cube fragment shader, `CUBE_VIEWS`,
+  `config.DEFAULT_CUBE_VIEW` and `SceneContext.cube_view`; view 0 renders
+  unchanged.
+- Added `tools/make_guide_images.py` (60 images in `docs/images/guide/`) and
+  the chapter in `docs/guide/` with `docs/diagrams/textures.puml`.
+- Restated the README, `src/README.md` and these documents; corrected the
+  `uv_grid` and `generate_texture_layers` docstrings and three chapter
+  sentences. See `DECISIONS.md`.
+
+**Next:** Run `pytest` and `--check` on the Pi, where view-0 identity under
+GLES and GL 3.1 is still unverified.
+
 ## 2026-11-07 — Rendered icon and screenshot, shared offscreen module
 
 - Added `tools/offscreen.py` and moved the face-image and animation tools

@@ -55,7 +55,7 @@ pattern and material images are generated at 512 pixels, the size the program
 uses, and scaled down to 160 pixels; the views of the cube are 240 pixels.
 
 They are drawn in **texture space**: $u$ runs to the right and $v$ runs down
-the rows of the image, both from 0 to 1. That is not how they appear on the
+the rows of the image, both from 0 to just under 1 (at most $(\text{size}-1)/\text{size}$). That is not how they appear on the
 cube; [the primitives page](primitives.md) explains the difference.
 
 A single-channel field is drawn as greyscale by one rule:

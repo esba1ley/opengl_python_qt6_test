@@ -273,8 +273,9 @@ to `fragColor` unchanged, so the colours in {py:mod}`textures` are display
 values that the lighting multiplies as if they were linear. Physically based
 shading would decode them to linear light, light them, and encode the result
 for display; skipping that, a common simplification, makes partly lit areas
-look darker than the formulas above suggest, since the display treats the
-output as sRGB.
+look darker than correct linear-light shading would make them, since the
+display treats the output as sRGB. The formulas above give exactly what the
+shader writes.
 
 ```{figure} ../images/guide/view-final.png
 :alt: The lit cube: a bright riveted front face with a highlight, dim brick and tile faces
@@ -393,7 +394,10 @@ of 0.5, the middle of its range.
 8. **Lighting.** If the light is on the +X side of the cube far enough that
    $\mathbf{N}\cdot\mathbf{L} \ge 0.1$, `facing` is 1. The diffuse term is
    then $\max(\mathbf{n}\cdot\mathbf{L}, 0)$: bright when the light also
-   comes from the −Z side, black when it comes from +Z. This is why each
+   comes from the −Z side. It is black only once the light comes far enough
+   towards +Z that $\mathbf{n}\cdot\mathbf{L} < 0$, which for $\mathbf{n}
+   \approx (0.29,\ 0,\ -0.96)$ needs $L_z$ above about $0.3\,L_x$. This is
+   why each
    joint shows one bright and one dark edge. If the face is turned away from
    the light, `facing` is 0 and the fragment gets only
    $0.2 \times \mathrm{albedo}$, whatever its normal.

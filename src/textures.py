@@ -66,9 +66,16 @@ def uv_grid(size):
     Returns
     -------
     u : numpy.ndarray
-        Horizontal coordinates from 0 to 1, of shape ``(size, size)``.
+        Horizontal coordinates of shape ``(size, size)``, from 0 to
+        ``(size - 1) / size``: up to, but not including, 1.
     v : numpy.ndarray
-        Vertical coordinates from 0 to 1, of shape ``(size, size)``.
+        Vertical coordinates of the same shape and range.
+
+    Notes
+    -----
+    Each pixel is sampled at ``i / size``, its left or top edge. OpenGL puts
+    the centre of texel ``i`` at ``(i + 0.5) / size``, so these coordinates
+    sit half a texel from the centre.
     """
     v, u = np.mgrid[0:size, 0:size] / size
     return u, v
@@ -641,8 +648,9 @@ def iter_materials(size, seed=None):
 def generate_texture_layers():
     """Generate the colour and normal maps for every material.
 
-    Only each material's colour and height are kept, so the intermediate
-    steps are freed as soon as the next material starts.
+    Only each material's colour and height are kept. A material's recorded
+    steps stay in memory until the generator advances past it, so at most two
+    materials' steps exist at once.
 
     Returns
     -------

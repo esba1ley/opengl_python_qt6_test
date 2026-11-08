@@ -34,6 +34,7 @@ The cube, sphere and axes stay anchored to each other because they all use
 | `light` | Unit vector towards the light, in world space |
 | `aspect_ratio` | Viewport width divided by height |
 | `pixel_ratio` | Device pixels per logical pixel |
+| `cube_view` | Which shading stage the cube shader shows (index into `shaders.CUBE_VIEWS`) |
 
 ### What it provides
 
@@ -57,8 +58,8 @@ them.
 | `cube.py` | `CubeRenderer`, which draws the textured cube | Yes |
 | `overlay.py` | `OverlayRenderer`, which draws the sphere grid, axes and light dot | Yes |
 | `geometry.py` | Vertex data for the cube, sphere grid and axes | No |
-| `textures.py` | Procedural materials and normal maps, using only NumPy | No |
-| `shaders.py` | GLSL source for both renderers | No |
+| `textures.py` | Shared patterns, procedural materials that record their steps, and normal maps, using only NumPy | No |
+| `shaders.py` | GLSL source for both renderers, including the cube's debug views | No |
 | `gl_utils.py` | Helpers for shaders, uniforms and textures | Yes |
 | `config.py` | Settings shared by the other modules | No |
 | `selftest.py` | Simulated mouse input and the `--check` tests | Yes |
@@ -98,12 +99,59 @@ The renderers accept a `SceneContext` as an argument without importing
 | To do this | Change this |
 |---|---|
 | Adjust colours, opacity, spacing or sensitivity | `config.py` |
-| Add or replace a material | Add a function to `textures.py`, then update `MATERIALS` |
+| Add or replace a material | Follow the recipe below |
+| Look at one stage of the cube's shading | Set `ctx.cube_view` or `config.DEFAULT_CUBE_VIEW` to an index into `shaders.CUBE_VIEWS` |
 | Add a new mouse control | Add a method to `SceneContext`, then call it from `widget.py` |
 | Draw something new | Add a renderer, then call it from `CubeWidget.paintGL` |
 | Add a self-test check | Extend `check` in `selftest.py` |
 | Add a unit test | Add to `tests/test_<module>.py`, with a docstring saying what it checks and why; `pytest` fails below 100% coverage |
 
-Material functions take `(size, rng)` and return a colour image and a height map
-as float arrays from 0 to 1. `MATERIALS` needs one entry per cube face, in the
-order used by `cube_vertices` in `geometry.py`.
+## Textures
+
+`textures.py` is written to be read. Its pieces, in file order:
+
+- **Primitives:** `smoothstep`, `mix`, `uv_grid`, `value_noise` and
+  `fractal_noise`.
+- **Shared patterns:** `seam`, `cell_lattice`, `edge_distance`, `checker`,
+  `voronoi` and `dome`. Materials combine these rather than repeating the
+  geometry.
+- **Materials:** `bricks`, `cobbles`, `tiles`, `wood`, `rivets` and `weave`,
+  collected in `MATERIALS`.
+- **Packing:** `height_to_normals` and `to_rgba_bytes`.
+- **Drivers:** `iter_materials` and `generate_texture_layers`.
+
+A material function takes `(size, rng)` and returns a `Material`, a named
+tuple of `color`, `height` and `steps`. `color` is a float RGB image and
+`height` a height map, both with values from 0 to 1. `steps` is an ordered
+dict from a readable step name to the 2D field or RGB image at that point in
+the build; the last two entries are `"colour"` and `"height"`. Nothing
+recorded in `steps` is changed afterwards.
+
+To add a material:
+
+1. Write `def name(size, rng)` that builds the material from the patterns,
+   records each intermediate array in a `steps` dict, and returns
+   `Material(color, height, steps)`.
+2. Append it to `MATERIALS`.
+3. Add a face layer: `MATERIALS` needs one entry per cube face, in the order
+   used by `cube_vertices` in `geometry.py`, so the geometry and the texture
+   array's layer count must change together.
+4. Add tests, and rerun `tools/make_guide_images.py docs/images/guide`.
+
+All the materials share one random generator, in `MATERIALS` order, so each
+draws from where the previous one stopped. Adding a material in the middle, or
+changing how many numbers one draws, changes every material after it.
+`iter_materials(size, seed=None)` replays them in that order and yields each
+`Material`; `generate_texture_layers` uses it and keeps only the colour and
+height, so the steps of all materials are never held at once. The documentation
+tool uses the same function, so its images show exactly the layers the program
+draws.
+
+## Shader views
+
+`CUBE_FRAGMENT_BODY` has a `uniform int view` that selects what the cube shows:
+the index into `shaders.CUBE_VIEWS` (`final`, `albedo`, `normal`, `diffuse`,
+`facing`, `specular`). `SceneContext.cube_view` holds it, starting at
+`config.DEFAULT_CUBE_VIEW` (0, the lit image), and `CubeRenderer.paint` sends it
+to the shader. Double-clicking resets the view and light but keeps `cube_view`.
+The program has no control for changing it; the guide's images set it from code.

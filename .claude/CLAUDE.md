@@ -1,7 +1,9 @@
 # Project Context
 
-A PyQt6 and OpenGL test program that draws a textured cube inside a sphere grid.
-See `README.md` for what it does and `src/README.md` for how the modules fit
+A PyQt6 and OpenGL test program that draws a textured cube inside a sphere grid,
+and a teaching example of procedural textures and shaders: the code is meant to
+be read, and the "How it works" chapter (`docs/guide/`) explains it. See
+`README.md` for what it does and `src/README.md` for how the modules fit
 together. Update both when behaviour or module structure changes.
 
 ## Commands
@@ -88,6 +90,22 @@ output are harmless.
   touch the widget or each other.
 - `widget.py` should only translate mouse input into `SceneContext` calls.
 - `textures.py` and `geometry.py` must stay free of OpenGL calls.
+- Materials in `textures.py` are built from the shared patterns (`seam`,
+  `cell_lattice`, `edge_distance`, `checker`, `voronoi`, `dome`) and return
+  `Material(color, height, steps)`, recording each intermediate array in
+  `steps` as it is built. Never record the distance volume, and never change
+  a recorded array in place. A recorded step must not move a random draw: the
+  texture bytes must stay the same unless a material is meant to change.
+- The cube shader's `view` uniform must keep view 0 identical to the lit
+  image. After a shader change, regenerate `tools/make_face_images.py`,
+  `tools/make_icon.py` and `tools/make_control_animations.py` output and
+  check that git shows no change.
+- After changing a material, a pattern or the cube shader, rerun
+  `python3 tools/make_guide_images.py docs/images/guide` and look at the
+  images; commit them with the change.
+- The chapter quotes code with `literalinclude` (`:pyobject:` for functions,
+  `:start-after:` the `#:` comments for shader strings), so renaming a quoted
+  function or constant needs a `make -C docs html`.
 - Generate textures in code rather than adding image files. The one image
   file the program loads is `icon.png`, the application icon. Every image in
   the repository is rendered by a tool in `tools/`, never drawn or captured
