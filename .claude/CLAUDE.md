@@ -19,6 +19,11 @@ pytest --no-cov tests/test_<module>.py   # run a subset (the gate needs the full
 make -C docs html             # build the HTML manual into docs/_build/html
 ```
 
+`.github/workflows/docs.yml` runs the same docs build on every push to
+`develop`, `main`, `ft/**` and `rc/**` and publishes the manual to GitHub Pages from `main`.
+A docs change that builds locally can still fail there, since the runner
+uses Ubuntu's PlantUML and Graphviz; check the run after pushing.
+
 `--check` needs a display and exits with status 0 only if everything passed.
 Run it after every code change. It only confirms that frames change, so also save
 a frame with `grabFramebuffer()` and look at it after any visual change.

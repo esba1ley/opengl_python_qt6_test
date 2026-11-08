@@ -2,6 +2,32 @@
 
 Newest first.
 
+## 2026-11-07 — Release v0.3.2
+
+- Cut `rc/esbailey/v0.3.2` from `develop` and ran `bump2version patch`
+  without tagging. Merged into `main`, tagged `v0.3.2`, and merged `main`
+  back into `develop`.
+- Adds the GitHub Pages workflow; pushing `main` publishes the manual. The
+  program is unchanged apart from the version.
+
+**Next:** As before: Pi run of the suite, Python 3.11 and 3.13, and the
+surface-format factoring.
+
+## 2026-11-07 — Publish the manual to GitHub Pages
+
+- Added `.github/workflows/docs.yml`: builds the manual on pushes to
+  `develop`, `main`, `ft/**` and `rc/**`, deploys to https://esba1ley.github.io/opengl_python_qt6_test/ from `main`. See
+  `DECISIONS.md`. Updated the README's Documentation section,
+  `ARCHITECTURE.md` and `CLAUDE.md`.
+- GitHub cannot dispatch a workflow by hand until it is on the default
+  branch, so the build also runs on `ft/**` and `rc/**` pushes. Its first run
+  on the feature branch built cleanly with Ubuntu's PlantUML 1.2020.2 and
+  Graphviz 2.42, all five diagrams rendered; a second run, restricted to
+  conda-forge, removed the implicit `defaults` channel warning. Pages was
+  already set to deploy from GitHub Actions.
+
+**Next:** Release so `main` deploys. Done in the entry above.
+
 ## 2026-11-07 — Release v0.3.1
 
 - Cut `rc/esbailey/v0.3.1` from `develop` and ran `bump2version patch`
