@@ -2,6 +2,16 @@
 
 Newest first.
 
+## 2026-11-08 — Raise the supported Python floor to 3.11
+**Status:** Accepted
+**Context:** The README claimed Python 3.10 or later and `ruff.toml`
+targeted `py310`, but the suite has only run under 3.11, 3.12 and 3.13.
+**Decision:** Claim 3.11 or later, the oldest version tested, and set Ruff's
+`target-version` to `py311` (Erik, 2026-11-08).
+**Consequences:** The claim matches the evidence and the coding rule of one
+version either side of 3.12. Rejected: running the suite under 3.10 to keep
+the old claim.
+
 ## 2026-11-08 — Keep the guide's images out of the README
 **Status:** Accepted
 **Context:** The chapter's 60 step and shader-view images could also

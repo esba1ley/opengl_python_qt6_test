@@ -65,7 +65,7 @@ and both shaders line by line.
 
 ## Requirements
 
-- Python 3.10 or later; 3.12 is the version developed against
+- Python 3.11 or later; 3.12 is the version developed against
 - PyQt6, including the `QtOpenGLWidgets` module
 - PyOpenGL
 - NumPy
