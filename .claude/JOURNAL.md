@@ -19,10 +19,11 @@ Newest first.
 - `tools/make_guide_images.py`: hyphenated view file names and the four
   frame build-up images; the guide has 69 images.
 - Project documents updated: `README.md`, `src/README.md`,
-  `.claude/CLAUDE.md` (11 views, the rerun rule, the depth rule),
+  `.claude/CLAUDE.md` (the rerun rule, the depth rule),
   `.claude/ARCHITECTURE.md`; reasons in the five `DECISIONS.md` entries of
-  this date. Reflowed two long lines in `ARCHITECTURE.md` and one in
-  `src/README.md`.
+  this date. Reflowed one long line in `src/README.md`; the long
+  `ARCHITECTURE.md` lines (the Documentation paragraph and two in the
+  Teaching guide) were rewrapped to 80 columns in the final fix wave.
 
 **Next:** Run `pytest` and `--check` on the Pi under OpenGL ES for the new
 views; the deferred minors the final review leaves.

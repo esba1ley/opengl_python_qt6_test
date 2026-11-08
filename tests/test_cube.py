@@ -160,10 +160,10 @@ def test_uv_view_ramps_across_the_front_face(renderer, scene, fbo, image_to_arra
     """The uv view has blue 0 and a block mean near (0.5, 0.5).
 
     **WHY:** The view draws ``vec3(textureCoords, 0.0)``, so blue must be
-    zero and red and green must be the texture coordinates. The central block
-    is not exactly centred on the face (the perspective and the pan shift it
-    slightly), so the mean gets a 0.05 tolerance rather than rounding error,
-    and red must increase from left to right (u runs along +X).
+    zero and red and green must be the texture coordinates. The pan is zero
+    and the head-on face is symmetric, so the central block's mean is 0.5 to
+    within the 2/255 rounding of the 8-bit framebuffer, and red must increase
+    from left to right (u runs along +X).
     """
     scene.rotation = QQuaternion()
     scene.cube_view = shaders.CUBE_VIEWS.index("uv")
@@ -171,5 +171,5 @@ def test_uv_view_ramps_across_the_front_face(renderer, scene, fbo, image_to_arra
     block = centre(image_to_array(fbo.toImage()))
     rgb = block[..., 2::-1].astype(float) / 255.0
     assert np.all(rgb[..., 2] == 0.0)
-    assert np.all(np.abs(rgb[..., :2].mean(axis=(0, 1)) - 0.5) <= 0.05)
+    assert np.all(np.abs(rgb[..., :2].mean(axis=(0, 1)) - 0.5) <= 2 / 255)
     assert rgb[:, -1, 0].mean() > rgb[:, 0, 0].mean()

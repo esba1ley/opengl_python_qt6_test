@@ -87,7 +87,8 @@ the Pi's desktop GL 3.1.
 `docs/` holds a Sphinx project for an HTML build. `.github/workflows/docs.yml`
 builds it on GitHub Actions for every push to `develop`, `main`, `ft/**` and
 `rc/**` and publishes it to GitHub Pages
-(https://esba1ley.github.io/opengl_python_qt6_test/) from `main` only. The runner takes the Python packages from `environment.yml` and
+(https://esba1ley.github.io/opengl_python_qt6_test/) from `main` only. The
+runner takes the Python packages from `environment.yml` and
 `environment-docs.yml` through miniforge and PlantUML, Java and Graphviz from
 apt. The Miniforge installer is pinned (`MINIFORGE_VERSION` in the
 workflow) and kept in the Actions cache, downloaded with retries only on a
@@ -134,13 +135,15 @@ a `--system-site-packages` venv because Debian's are missing or too old.
 **Status:** Frozen
 
 The repository doubles as a teaching example. `docs/guide/` holds the "How it
-works" chapter in ten pages and an `index`, in three captioned parts, reached from
-`docs/index.md`: the window and the scene (`window`, `context`, `spaces`,
-`geometry`, `buffers`), textures and shaders (`primitives`, `materials`,
-`gpu`, `shaders`) and a frame (`frame`). `index` ties them together. It
+works" chapter in ten pages and an `index`, in three captioned parts,
+reached from `docs/index.md`: the window and the scene (`window`, `context`,
+`spaces`, `geometry`, `buffers`), textures and shaders (`primitives`,
+`materials`, `gpu`, `shaders`) and a frame (`frame`). `index` ties them together. It
 quotes `src/` with `literalinclude`, so a rename fails the build, and sets
 its maths with MyST `dollarmath` (enabled in `docs/conf.py`; MathJax loads
-from a CDN when a page is viewed). `docs/diagrams/textures.puml` is its PlantUML activity diagram.
+from a CDN when a page is viewed). It embeds the PlantUML diagrams
+`textures.puml` (the texture pipeline), `startup.puml` and `mouse.puml` (in
+`window`) and `frame.puml` (in `frame`), all in `docs/diagrams/`.
 Its 69 images are in `docs/images/guide/`, written by
 `tools/make_guide_images.py` in five groups: the primitives
 (`primitive_images`), the shared patterns (`pattern_images`), every recorded

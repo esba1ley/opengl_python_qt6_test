@@ -42,14 +42,15 @@ the lit image. The layer view is grey = (layer + 1) / 6, so layer 0 is not
 black on the black background.
 **Consequences:** The images show what the shader computes, and the views
 are tested like the others. The shader grows by a few branches that only
-the guide uses. Rejected: diagrams only, which cannot be checked against the
-program, and the frame build-up images alone, which do not show the
-per-vertex data.
+the guide uses. Erik chose "Build-up plus geometry views" (Erik, 2026-11-08)
+from the options he was offered. Rejected: diagrams only, which cannot be
+checked against the program, and build-up only, whose frame images do not
+show the per-vertex data.
 
 ## 2026-11-08 — Change code only where it fights the explanation
 **Status:** Accepted
-**Context:** Writing the guide's early pages exposed two places where the
-code was harder to explain than it needed to be.
+**Context:** Planning the guide identified two places where the code was
+harder to explain than it needed to be.
 **Decision:** Light touch (Erik, 2026-11-08): add `geometry.CUBE_FACES`, a
 table naming each face's layer, axis and sign with the vertex data
 unchanged, and factor the platform-gated format request into

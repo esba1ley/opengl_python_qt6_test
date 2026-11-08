@@ -236,6 +236,7 @@ def disabled(overlay, *methods):
     None
     """
     for name in methods:
+        assert hasattr(type(overlay), name), name
         setattr(overlay, name, lambda ctx: None)
     try:
         yield

@@ -1,9 +1,10 @@
 # The geometry
 
-Everything the program draws is built from points listed in
-{py:mod}`geometry`: the cube's 36 vertices, and the lines and the point of
-the overlay. This page explains how each list is made and what every number
-in a vertex means. All of it is in model space, the frame of
+Nearly everything the program draws is built from points listed in
+{py:mod}`geometry`: the cube's 36 vertices and the overlay's lines. (The
+overlay's one point, the light dot, is built in `OverlayRenderer.initialize`.)
+This page explains how each list is made and what every number in
+a vertex means. All of it is in model space, the frame of
 {ref}`the chain of spaces <guide-spaces-chain>`, except the light dot.
 [The next page](buffers.md) uploads the lists to the GPU.
 

@@ -38,8 +38,10 @@ overlay -> gl : depth mask off
 overlay -> gl : glDrawArrays(GL_LINES, grid)
 overlay -> gl : depth mask on
 note right of overlay
-  Translucent lines must not write depth
-  or they cut gaps in the axes and dot.
+  Translucent lines must not write depth:
+  the grid would hide its own later lines
+  where they cross, and cut gaps in the
+  axes and dot.
 end note
 
 overlay -> overlay : paint_axes(ctx)

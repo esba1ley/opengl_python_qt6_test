@@ -186,6 +186,8 @@ in `paint`; only the range, the mode and the uniforms change between them.
 
 Neither buffer is written again after `initialize`. The vertices stay in
 model space, as {py:mod}`geometry` made them, for the life of the program.
+(The light dot is the exception: its vertex is at the origin and its own
+transform moves it, not the model matrix.)
 Turning the cube, panning, zooming and moving the light change only the
 {py:class}`~context.SceneContext`, and each frame turns that into uniforms:
 the `mvp` and `model` matrices, the light direction and the camera position

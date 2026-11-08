@@ -114,8 +114,9 @@ class OverlayRenderer:
         GL.glUniform1i(locs["sideShading"], 1)
         GL.glUniform1i(locs["roundPoint"], 0)
         GL.glUniform1f(locs["opacity"], config.SPHERE_OPACITY)
-        # Translucent lines must not write depth, or they would punch small
-        # gaps in the axes and light dot drawn after them.
+        # Translucent lines must not write depth: the grid would hide its own
+        # later lines where they cross, and cut gaps in the axes and light
+        # dot drawn after it.
         GL.glDepthMask(GL.GL_FALSE)
         GL.glDrawArrays(GL.GL_LINES, 0, self.grid_count)
         GL.glDepthMask(GL.GL_TRUE)
