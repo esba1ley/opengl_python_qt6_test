@@ -267,6 +267,15 @@ $$
   colour (white) instead of the surface's. Where the sum exceeds 1, the
   framebuffer clamps it.
 
+Nothing in the pipeline converts between sRGB and linear light. The textures
+are stored as `GL_RGBA8`, not an sRGB format, and the shader writes `result`
+to `fragColor` unchanged, so the colours in {py:mod}`textures` are display
+values that the lighting multiplies as if they were linear. Physically based
+shading would decode them to linear light, light them, and encode the result
+for display; skipping that, a common simplification, makes partly lit areas
+look darker than the formulas above suggest, since the display treats the
+output as sRGB.
+
 ```{figure} ../images/guide/view-final.png
 :alt: The lit cube: a bright riveted front face with a highlight, dim brick and tile faces
 

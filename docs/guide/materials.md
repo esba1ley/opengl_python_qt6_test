@@ -22,7 +22,7 @@ All six follow one plan:
 4. `mix` a gap colour and a cell colour by the mask;
 5. build the height from the mask, with a little noise on top.
 
-The colours below are linear RGB triples from 0 to 1, copied from the code.
+The colours below are RGB triples from 0 to 1, copied from the code.
 
 (guide-bricks)=
 ## Bricks (layer 0, +X)

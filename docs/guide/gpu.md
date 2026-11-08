@@ -267,8 +267,8 @@ normalises the normal after decoding it, which restores the length.
 (guide-layers)=
 ## Which layer each vertex uses
 
-Every vertex of the cube carries 17 floats, described by
-`geometry.VERTEX_ATTRIBUTES`:
+Every vertex of the cube carries $3 + 3 + 3 + 3 + 2 + 1 = 15$ floats
+(`geometry.FLOATS_PER_VERTEX`), described by `geometry.VERTEX_ATTRIBUTES`:
 
 ```{literalinclude} ../../src/geometry.py
 :language: python
