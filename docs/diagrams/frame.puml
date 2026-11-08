@@ -21,7 +21,7 @@ activate cube
 cube -> ctx : model_matrix()
 cube -> ctx : view_projection_matrix()
 cube -> ctx : light, camera_position()
-cube -> gl : uniforms mvp, model, lightDirection, cameraPosition
+cube -> gl : uniforms mvp, model, lightDirection, cameraPosition, view
 cube -> gl : bind albedo (unit 0) and normal (unit 1) arrays
 cube -> gl : glDrawArrays(GL_TRIANGLES, 36 vertices)
 deactivate cube

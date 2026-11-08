@@ -47,12 +47,16 @@ class SceneContext:
         Viewport width divided by height.
     pixel_ratio : float
         Device pixels per logical pixel.
+    cube_view : int
+        Index into ``shaders.CUBE_VIEWS`` of the cube's debug view. Kept by
+        ``reset_view``.
     """
 
     def __init__(self):
         """Start with the default view and a square viewport."""
         self.aspect_ratio = 1.0
         self.pixel_ratio = 1.0
+        self.cube_view = config.DEFAULT_CUBE_VIEW
         self.reset_view()
 
     def reset_view(self):

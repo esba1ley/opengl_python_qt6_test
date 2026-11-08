@@ -1,12 +1,19 @@
 # Qt6 OpenGL Test
 
-A small Python program for testing OpenGL inside a Qt6 window. It draws a
-textured, bump-mapped cube inside a latitude/longitude sphere grid, and you can
-rotate, zoom and pan the scene and move the light with the mouse.
+A worked example of procedural textures and shaders in OpenGL with PyQt6. The
+vehicle is a small program that draws a textured, bump-mapped cube inside a
+latitude/longitude sphere grid, and lets you rotate, zoom and pan the scene and
+move the light with the mouse.
 
 All the textures are generated in code, so the program loads no image files.
+Each material is built from a few shared patterns in small, named steps, and
+the cube's fragment shader can show any one stage of its lighting on its own.
+The "How it works" chapter of the [manual](https://esba1ley.github.io/opengl_python_qt6_test/)
+(the pages in `docs/guide/`) follows a texture from noise to pixel: the
+building blocks, each material step by step, how the textures reach the GPU,
+and both shaders line by line.
 
-![The program's window: the textured cube inside the sphere grid](tools/ScreenGrab.png)
+![The default view: the textured cube inside the sphere grid](docs/images/screenshot.png)
 
 ## What it draws
 
@@ -28,6 +35,15 @@ All the textures are generated in code, so the program loads no image files.
 
   ```
   python3 tools/make_face_images.py docs/images
+  ```
+
+  `tools/make_guide_images.py` makes the chapter's 60 images in
+  `docs/images/guide/`: the building blocks, every step of every material,
+  and the cube drawn through each of the shader's debug views. Rerun it after
+  changing a material, a pattern or the cube shader:
+
+  ```
+  python3 tools/make_guide_images.py docs/images/guide
   ```
 
 - **Sphere grid:** lines every 15° of longitude and 10° of latitude, drawn at
@@ -183,27 +199,41 @@ The coverage gate applies to the full run, so run a subset with
 
 ## Mouse controls
 
-| Input | Action |
-|---|---|
-| Left-drag | Rotate the cube and sphere |
-| Right-drag | Move the light |
-| Middle-drag | Pan |
-| Wheel | Zoom |
-| Double-click | Reset the view and the light |
+| Input | Action | Demonstration |
+|---|---|---|
+| Left-drag | Rotate the cube and sphere | ![Left-drag rotating the cube](docs/images/control-rotate.webp) |
+| Right-drag | Move the light | ![Right-drag moving the light](docs/images/control-light.webp) |
+| Middle-drag | Pan | ![Middle-drag panning the view](docs/images/control-pan.webp) |
+| Wheel | Zoom | ![The wheel zooming in and out](docs/images/control-zoom.webp) |
+| Double-click | Reset the view and the light | ![A double-click resetting the view](docs/images/control-reset.webp) |
 
 The light stays fixed in the scene, so its dot doesn't move when you rotate the
 cube.
 
+The animations are made by `tools/make_control_animations.py`, which sends
+synthetic mouse and wheel events to a hidden window and records what the
+program draws. It needs Pillow, a development dependency. Rerun it after
+changing the mouse handling or anything visible:
+
+```
+python3 tools/make_control_animations.py docs/images
+```
+
 ## Icon
 
 `icon.png` is the application icon, which Qt shows in the Dock or taskbar
-while the program runs. It is cropped from a screenshot of the window by
-`tools/make_icon.py`, which finds the sphere, masks it to a disc and scales it
-to 512 pixels. To regenerate it from a new screenshot:
+while the program runs. `tools/make_icon.py` renders the program's default
+view offscreen, crops it to the sphere, masks it to a disc and scales it to
+512 pixels. The same render, scaled to the window's 640 pixels, is the
+screenshot at the top of this file. Regenerate both after any visible change:
 
 ```
-python3 tools/make_icon.py tools/ScreenGrab.png icon.png
+python3 tools/make_icon.py icon.png docs/images/screenshot.png
 ```
+
+`tools/make_icon.py`, `tools/make_face_images.py`,
+`tools/make_guide_images.py` and `tools/make_control_animations.py` share `tools/offscreen.py`, which sets up
+an offscreen OpenGL context and a hidden window whose renderers draw into it.
 
 ## Configuration
 
@@ -216,7 +246,7 @@ The manual for the latest release is published at
 <https://esba1ley.github.io/opengl_python_qt6_test/>.
 
 An HTML manual, built with Sphinx in the Read the Docs style, combines this
-file, `src/README.md`, PlantUML diagrams of how the program executes, an API
+file, `src/README.md`, the "How it works" chapter (`docs/guide/`), PlantUML diagrams of how the program executes, an API
 reference generated from the docstrings, and a page per test file saying what
 each test checks and why. It needs the Sphinx packages from
 `environment-docs.yml` (or `docs/requirements.txt` for pip) and the PlantUML,

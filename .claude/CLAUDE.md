@@ -1,7 +1,9 @@
 # Project Context
 
-A PyQt6 and OpenGL test program that draws a textured cube inside a sphere grid.
-See `README.md` for what it does and `src/README.md` for how the modules fit
+A PyQt6 and OpenGL test program that draws a textured cube inside a sphere grid,
+and a teaching example of procedural textures and shaders: the code is meant to
+be read, and the "How it works" chapter (`docs/guide/`) explains it. See
+`README.md` for what it does and `src/README.md` for how the modules fit
 together. Update both when behaviour or module structure changes.
 
 ## Commands
@@ -48,7 +50,10 @@ output are harmless.
   than GLSL 1.40, even though macOS compiles them as GLSL 4.10. All three
   headers have been run: GLSL 1.40 and ES on the Pi, 4.10 on macOS.
 - Use PyQt6, not PySide6. `PySide6.QtOpenGLWidgets` isn't installed here.
-- Avoid dependencies beyond PyQt6, PyOpenGL and NumPy. Any new Python
+- Avoid dependencies beyond PyQt6, PyOpenGL and NumPy. Pillow is the one
+  exception, a development dependency used only by
+  `tools/make_control_animations.py`; nothing in `src/` or `tests/` may
+  import it. Any new Python
   dependency goes in `environment.yml` and `apt-packages.txt` (runtime or
   development) or in both `environment-docs.yml` and `docs/requirements.txt`
   (documentation), with the version floor and a matching README note. The
@@ -73,9 +78,11 @@ output are harmless.
   `:relative-images:`, so image paths stay relative to the README.
 - Module-level constants get a `#:` doc-comment so autodoc lists them.
 - `docs/diagrams/*.puml` are hand-maintained PlantUML diagrams of the class
-  structure, startup, a frame, mouse handling and the call graph. When a
-  call is added or removed, a method is renamed, or the draw order changes,
-  update the matching diagram in the same change. Rendering them needs
+  structure, startup, a frame, mouse handling and the call graph, plus
+  `textures.puml`, the texture pipeline. When a call is added or removed, a
+  method is renamed, or the draw order changes, update the matching diagram in
+  the same change. A change to the texture pipeline or to the cube shader's
+  stages updates `textures.puml`. Rendering them needs
   `plantuml`, Java and Graphviz from MacPorts; `docs/conf.py` points
   PlantUML at `/opt/local/bin/dot` because the conda Graphviz 13 produces
   SVG that PlantUML rejects.
@@ -85,13 +92,40 @@ output are harmless.
   touch the widget or each other.
 - `widget.py` should only translate mouse input into `SceneContext` calls.
 - `textures.py` and `geometry.py` must stay free of OpenGL calls.
+- Materials in `textures.py` are built from the shared patterns (`seam`,
+  `cell_lattice`, `edge_distance`, `checker`, `voronoi`, `dome`) and return
+  `Material(color, height, steps)`, recording each intermediate array in
+  `steps` as it is built. Never record the distance volume, and never change
+  a recorded array in place. A recorded step must not move a random draw: the
+  texture bytes must stay the same unless a material is meant to change.
+- The cube shader's `view` uniform must keep view 0 identical to the lit
+  image. After a shader change, regenerate `tools/make_face_images.py`,
+  `tools/make_icon.py` and `tools/make_control_animations.py` output and
+  check that git shows no change.
+- After changing a material, a pattern or the cube shader, rerun
+  `python3 tools/make_guide_images.py docs/images/guide` and look at the
+  images; commit them with the change.
+- The chapter quotes code with `literalinclude` (`:pyobject:` for functions,
+  `:start-after:` the constant's assignment line, such as
+  `CUBE_VERTEX_BODY = """`, with `:end-before:` the closing quotes, for
+  shader strings), so renaming a quoted
+  function or constant needs a `make -C docs html`.
 - Generate textures in code rather than adding image files. The one image
-  file the program loads is `icon.png`, the application icon; regenerate it
-  with `tools/make_icon.py` from a window screenshot rather than editing it.
+  file the program loads is `icon.png`, the application icon. Every image in
+  the repository is rendered by a tool in `tools/`, never drawn or captured
+  by hand; the tools share `tools/offscreen.py`.
+- `icon.png` and `docs/images/screenshot.png` come from one render of the
+  default view: rerun `tools/make_icon.py icon.png docs/images/screenshot.png`
+  after any visible change, and look at both.
 - `docs/images/face-*.png` illustrate the README's material table. They are
   rendered, not drawn: rerun `tools/make_face_images.py docs/images` after
   changing a material, the cube shader or the default light, and look at
   them.
+- `docs/images/control-*.webp` animate the README's mouse controls table.
+  Rerun `tools/make_control_animations.py docs/images` after changing the
+  mouse handling, `config` interaction settings or anything visible, and
+  play them before committing; every regeneration adds about 1 MB to the
+  repository's history, so do not regenerate them for unrelated changes.
 - Every change to `src/` comes with tests in `tests/test_<module>.py` that keep
   line and branch coverage at 100%. `pytest.ini` owns the thresholds; change
   them there, not with per-run flags. See `ARCHITECTURE.md` (Testing) for the

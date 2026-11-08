@@ -196,3 +196,15 @@ def test_light_dot_position_is_on_the_sphere(scene):
     dot = scene.light_dot_position()
     assert dot.length() == pytest.approx(config.SPHERE_RADIUS)
     assert QVector3D.dotProduct(dot.normalized(), scene.light) == pytest.approx(1.0)
+
+
+def test_cube_view_defaults_and_survives_reset_view(scene):
+    """``cube_view`` starts at the configured default and ``reset_view`` keeps it.
+
+    **WHY:** A double-click resets the camera and light. It must not also
+    switch the debug view back to the final image.
+    """
+    assert scene.cube_view == config.DEFAULT_CUBE_VIEW
+    scene.cube_view = 3
+    scene.reset_view()
+    assert scene.cube_view == 3

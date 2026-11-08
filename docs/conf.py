@@ -40,6 +40,8 @@ plantuml_output_format = "svg_img"
 # MyST's include directive so they stay the single source.
 source_suffix = {".rst": "restructuredtext", ".md": "markdown"}
 myst_heading_anchors = 3
+# $...$ and $$...$$ in the Markdown pages become maths, rendered by MathJax.
+myst_enable_extensions = ["dollarmath"]
 
 napoleon_google_docstring = False
 napoleon_numpy_docstring = True
