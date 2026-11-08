@@ -1,7 +1,7 @@
 # Coordinate spaces and the camera
 
 A vertex is stored once, as numbers in the cube's own frame, and drawn at a
-different place on screen every time the cube turns. Four matrices take it
+different place on screen every time the cube turns. Three matrices take it
 there. This page names the frames they connect, shows how
 {py:class}`context.SceneContext` builds each matrix from its state, and how
 the mouse changes that state.
@@ -333,18 +333,21 @@ origin. A rotation about a unit axis $\boldsymbol{\omega}$ moves a point
 $\mathbf{p}$ in the direction $\boldsymbol{\omega} \times \mathbf{p}$. Qt's
 screen $y$ grows downwards while world $y$ grows upwards, so a drag of
 $(\Delta x, \Delta y)$ pixels is the world direction
-$(\Delta x, -\Delta y, 0)$. Solving
+$(\Delta x, -\Delta y, 0)$. Asking for motion in that direction,
 
 $$
 \boldsymbol{\omega} \times \hat{\mathbf{z}} =
-(\omega_y,\ -\omega_x,\ 0) = (\Delta x,\ -\Delta y,\ 0)
+(\omega_y,\ -\omega_x,\ 0) \propto (\Delta x,\ -\Delta y,\ 0) ,
 $$
 
-gives $\boldsymbol{\omega} = (\Delta y,\ \Delta x,\ 0)$: the drag's
-components swapped, which is the `axis` in the code. A drag to the right
-turns about $+y$, carrying the front of the scene to the right; a drag
-downwards turns about $+x$, carrying the front down. The axis lies in the
-screen plane, at right angles to the drag.
+gives $\boldsymbol{\omega} \propto (\Delta y,\ \Delta x,\ 0)$: the
+drag's components swapped, which is the `axis` in the code. The code
+normalises it to a unit axis and takes the angle separately, from the drag's
+length. A drag to the right turns about $+y$, carrying the front of the scene
+to the right; a drag downwards turns about $+x$, carrying the front down.
+Points on the far side of the origin move the opposite way on screen, so the
+drag follows the cursor only on the near side. The axis lies in the screen
+plane, at right angles to the drag.
 
 The angle is the length of the drag times `ROTATE_DEGREES_PER_PIXEL`, so a
 drag of 10 pixels turns 5°. `fromAxisAndAngle` takes degrees and returns a
@@ -392,8 +395,9 @@ a matrix that is no longer a pure rotation.
 The same drag rotation is applied to the light vector instead of to the
 cube. `rotatedVector` rotates a vector by the quaternion, $q\,v\,q^{*}$ in
 Qt's documentation. The light is in world space, so it turns about the same
-screen axes and follows the cursor across the sphere, while the cube stays
-still. `normalized()` keeps it a unit vector, as the shader expects.
+screen axes and follows the cursor across the sphere while it is on the
+near side; behind the cube, a drag to the right moves the dot to the left.
+The cube stays still. `normalized()` keeps it a unit vector, as the shader expects.
 
 ### Panning: `pan_by`
 
@@ -410,8 +414,8 @@ $d$ the window's height covers $2d\tan(\theta/2) \approx 0.828\,d$ world
 units in the plane through the origin facing the camera, so one pixel there
 is $0.828\,d/\text{height}$. The code's $0.8\,d/\text{height}$ is just under
 that: points in that plane move with the cursor, about 3% short of it.
-Nearer points move farther on screen than the cursor, and farther ones less,
-since every point moves by the same world distance.
+Nearer points move farther on screen than points in that plane, and farther
+ones less, since every point moves by the same world distance.
 The scale grows with `distance`, so panning feels the same at any zoom.
 
 ### Zooming: `zoom_by`
@@ -423,7 +427,7 @@ The scale grows with `distance`, so panning feels the same at any zoom.
 :dedent: 8
 ```
 
-Each notch towards the screen multiplies the distance by
+Each notch forwards (away from the user) multiplies the distance by
 `ZOOM_FACTOR_PER_NOTCH` (0.9), and each notch back divides it by 0.9. A
 factor per notch makes zooming feel even: the same number of notches always
 changes the apparent size by the same ratio. The result is clamped to
@@ -465,8 +469,8 @@ $$
 \bar q_\text{new} = \bar q_\text{drag} \otimes \bar q_\text{old} .
 $$
 
-Both statements were checked numerically over 200 random rotations, to
-float32 precision (largest error $3 \times 10^{-7}$). Taking Qt's components
+Both statements were checked numerically over 200 random rotations; the
+errors were below $10^{-6}$, float32 rounding. Taking Qt's components
 in scalar-last order without conjugating gives the wrong matrix: in the same
 check, its largest error was 1.6.
 ```
