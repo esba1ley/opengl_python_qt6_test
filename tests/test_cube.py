@@ -127,7 +127,7 @@ def test_specular_view_is_grey_where_the_highlight_falls(
 #: Expected (red, green, blue) in 0 to 1 of the +Z face seen head-on, per
 #: geometry view.
 GEOMETRY_VIEWS = [
-    ("layer", (0.8, 0.8, 0.8)),
+    ("layer", (5 / 6, 5 / 6, 5 / 6)),
     ("tangent", (1.0, 0.5, 0.5)),
     ("bitangent", (0.5, 1.0, 0.5)),
     ("face_normal", (0.5, 0.5, 1.0)),
@@ -144,6 +144,8 @@ def test_geometry_view_shows_its_input_on_the_front_face(
     bitangent or normal), so a wrong input or a swapped axis would picture
     the wrong data in the manual. With the identity rotation the +Z face
     (layer 4) faces the camera, with tangent +X, bitangent +Y and normal +Z.
+    The layer view draws ``(layer + 1) / 6``, so layer 4 is 5/6 (212.5/255);
+    the 8-bit framebuffer rounds that to 212 or 213, within the 2/255 bound.
     """
     scene.rotation = QQuaternion()
     scene.cube_view = shaders.CUBE_VIEWS.index(name)

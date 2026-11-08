@@ -81,8 +81,9 @@ void main() {
     else if (view == 4) result = vec3(facing);
     else if (view == 5) result = vec3(specular);
     else if (view == 6) result = vec3(textureCoords, 0.0);
-    // Six faces, layers 0 to 5, so dividing by 5 spreads them over 0 to 1.
-    else if (view == 7) result = vec3(textureLayer / 5.0);
+    // Six faces, layers 0 to 5. The +1 keeps layer 0 off black, which would
+    // vanish into the background; the greys run from 1/6 to 1.
+    else if (view == 7) result = vec3((textureLayer + 1.0) / 6.0);
     else if (view == 8) result = normalize(worldTangent) * 0.5 + 0.5;
     else if (view == 9) result = normalize(worldBitangent) * 0.5 + 0.5;
     else if (view == 10) result = normalize(worldNormal) * 0.5 + 0.5;
