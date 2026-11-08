@@ -73,9 +73,10 @@ exist per process.
 Tests that show a widget, and the real `selftest.check` run, need a display,
 like `--check`. Rationale is in `DECISIONS.md`.
 
-Verified on macOS (GL 4.1 core, Python 3.12) and on the Pi under its
+Verified on macOS (GL 4.1 core) under Python 3.12 and, on 2026-11-08,
+Python 3.11.18 (NumPy 2.4.6, same texture bytes), and on the Pi under its
 OpenGL ES 3.1 request with Python 3.13.5 (2026-11-08). Not yet run under
-the Pi's desktop GL 3.1 or under Python 3.11.
+the Pi's desktop GL 3.1.
 
 ## Documentation
 **Status:** Frozen

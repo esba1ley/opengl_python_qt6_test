@@ -2,6 +2,17 @@
 
 Newest first.
 
+## 2026-11-08 — Python 3.11 run
+
+- Ran `pytest -W error` (118 passed, 100% coverage) and `--check` (6 PASS)
+  on macOS under Python 3.11.18 in `opengl_qt6_test_311`; texture hash
+  unchanged under NumPy 2.4.6. Recorded in `ARCHITECTURE.md` (Testing).
+- The `environment.yml` recipe for another Python version passed
+  `python=3.11` to `conda env create`, which rejects it; replaced with a
+  `sed` copy.
+
+**Next:** Pi face-image comparison of view 0; the surface-format factoring.
+
 ## 2026-11-08 — Release v0.4.0
 
 - Cut `rc/esbailey/v0.4.0` from `develop` and ran `bump2version minor`

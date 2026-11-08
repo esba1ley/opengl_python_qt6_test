@@ -12,9 +12,11 @@
 # set the program is known to run on.
 #
 # To test against the neighbouring Python versions required by the coding
-# rules, override the Python line:
+# rules, change the Python line in a copy (conda env create takes no
+# package arguments):
 #
-#     conda env create -f environment.yml -n opengl_qt6_test_311 python=3.11
+#     sed 's/python=3.12/python=3.11/' environment.yml > /tmp/env311.yml
+#     conda env create -f /tmp/env311.yml -n opengl_qt6_test_311
 name: opengl_qt6_test
 channels:
   - conda-forge
