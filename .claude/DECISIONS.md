@@ -2,6 +2,18 @@
 
 Newest first.
 
+## 2026-11-08 — Keep the guide's images out of the README
+**Status:** Accepted
+**Context:** The chapter's 60 step and shader-view images could also
+illustrate the README's material table or introduction.
+**Decision:** They stay in the chapter only (Erik, 2026-11-08). The README
+keeps its screenshot, the six `face-*.png` images and the control animations,
+and points at the chapter for the rest.
+**Consequences:** The README stays a short overview that renders quickly on
+GitHub; the step-by-step material lives in one place. Rejected: a row of step
+images per material in the README's table, which would duplicate the
+chapter.
+
 ## 2026-11-07 — Draw the guide's images from replayed materials, with fixed display rules
 **Status:** Accepted
 **Context:** The chapter needs about 60 images of intermediate steps and
