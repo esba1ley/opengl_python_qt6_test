@@ -45,7 +45,8 @@ desktop `GL` module) and macOS (Apple M4, GL 4.1 core). On macOS the axis
 line width is clamped to one pixel by the driver. The apt and venv recipe in
 `apt-packages.txt`, `apt-packages-docs.txt` and the README was run on the Pi
 under Raspberry Pi OS trixie (Debian 13.7) on 2026-11-01: install, venv,
-`--check` and the docs build all passed. Not yet run on bookworm, vanilla
+`--check` and the docs build all passed, and passed again with `pytest`
+on 2026-11-08 after the teaching refactor. Not yet run on bookworm, vanilla
 Debian, another Linux desktop or Windows.
 
 ## Testing
@@ -72,8 +73,9 @@ exist per process.
 Tests that show a widget, and the real `selftest.check` run, need a display,
 like `--check`. Rationale is in `DECISIONS.md`.
 
-Verified on macOS only (GL 4.1 core, Python 3.12). Not yet run on the Pi
-(ES 3.1) or under Python 3.11 or 3.13.
+Verified on macOS (GL 4.1 core, Python 3.12) and on the Pi under its
+OpenGL ES 3.1 request with Python 3.13.5 (2026-11-08). Not yet run under
+the Pi's desktop GL 3.1 or under Python 3.11.
 
 ## Documentation
 **Status:** Frozen

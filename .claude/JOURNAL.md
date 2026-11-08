@@ -2,6 +2,17 @@
 
 Newest first.
 
+## 2026-11-08 — Pi run of the teaching branch
+
+- Erik ran `pytest`, `python3 src/main.py --check` and `make -C docs html` on
+  the Pi (OpenGL ES 3.1, Python 3.13.5) at `ft/esbailey/textures-guide`; all passed, the
+  test suite for the first time there. Recorded in `ARCHITECTURE.md`
+  (Testing, Platform coverage).
+
+**Next:** On the Pi, compare `tools/make_face_images.py` output from
+`develop` and this branch to confirm view 0 is byte-identical under GLES;
+the suite does not check that.
+
 ## 2026-11-07 — Teaching example: patterns, steps, debug view and guide chapter
 
 - Factored six shared patterns out of `src/textures.py`; materials now return
