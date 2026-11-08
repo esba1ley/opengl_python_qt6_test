@@ -10,7 +10,8 @@ Four groups of PNG files are written:
 * every step each material records while it builds, plus its normal map, at
   160 pixels, taken from :func:`textures.iter_materials` so they show the
   real layers;
-* the cube drawn once per entry of ``shaders.CUBE_VIEWS``, at 240 pixels.
+* the cube alone, drawn once per entry of ``shaders.CUBE_VIEWS`` under a light
+  that puts the specular highlight on the front face, at 240 pixels.
 
 Everything is generated at a larger size and smooth-scaled down. Regenerate
 the images only when a material or the cube shader changes.
@@ -26,7 +27,9 @@ import sys
 from pathlib import Path
 
 import numpy as np
+from OpenGL import GL
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QVector3D
 
 from offscreen import OffscreenScene
 from make_icon import array_to_image
@@ -62,10 +65,12 @@ def to_image(array, size):
     """Turn a field or an RGB image into a smooth-scaled ``QImage``.
 
     The array is copied first, so a step recorded by a material is never
-    changed. A 2-D field whose values all lie in [0, 1] is drawn as greyscale
-    without stretching (0 black, 1 white), which keeps masks meaningful. Any
-    other 2-D field is stretched from its minimum (black) to its maximum
-    (white). An ``(h, w, 3)`` array is read as RGB and clipped to [0, 1].
+    changed. A 2-D field is drawn as greyscale by this rule: if its maximum is
+    below 0.5 (distances, which are small), or if any value lies outside
+    [0, 1], it is stretched from its minimum (black) to its maximum (white);
+    otherwise, when its maximum is 0.5 or more and every value lies in [0, 1],
+    it is drawn unstretched, 0 black and 1 white, which keeps masks
+    meaningful. An ``(h, w, 3)`` array is read as RGB and clipped to [0, 1].
 
     Parameters
     ----------
@@ -82,7 +87,7 @@ def to_image(array, size):
     data = np.array(array, dtype=float)
     if data.ndim == 2:
         low, high = data.min(), data.max()
-        if low < 0.0 or high > 1.0:
+        if high < 0.5 or low < 0.0 or high > 1.0:
             data = (data - low) / (high - low) if high > low else np.zeros_like(data)
         data = np.repeat(data[..., None], 3, axis=2)
     data = np.clip(data, 0.0, 1.0)
@@ -94,6 +99,32 @@ def to_image(array, size):
         Qt.AspectRatioMode.IgnoreAspectRatio,
         Qt.TransformationMode.SmoothTransformation,
     )
+
+
+def specular_light(ctx):
+    """Find the light that centres the specular highlight on the front face.
+
+    The front face is the model's +Z face. Its normal in world space is
+    ``n = rotation * (0, 0, 1)`` and its centre is at the same point, since
+    the cube has half-width 1. With ``v`` the unit vector from that centre to
+    the camera, the mirror direction is ``2 (n . v) n - v``: a light there
+    reflects straight into the camera, so the highlight sits on the face's
+    middle.
+
+    Parameters
+    ----------
+    ctx : context.SceneContext
+        Scene state; its rotation and camera give the geometry.
+
+    Returns
+    -------
+    PyQt6.QtGui.QVector3D
+        Unit vector towards the light, in world space.
+    """
+    normal = ctx.rotation.rotatedVector(QVector3D(0, 0, 1))
+    to_camera = (ctx.camera_position() - normal).normalized()
+    mirror = 2.0 * QVector3D.dotProduct(normal, to_camera) * normal - to_camera
+    return mirror.normalized()
 
 
 def primitive_images():
@@ -206,10 +237,19 @@ def main():
 
     scene = OffscreenScene(VIEW_RENDER)
     ctx = scene.widget.ctx
+    cube = scene.widget.cube
+
+    def paint_cube():
+        GL.glEnable(GL.GL_DEPTH_TEST)
+        GL.glClearColor(*config.BACKGROUND_COLOR, 1.0)
+        GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
+        cube.paint(ctx)
+
+    default_light = ctx.light
+    ctx.light = specular_light(ctx)
     for index, name in enumerate(shaders.CUBE_VIEWS):
         ctx.cube_view = index
-        frame = scene.render()
-        image = frame.scaled(
+        image = scene.render(paint_cube).scaled(
             VIEW_OUTPUT,
             VIEW_OUTPUT,
             Qt.AspectRatioMode.IgnoreAspectRatio,
@@ -217,6 +257,7 @@ def main():
         )
         save(image, f"view-{name}.png")
     ctx.cube_view = config.DEFAULT_CUBE_VIEW
+    ctx.light = default_light
     scene.close()
 
     print(f"{count} images, {total / 1024:.0f} KiB")
