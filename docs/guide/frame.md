@@ -156,12 +156,15 @@ grey, `roundPoint` off leaves lines alone, and `opacity` is
 
 The depth test is still on, so the cube hides the far-side lines behind it.
 `glDepthMask(GL_FALSE)` stops the grid **writing** depth; it does not turn
-the test off. Without it, every grid line would write its depth, and the
-axes and the dot, drawn after it, would fail the depth test wherever a
-near-side line crosses in front of them: small gaps cut out of the axes and
-the dot, even though the line is 70% transparent. Drawn with the mask left
-on, 253 pixels of a 480 × 480 frame changed, all of them on the axes and the
-dot, the only things drawn after the grid.
+the test off. Without it, every grid line would write its depth, and
+anything drawn later would fail the depth test wherever a near-side line
+crosses in front of it, even though the line is 70% transparent. That
+includes the grid's own lines: the whole grid is one `glDrawArrays` call, so
+a line drawn early, such as a near-side line, would hide later lines at
+the pixels where they cross it and are no nearer. Drawn with the mask left
+on, 254 pixels of a 480 × 480 frame changed at the default light. 230 of
+them were on the grid itself, where an earlier line hid a later one, and 24
+were gaps cut in the axes and the dot.
 
 `glDepthMask(GL_TRUE)` turns writing back on. The axes and the dot need it,
 and so does the next frame's clear, since `glClear` obeys the write masks.
@@ -200,10 +203,15 @@ The line width was fixed in `initialize`:
 ```
 
 How wide a line can be is up to the implementation, which reports the
-range in `GL_ALIASED_LINE_WIDTH_RANGE`. On a Mac with an M4 chip the 4.1 core
-profile reports $[1, 1]$, and there `glLineWidth(2.0)` fails with
-`GL_INVALID_VALUE`, which PyOpenGL raises as an exception. So the width is
-`config.AXIS_LINE_WIDTH` (2) where the driver allows it, and 1 on that Mac. `glLineWidth(1.0)` afterwards puts back the initial width.
+range in `GL_ALIASED_LINE_WIDTH_RANGE`; a wider width is normally clamped to
+the largest it supports. macOS is the exception. Its 4.1 core context is
+**forward-compatible**, and a forward-compatible context removes wide lines:
+`glLineWidth` with a value above 1.0 fails with `GL_INVALID_VALUE` (OpenGL 4.1
+core specification, section E.2.1), which PyOpenGL raises as an exception.
+On a Mac with an M4 chip the range reads $[1, 1]$, so taking the smaller of
+`config.AXIS_LINE_WIDTH` (2) and the top of the range gives 1 there and
+avoids the error. Where the driver allows 2, the axes are 2 pixels wide.
+`glLineWidth(1.0)` afterwards puts back the initial width.
 
 ```{figure} ../images/guide/frame-3-axes.png
 :alt: The same scene with a red, a green and a blue line leaving the cube's faces
@@ -247,8 +255,8 @@ unbinds the VAO.
 ```{figure} ../images/guide/frame-4-light-dot.png
 :alt: The finished frame, with a yellow dot on the sphere above the cube's top right corner
 
-The finished frame. Under the default light the dot is in front of the cube,
-so the solid pass covers the faint one.
+The finished frame. Under the default light the dot is not hidden by the
+cube, so the solid pass covers the faint one.
 ```
 
 (guide-draw-order)=
@@ -262,8 +270,9 @@ framebuffer, and anything drawn later may cover them. Hence:
 - **The cube first.** Drawn after the grid, the cube covers the near-side
   lines in front of it, since they left no depth to stop it: about 3,200
   pixels of a 480 × 480 frame change.
-- **The grid writes no depth**, or it cuts gaps in the axes and the dot
-  drawn after it (above).
+- **The grid writes no depth.** Otherwise its earlier lines hide later
+  ones where they cross, within the same call, and cut gaps in the axes and
+  the dot drawn after it (above).
 - **The light dot last**, at least after the cube. Drawn before the cube,
   the faint pass is painted over wherever the cube is in front, and a light
   behind the cube can no longer be found.

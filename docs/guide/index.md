@@ -20,11 +20,12 @@ The work splits into what runs once and what runs every frame.
    creates the application and the widget, and starts the event loop. When
    Qt has created the OpenGL context, `initializeGL` lets each renderer
    compile its shaders, build its textures and upload its vertices.
-2. **Every frame.** A mouse event changes the
-   {py:class}`~context.SceneContext` and asks for a repaint. Qt then calls
-   `paintGL`, which clears the framebuffer and draws the cube, the sphere
-   grid, the axes and the light dot from the scene state, through the
-   matrices of the coordinate-spaces page.
+2. **Every frame.** Qt calls `paintGL` whenever the widget needs painting:
+   for example when it is first shown or resized, and after a mouse event
+   changes the {py:class}`~context.SceneContext` and asks for a repaint.
+   `paintGL` clears the framebuffer and draws the cube, the sphere grid,
+   the axes and the light dot from the scene state, through the matrices
+   of the coordinate-spaces page.
 
 | Stage | Where it lives | Page |
 |---|---|---|
