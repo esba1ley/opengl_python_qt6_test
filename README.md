@@ -9,9 +9,11 @@ All the textures are generated in code, so the program loads no image files.
 Each material is built from a few shared patterns in small, named steps, and
 the cube's fragment shader can show any one stage of its lighting on its own.
 The "How it works" chapter of the [manual](https://esba1ley.github.io/opengl_python_qt6_test/)
-(the pages in `docs/guide/`) follows a texture from noise to pixel: the
-building blocks, each material step by step, how the textures reach the GPU,
-and both shaders line by line.
+(the pages in `docs/guide/`) follows the program from the window and its event
+loop to a lit pixel: the OpenGL context, the coordinate spaces, the geometry
+and the vertex buffers, then the textures from noise to pixel (the building
+blocks, each material step by step, how the textures reach the GPU, and both
+shaders line by line), and last one whole frame.
 
 ![The default view: the textured cube inside the sphere grid](docs/images/screenshot.png)
 
@@ -37,10 +39,12 @@ and both shaders line by line.
   python3 tools/make_face_images.py docs/images
   ```
 
-  `tools/make_guide_images.py` makes the chapter's 60 images in
+  `tools/make_guide_images.py` makes the chapter's 69 images in
   `docs/images/guide/`: the building blocks, every step of every material,
-  and the cube drawn through each of the shader's debug views. Rerun it after
-  changing a material, a pattern or the cube shader:
+  the cube drawn through each of the shader's debug views (shading and
+  geometry), and the frame built up one draw at a time. Rerun it after
+  changing a material, a pattern, the geometry, the cube shader or anything
+  visible in the default view:
 
   ```
   python3 tools/make_guide_images.py docs/images/guide

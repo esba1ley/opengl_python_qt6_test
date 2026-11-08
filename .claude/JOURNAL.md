@@ -2,6 +2,31 @@
 
 Newest first.
 
+## 2026-11-08 — Guide from the window to the frame
+
+- `docs/guide/`: new pages `window`, `context`, `spaces`, `geometry`,
+  `buffers` and `frame`; `index` rewritten around three captioned parts; the
+  vertex-layout section moved from `gpu.md` to `geometry.md`. The depth-mask
+  and line-width explanations were corrected after measuring the grid's
+  depth write (its own far-side lines, then gaps in the axes and dot).
+- `src/geometry.py`: `CUBE_FACES` names the faces. `src/main.py`:
+  `request_surface_format` is the one platform-gated format request, used by
+  `main()`, `tools/offscreen.py` and `tests/conftest.py`.
+- `src/shaders.py`: five geometry debug views (`CUBE_VIEWS` now has 11);
+  the layer view is grey = (layer + 1) / 6 so layer 0 is visible.
+  `src/widget.py`: `resizeGL`'s docstring corrected to device-independent
+  pixels (Qt 6 passes `width()` and `height()`).
+- `tools/make_guide_images.py`: hyphenated view file names and the four
+  frame build-up images; the guide has 69 images.
+- Project documents updated: `README.md`, `src/README.md`,
+  `.claude/CLAUDE.md` (11 views, the rerun rule, the depth rule),
+  `.claude/ARCHITECTURE.md`; reasons in the five `DECISIONS.md` entries of
+  this date. Reflowed two long lines in `ARCHITECTURE.md` and one in
+  `src/README.md`.
+
+**Next:** Run `pytest` and `--check` on the Pi under OpenGL ES for the new
+views; the deferred minors the final review leaves.
+
 ## 2026-11-08 — Python 3.11 run
 
 - Ran `pytest -W error` (118 passed, 100% coverage) and `--check` (6 PASS)

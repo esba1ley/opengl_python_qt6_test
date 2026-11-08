@@ -1,8 +1,9 @@
 # Project Context
 
 A PyQt6 and OpenGL test program that draws a textured cube inside a sphere grid,
-and a teaching example of procedural textures and shaders: the code is meant to
-be read, and the "How it works" chapter (`docs/guide/`) explains it. See
+and a teaching example of the whole program, from the window and the OpenGL
+context through the geometry to procedural textures and shaders: the code is
+meant to be read, and the "How it works" chapter (`docs/guide/`) explains it. See
 `README.md` for what it does and `src/README.md` for how the modules fit
 together. Update both when behaviour or module structure changes.
 
@@ -98,11 +99,13 @@ output are harmless.
   `steps` as it is built. Never record the distance volume, and never change
   a recorded array in place. A recorded step must not move a random draw: the
   texture bytes must stay the same unless a material is meant to change.
-- The cube shader's `view` uniform must keep view 0 identical to the lit
-  image. After a shader change, regenerate `tools/make_face_images.py`,
+- The cube shader's `view` uniform (11 views in `CUBE_VIEWS`) must keep view 0
+  identical to the lit image. After a shader change, regenerate `tools/make_face_images.py`,
   `tools/make_icon.py` and `tools/make_control_animations.py` output and
   check that git shows no change.
-- After changing a material, a pattern or the cube shader, rerun
+- After changing a material, a pattern, the geometry, the cube shader, the
+  overlay's drawing or anything visible in the default frame (the build-up
+  images show it), rerun
   `python3 tools/make_guide_images.py docs/images/guide` and look at the
   images; commit them with the change.
 - The chapter quotes code with `literalinclude` (`:pyobject:` for functions,
@@ -148,7 +151,8 @@ output are harmless.
 ## Rendering rules
 
 - Draw order matters: cube, sphere grid, axes, then light dot.
-- The sphere grid must not write depth, or it cuts gaps in the axes and dot.
+- The sphere grid must not write depth, or its near lines hide its own far-side
+  lines and it cuts gaps in the axes and dot.
 - The cube, sphere and axes share `ctx.model_matrix()`, which keeps them anchored.
 - The light is fixed in the scene, so the light dot ignores the model matrix.
 - The sphere's longitude runs from +X towards +Y, with its poles on the Z axis.

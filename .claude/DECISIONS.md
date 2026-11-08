@@ -2,6 +2,76 @@
 
 Newest first.
 
+## 2026-11-08 — Use Erik's frame notation in the docs, code names unchanged
+**Status:** Accepted
+**Context:** The spaces page names transforms and quaternions, and the code
+(`context.py`, Qt) does not follow Erik's `T_to_from` notation; Qt's
+`QQuaternion` is Hamilton, scalar-first, against his JPL, scalar-last
+convention.
+**Decision:** Write the docs in Erik's notation (`T_to_from`, rightmost
+transform first, column vectors), leave the code's names alone, and state
+Qt's Hamilton scalar-first quaternion against the JPL scalar-last convention
+where the two meet (Erik, 2026-11-08).
+**Consequences:** The prose and the code use different names for the same
+matrices, which the spaces page maps. Rejected: renaming the code, which
+would churn the tests and the diagrams for a naming change, and using Qt's
+terms only, which would teach a convention Erik does not use.
+
+## 2026-11-08 — Draw the frame build-up through the real renderers
+**Status:** Accepted
+**Context:** The frame page needs images of the cube alone, then with the
+grid, the axes and the light dot added.
+**Decision:** `tools/make_guide_images.py` calls the widget's real `paintGL`
+and switches the overlay's later paint methods off on the instance for the
+length of a `with` block (`disabled`).
+**Consequences:** The images cannot drift from the program: a change to the
+draw order or to a renderer shows in them. The tool relies on the overlay's
+method names. Rejected: copying the overlay's setup into the tool, which
+would duplicate state and go stale silently.
+
+## 2026-11-08 — Add geometry debug views to the real cube shader
+**Status:** Accepted
+**Context:** The geometry and spaces pages explain texture coordinates, the
+texture layer and the tangent frame, which the existing six shading views do
+not show.
+**Decision:** Add five views to `CUBE_VIEWS` (`uv`, `layer`, `tangent`,
+`bitangent`, `face_normal`), numbered after the existing six so view 0 stays
+the lit image. The layer view is grey = (layer + 1) / 6, so layer 0 is not
+black on the black background.
+**Consequences:** The images show what the shader computes, and the views
+are tested like the others. The shader grows by a few branches that only
+the guide uses. Rejected: diagrams only, which cannot be checked against the
+program, and the frame build-up images alone, which do not show the
+per-vertex data.
+
+## 2026-11-08 — Change code only where it fights the explanation
+**Status:** Accepted
+**Context:** Writing the guide's early pages exposed two places where the
+code was harder to explain than it needed to be.
+**Decision:** Light touch (Erik, 2026-11-08): add `geometry.CUBE_FACES`, a
+table naming each face's layer, axis and sign with the vertex data
+unchanged, and factor the platform-gated format request into
+`main.request_surface_format`, which `main()`, `tools/offscreen.py` and
+`tests/conftest.py` now share. The second change also resolves the
+duplication queued since 2026-11-01.
+**Consequences:** One copy of the platform choice; the guide quotes a named
+table. Rejected: no code changes, which would leave the guide explaining
+three copies of the format request, and a teaching restructure of the
+modules, which risks the tested behaviour for a reading benefit.
+
+## 2026-11-08 — Extend the guide from the window to the frame as one walk-through
+**Status:** Accepted
+**Context:** The "How it works" chapter covered textures and shaders only;
+the program around them (window, context, spaces, geometry, buffers, frame)
+was undescribed.
+**Decision:** Extend the one chapter, in order, as three captioned parts:
+the window and the scene, textures and shaders, and a frame (Erik,
+2026-11-08). The vertex-layout section moves from `gpu.md` to `geometry.md`.
+**Consequences:** A reader can follow `main()` to a lit pixel in one place;
+the Frozen "Teaching guide" section in `ARCHITECTURE.md` changes to match.
+Rejected: a separate second chapter, which splits one story across two
+entry points.
+
 ## 2026-11-08 — Fall back to the runner's Miniconda when Miniforge is unavailable
 **Status:** Accepted
 **Context:** The first `develop` build after the installer cache landed
