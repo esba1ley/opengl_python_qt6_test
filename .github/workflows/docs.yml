@@ -9,6 +9,11 @@ on:
   push:
     branches: [develop, main, "ft/**", "rc/**"]
   workflow_dispatch:
+    inputs:
+      force-miniconda:
+        description: "Skip Miniforge and use the runner's Miniconda, to test the fallback"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -38,25 +43,67 @@ jobs:
 
       # GitHub's release downloads time out now and then (HTTP 504), which
       # failed whole builds. Keep the installer in the Actions cache and fetch
-      # it with retries only when the cache misses.
+      # it with retries only when the cache misses. The cache is saved only
+      # after a complete download, so a failed one never poisons the key.
       - name: Restore the Miniforge installer
         id: miniforge-cache
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: ${{ env.MINIFORGE_DIR }}
           key: miniforge-${{ env.MINIFORGE_VERSION }}-Linux-x86_64
 
       - name: Download the Miniforge installer
-        if: steps.miniforge-cache.outputs.cache-hit != 'true'
+        id: miniforge-download
+        if: steps.miniforge-cache.outputs.cache-hit != 'true' && !inputs.force-miniconda
+        continue-on-error: true
         run: |
           mkdir -p "$MINIFORGE_DIR"
           curl --fail --location --retry 6 --retry-all-errors --retry-delay 20 \
-            --output "$MINIFORGE_DIR/Miniforge3-Linux-x86_64.sh" \
+            --output "$MINIFORGE_DIR/Miniforge3-Linux-x86_64.sh.part" \
             "https://github.com/conda-forge/miniforge/releases/download/$MINIFORGE_VERSION/Miniforge3-$MINIFORGE_VERSION-Linux-x86_64.sh"
+          mv "$MINIFORGE_DIR/Miniforge3-Linux-x86_64.sh.part" \
+            "$MINIFORGE_DIR/Miniforge3-Linux-x86_64.sh"
 
-      - uses: conda-incubator/setup-miniconda@v3
+      - name: Save the Miniforge installer
+        if: steps.miniforge-download.outcome == 'success'
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ env.MINIFORGE_DIR }}
+          key: miniforge-${{ env.MINIFORGE_VERSION }}-Linux-x86_64
+
+      - name: Set up Miniforge
+        if: >-
+          !inputs.force-miniconda &&
+          (steps.miniforge-cache.outputs.cache-hit == 'true' ||
+           steps.miniforge-download.outcome == 'success')
+        uses: conda-incubator/setup-miniconda@v3
         with:
           installer-url: file://${{ env.MINIFORGE_DIR }}/Miniforge3-Linux-x86_64.sh
+          environment-file: environment.yml
+          activate-environment: opengl_qt6_test
+          channels: conda-forge
+          conda-remove-defaults: "true"
+
+      # Fallback only: the Miniconda preinstalled on GitHub's Ubuntu runners
+      # needs no download. Its conda differs from Miniforge's, but every
+      # package still comes from conda-forge alone.
+      - name: Fall back to the runner's Miniconda
+        if: >-
+          inputs.force-miniconda ||
+          (steps.miniforge-cache.outputs.cache-hit != 'true' &&
+           steps.miniforge-download.outcome != 'success')
+        run: >-
+          echo "::warning title=Miniconda fallback::Miniforge
+          $MINIFORGE_VERSION was not available; building with the runner's
+          Miniconda instead."
+
+      - name: Set up the runner's Miniconda
+        if: >-
+          inputs.force-miniconda ||
+          (steps.miniforge-cache.outputs.cache-hit != 'true' &&
+           steps.miniforge-download.outcome != 'success')
+        uses: conda-incubator/setup-miniconda@v3
+        with:
           environment-file: environment.yml
           activate-environment: opengl_qt6_test
           channels: conda-forge
