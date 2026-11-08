@@ -49,7 +49,8 @@ line width is clamped to one pixel by the driver. The apt and venv recipe in
 `apt-packages.txt`, `apt-packages-docs.txt` and the README was run on the Pi
 under Raspberry Pi OS trixie (Debian 13.7) on 2026-11-01: install, venv,
 `--check` and the docs build all passed, and passed again with `pytest`
-on 2026-11-08 after the teaching refactor. Not yet run on bookworm, vanilla
+on 2026-11-08 after the teaching refactor and again at `develop` 80aea89
+(the eleven cube views and the extended guide). Not yet run on bookworm, vanilla
 Debian, another Linux desktop or Windows.
 
 ## Testing
@@ -78,7 +79,8 @@ like `--check`. Rationale is in `DECISIONS.md`.
 
 Verified on macOS (GL 4.1 core) under Python 3.12 and, on 2026-11-08,
 Python 3.11.18 (NumPy 2.4.6, same texture bytes), and on the Pi under its
-OpenGL ES 3.1 request with Python 3.13.5 (2026-11-08). Not yet run under
+OpenGL ES 3.1 request with Python 3.13.5 (2026-11-08, again at `develop`
+80aea89 with the geometry views). Not yet run under
 the Pi's desktop GL 3.1.
 
 ## Documentation

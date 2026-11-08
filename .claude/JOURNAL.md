@@ -2,6 +2,16 @@
 
 Newest first.
 
+## 2026-11-08 — Pi run of the extended guide
+
+- Erik ran `pytest`, `--check` and the docs build on the Pi (OpenGL ES 3.1)
+  at `develop` 80aea89; all passed, so the five geometry views render
+  under GLSL ES 3.00. Recorded in `ARCHITECTURE.md` (Platform coverage,
+  Testing).
+- Deleted the SDD workspace `.superpowers/sdd/PLAN/`.
+
+**Next:** Nothing queued; a release would publish the extended guide.
+
 ## 2026-11-08 — References and further reading
 
 - `docs/references.md`: new top-level page after the guide, linking the
