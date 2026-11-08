@@ -36,6 +36,8 @@ jobs:
           miniforge-version: latest
           environment-file: environment.yml
           activate-environment: opengl_qt6_test
+          channels: conda-forge
+          conda-remove-defaults: "true"
 
       - name: Add the documentation packages
         run: conda env update -n opengl_qt6_test -f environment-docs.yml
