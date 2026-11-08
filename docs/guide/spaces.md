@@ -272,7 +272,8 @@ The light is a direction, not a point, so it is marked where that direction
 meets the sphere: the unit vector `light` times `config.SPHERE_RADIUS`
 (1.85). The position is in world space, and
 {py:meth}`overlay.OverlayRenderer.paint_light_dot` translates the dot there
-without the model matrix, so the dot stays put when the cube turns.
+without the model matrix, so the dot stays put when the cube turns
+({ref}`guide-frame-light-dot`).
 
 ### One corner, worked through
 

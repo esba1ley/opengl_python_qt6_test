@@ -310,4 +310,4 @@ config.LIGHT_DOT_COLOR)`, a yellow point at the origin. It is drawn with
 `GL_POINTS`, and its own transform, a translation to
 {py:meth}`~context.SceneContext.light_dot_position`, moves it onto the
 sphere instead of the model matrix ({ref}`guide-matrices`). The overlay
-draws it twice, faint and then solid ([the overlay shaders](shaders.md#the-overlay-shaders)).
+draws it twice, faint and then solid ({ref}`guide-frame-light-dot`).

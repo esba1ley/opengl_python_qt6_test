@@ -1,16 +1,47 @@
 # How it works
 
-Every surface on the cube is computed from numbers. No image file is loaded:
-{py:mod}`textures` builds six materials with NumPy when the program starts,
-{py:mod}`gl_utils` hands them to the GPU as textures, and the two shaders in
-{py:mod}`shaders` turn them into lit pixels every frame. This chapter follows
-that path from the first random number to the colour of one pixel. It
-starts with the window and the OpenGL context the cube is drawn in.
+This chapter follows the program from `main()` to the colour of one pixel.
+It starts with the window and its event loop, then the OpenGL context and
+the shader programs, the coordinate spaces and the camera, the geometry, and
+the vertex buffers that carry it to the GPU. The second part builds the
+textures, since every surface on the cube is computed from numbers and no
+image file is loaded, and ends with the shaders that light them. The last
+page follows one whole frame, from the clear to the last point drawn.
 
 It assumes you know Python and a little linear algebra (vectors, dot
-products, a matrix acting on a vector), but nothing about GPU texturing.
+products, a matrix acting on a vector), but nothing about OpenGL or GPU
+texturing.
 
-## The pipeline
+## The path through the program
+
+The work splits into what runs once and what runs every frame.
+
+1. **Starting up, once.** {py:func}`main.main` asks for an OpenGL version,
+   creates the application and the widget, and starts the event loop. When
+   Qt has created the OpenGL context, `initializeGL` lets each renderer
+   compile its shaders, build its textures and upload its vertices.
+2. **Every frame.** A mouse event changes the
+   {py:class}`~context.SceneContext` and asks for a repaint. Qt then calls
+   `paintGL`, which clears the framebuffer and draws the cube, the sphere
+   grid, the axes and the light dot from the scene state, through the
+   matrices of the coordinate-spaces page.
+
+| Stage | Where it lives | Page |
+|---|---|---|
+| Window, event loop, mouse input, self-test | `src/main.py`, `src/widget.py`, `src/selftest.py` | [The window and the event loop](window.md) |
+| OpenGL context, GLSL version, shader programs, uniforms | `src/gl_utils.py` | [The OpenGL context and shader programs](context.md) |
+| Scene state, matrices, mouse motion | `src/context.py` | [Coordinate spaces and the camera](spaces.md) |
+| Cube vertices, sphere grid, axes | `src/geometry.py` | [The geometry](geometry.md) |
+| Vertex buffers and vertex arrays | `src/cube.py`, `src/overlay.py` | [From arrays to vertex buffers](buffers.md) |
+| Building blocks: coordinates, `smoothstep`, `mix`, noise, patterns | `src/textures.py` | [Primitives and patterns](primitives.md) |
+| The six materials | `src/textures.py` | [The materials](materials.md) |
+| Shared randomness, normal maps, packing | `src/textures.py` | [From arrays to GPU textures](gpu.md) |
+| Texture arrays, mipmaps, filters | `src/gl_utils.py`, `src/cube.py` | [From arrays to GPU textures](gpu.md) |
+| Vertex and fragment shaders | `src/shaders.py` | [The shaders](shaders.md) |
+| One frame: draw order, blending, depth | `src/widget.py`, `src/cube.py`, `src/overlay.py` | [One frame](frame.md) |
+| Fixed settings | `src/config.py` | wherever they are used |
+
+## The textures part: from a seed to a pixel
 
 ```{uml} ../diagrams/textures.puml
 ---
@@ -21,7 +52,7 @@ caption: >-
 ---
 ```
 
-The work splits into two halves that never run at the same time.
+The textures part has three steps:
 
 1. **On the CPU, once.** {py:func}`textures.iter_materials` creates one
    random generator from `config.TEXTURE_SEED` and calls each material
@@ -39,23 +70,20 @@ The work splits into two halves that never run at the same time.
    two textures, bends the face's normal by the normal map, and lights the
    result.
 
-| Stage | Where it lives | Page |
-|---|---|---|
-| Building blocks: coordinates, `smoothstep`, `mix`, noise, patterns | `src/textures.py` | [Primitives and patterns](primitives.md) |
-| The six materials | `src/textures.py` | [The materials](materials.md) |
-| Shared randomness, normal maps, packing | `src/textures.py` | [From arrays to GPU textures](gpu.md) |
-| Texture arrays, mipmaps, filters | `src/gl_utils.py`, `src/cube.py` | [From arrays to GPU textures](gpu.md) |
-| Each face's axes and texture layer | `src/geometry.py` | [Primitives](primitives.md), [The geometry](geometry.md) |
-| Vertex and fragment shaders | `src/shaders.py` | [The shaders](shaders.md) |
-| Fixed settings (`TEXTURE_SIZE`, `TEXTURE_SEED`, `BUMP_STRENGTH`) | `src/config.py` | wherever they are used |
-
 ## How to read the images
 
-The pictures in this chapter are made by `tools/make_guide_images.py`. The
-pattern and material images are generated at 512 pixels, the size the program
-uses, and scaled down to 160 pixels; the views of the cube are 240 pixels.
+The pictures in this chapter are made by `tools/make_guide_images.py`, and
+are of three kinds:
 
-They are drawn in **texture space**: $u$ runs to the right and $v$ runs down
+- the pattern and material images, generated at 512 pixels, the size the
+  program uses, and scaled down to 160 pixels;
+- the views of the cube alone, one per debug view of the cube shader
+  (the shading views on the shaders page, the geometry views on the geometry
+  page), at 240 pixels;
+- the frame build-up on the last page, 240-pixel renders of the whole window
+  with the overlay's parts added one at a time.
+
+The pattern and material images are drawn in **texture space**: $u$ runs to the right and $v$ runs down
 the rows of the image, both from 0 to just under 1 (at most $(\text{size}-1)/\text{size}$). That is not how they appear on the
 cube; [the primitives page](primitives.md) explains the difference.
 
@@ -95,4 +123,11 @@ primitives
 materials
 gpu
 shaders
+```
+
+```{toctree}
+:caption: A frame
+:maxdepth: 2
+
+frame
 ```

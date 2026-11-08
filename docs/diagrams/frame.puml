@@ -63,5 +63,5 @@ end
 overlay -> gl : disable blending
 deactivate overlay
 deactivate widget
-qt -> gl : swap buffers
+qt -> gl : resolve samples, compose the framebuffer into the window
 @enduml

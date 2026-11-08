@@ -178,8 +178,9 @@ the current program, and the next draw call runs it.
 ## Finding the uniforms: locations
 
 A shader reads values from the program in two ways. **Attributes** (`in`
-variables of the vertex shader) are read per vertex from a buffer; a later
-page on buffers describes them and `glGetAttribLocation`. **Uniforms** are
+variables of the vertex shader) are read per vertex from a buffer;
+[from arrays to vertex buffers](buffers.md) describes them and
+`glGetAttribLocation`. **Uniforms** are
 single values, the same for every vertex and fragment of one draw call: a
 matrix, a light direction, a texture unit.
 

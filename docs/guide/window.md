@@ -239,7 +239,7 @@ set the viewport, and done nothing else: no clearing, no other state. So the
 method turns on depth testing, clears the colour buffer to
 `config.BACKGROUND_COLOR` and clears the depth buffer, and asks the two renderers
 to draw, cube first. The renderers read everything they need from
-`self.ctx`. A later page follows one frame through both renderers.
+`self.ctx`. [One frame](frame.md) follows a frame through both renderers.
 
 (guide-mouse)=
 ## Mouse input

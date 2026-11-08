@@ -230,7 +230,7 @@ shader which unit holds which texture:
 
 The colour images go to unit 0 and the normal maps to unit 1. `glUniform1i`
 sets the shader's sampler variables `albedoMap` and `normalMap` to those
-unit numbers.
+unit numbers ({ref}`guide-setting-uniforms`).
 
 (guide-mipmaps)=
 ## Mipmaps and filtering
@@ -267,4 +267,5 @@ normalises the normal after decoding it, which restores the length.
 
 Each face of the cube reads its own layer of the two textures, chosen by a
 per-vertex attribute; [the geometry page](geometry.md) explains it under
-{ref}`guide-layers`.
+{ref}`guide-layers`, and {ref}`guide-cube-buffer` how it reaches the
+shader.
