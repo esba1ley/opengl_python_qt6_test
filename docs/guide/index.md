@@ -45,7 +45,7 @@ The work splits into two halves that never run at the same time.
 | The six materials | `src/textures.py` | [The materials](materials.md) |
 | Shared randomness, normal maps, packing | `src/textures.py` | [From arrays to GPU textures](gpu.md) |
 | Texture arrays, mipmaps, filters | `src/gl_utils.py`, `src/cube.py` | [From arrays to GPU textures](gpu.md) |
-| Each face's axes and texture layer | `src/geometry.py` | [Primitives](primitives.md), [GPU](gpu.md) |
+| Each face's axes and texture layer | `src/geometry.py` | [Primitives](primitives.md), [The geometry](geometry.md) |
 | Vertex and fragment shaders | `src/shaders.py` | [The shaders](shaders.md) |
 | Fixed settings (`TEXTURE_SIZE`, `TEXTURE_SEED`, `BUMP_STRENGTH`) | `src/config.py` | wherever they are used |
 
@@ -82,6 +82,9 @@ python3 tools/make_guide_images.py docs/images/guide
 
 window
 context
+spaces
+geometry
+buffers
 ```
 
 ```{toctree}

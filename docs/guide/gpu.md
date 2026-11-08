@@ -3,8 +3,7 @@
 The materials leave six colour images and six height fields in NumPy arrays.
 This page covers what happens between those arrays and the first frame: where
 the random numbers come from, how a height field becomes a normal map, how
-the images are packed and uploaded, and how each face of the cube finds its
-own layer.
+the images are packed and uploaded, and how the GPU reads them back.
 
 (guide-randomness)=
 ## Randomness and draw order
@@ -264,26 +263,8 @@ Averaging encoded normals for the smaller levels gives vectors shorter than 1,
 and blending texels does the same at every level. The fragment shader
 normalises the normal after decoding it, which restores the length.
 
-(guide-layers)=
 ## Which layer each vertex uses
 
-Every vertex of the cube carries $3 + 3 + 3 + 3 + 2 + 1 = 15$ floats
-(`geometry.FLOATS_PER_VERTEX`), described by `geometry.VERTEX_ATTRIBUTES`:
-
-```{literalinclude} ../../src/geometry.py
-:language: python
-:start-at: VERTEX_ATTRIBUTES = (
-:end-at: FLOATS_PER_VERTEX =
-```
-
-{py:func}`geometry.cube_vertices` writes each face's six vertices (two
-triangles) with the face's index in `CUBE_FACES` as the `layer`, as a float. The
-order of `CUBE_FACES`, $+X, -X, +Y, -Y, +Z, -Z$, matches the order of
-`textures.MATERIALS`, so layer 0 is the bricks on +X, and so on
-({ref}`how u and v land on the cube <guide-uv-on-cube>` has the table). {py:meth}`cube.CubeRenderer.init_vertices`
-connects each attribute to the shader input of the same name, in this order.
-
-The vertex shader passes the layer on as a `flat` output, so the fragment
-shader receives exactly the value written for the vertex instead of an
-interpolated one. Every vertex of a face has the same layer, so nothing is
-lost, and no rounding can land between two layers.
+Each face of the cube reads its own layer of the two textures, chosen by a
+per-vertex attribute; [the geometry page](geometry.md) explains it under
+{ref}`guide-layers`.

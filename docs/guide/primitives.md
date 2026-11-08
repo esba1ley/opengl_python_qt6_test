@@ -50,6 +50,9 @@ and $v$ down. On the cube, each face carries its own pair of axes, set in
 :dedent: 4
 ```
 
+The loop runs over `geometry.CUBE_FACES`, quoted with the rest of the
+function on {ref}`the geometry page <guide-cube-faces>`.
+
 For a face whose normal lies along axis `axis`, the other two axes, in
 increasing order, become the **tangent** (the direction in which $u$ grows)
 and the **bitangent** (the direction in which $v$ grows). The four corners
