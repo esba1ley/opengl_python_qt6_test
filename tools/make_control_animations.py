@@ -16,34 +16,23 @@ Regenerate the animations in ``docs/images``::
     python3 tools/make_control_animations.py docs/images
 """
 import argparse
-import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
-
-from OpenGL import GL  # noqa: E402
-from PIL import Image  # noqa: E402
-from PyQt6.QtCore import QEvent, QPoint, QPointF, QRectF, Qt  # noqa: E402
-from PyQt6.QtGui import (  # noqa: E402
+from PIL import Image
+from PyQt6.QtCore import QEvent, QPoint, QPointF, QRectF, Qt
+from PyQt6.QtGui import (
     QColor,
     QFont,
     QImage,
     QMouseEvent,
-    QOffscreenSurface,
-    QOpenGLContext,
     QPainter,
     QPainterPath,
     QPen,
     QWheelEvent,
 )
-from PyQt6.QtOpenGL import (  # noqa: E402
-    QOpenGLFramebufferObject,
-    QOpenGLFramebufferObjectFormat,
-)
-from PyQt6.QtWidgets import QApplication  # noqa: E402
+from PyQt6.QtWidgets import QApplication
 
-from make_face_images import request_format  # noqa: E402
-from widget import CubeWidget  # noqa: E402
+from offscreen import OffscreenScene
 
 #: Side length of each output frame, in pixels.
 OUTPUT_SIZE = 240
@@ -70,19 +59,17 @@ class Recorder:
 
     Parameters
     ----------
-    widget : widget.CubeWidget
-        Hidden widget whose renderers are initialised on the current context.
-    target : PyQt6.QtOpenGL.QOpenGLFramebufferObject
-        Bound framebuffer that ``paintGL`` draws into.
+    scene : offscreen.OffscreenScene
+        The hidden widget and the framebuffer it draws into.
     """
 
-    def __init__(self, widget, target):
+    def __init__(self, scene):
         """Start with an empty frame list and the cursor at the centre."""
-        self.widget = widget
-        self.target = target
+        self.scene = scene
+        self.widget = scene.widget
         self.frames = []
         self.durations = []
-        self.pos = QPointF(widget.width() / 2, widget.height() / 2)
+        self.pos = QPointF(self.widget.width() / 2, self.widget.height() / 2)
 
     def send_mouse(self, kind, button, buttons):
         """Send one mouse event at the cursor position."""
@@ -129,8 +116,7 @@ class Recorder:
 
     def capture(self, label, held=False, duration=FRAME_MS):
         """Render the scene, add the cursor and label, and store the frame."""
-        self.widget.paintGL()
-        image = self.target.toImage().scaled(
+        image = self.scene.render().scaled(
             OUTPUT_SIZE, OUTPUT_SIZE,
             Qt.AspectRatioMode.IgnoreAspectRatio,
             Qt.TransformationMode.SmoothTransformation,
@@ -281,29 +267,13 @@ def main():
     parser.add_argument("directory", type=Path, help="where to write the files")
     args = parser.parse_args()
 
-    request_format()
-    app = QApplication(sys.argv[:1])  # noqa: F841 - needed for the widget
-    surface = QOffscreenSurface()
-    surface.create()
-    context = QOpenGLContext()
-    if not context.create() or not context.makeCurrent(surface):
-        sys.exit("make_control_animations: no OpenGL context")
-    fmt = QOpenGLFramebufferObjectFormat()
-    fmt.setAttachment(QOpenGLFramebufferObject.Attachment.Depth)
-    target = QOpenGLFramebufferObject(RENDER_SIZE, RENDER_SIZE, fmt)
-    target.bind()
-    GL.glViewport(0, 0, RENDER_SIZE, RENDER_SIZE)
-
-    widget = CubeWidget()
-    widget.cube.initialize()
-    widget.overlay.initialize()
-    # Keep the light dot the same size relative to the scene as in the window.
-    widget.ctx.pixel_ratio = RENDER_SIZE / widget.width()
+    scene = OffscreenScene(RENDER_SIZE)
+    widget = scene.widget
 
     args.directory.mkdir(parents=True, exist_ok=True)
     for stem, sequence in SEQUENCES.items():
         widget.ctx.reset_view()
-        rec = Recorder(widget, target)
+        rec = Recorder(scene)
         sequence(rec)
         path = args.directory / f"{stem}.webp"
         rec.frames[0].save(
@@ -311,8 +281,7 @@ def main():
             duration=rec.durations, loop=0, quality=QUALITY, method=6,
         )
         print(f"{path}: {len(rec.frames)} frames, {path.stat().st_size // 1024} kB")
-    target.release()
-    context.doneCurrent()
+    scene.close()
 
 
 if __name__ == "__main__":

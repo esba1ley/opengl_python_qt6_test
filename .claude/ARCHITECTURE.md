@@ -115,17 +115,25 @@ a `--system-site-packages` venv because Debian's are missing or too old.
 **Status:** Frozen
 
 `icon.png` at the repository root, set with `QApplication.setWindowIcon` in
-`main.py`. Derived, not hand-drawn: `tools/make_icon.py` crops a window
-screenshot to a disc around the sphere grid. There is no `.icns` or app
-bundle, so the icon only appears while the program runs.
+`main.py`. Rendered, not drawn: `tools/make_icon.py` draws the default view
+offscreen at 1280 pixels through the window's own `paintGL`, crops a square
+around the sphere grid, whose projected radius it computes from `config`,
+masks it to a soft-edged disc and scales it to 512 pixels. There is no
+`.icns` or app bundle, so the icon only appears while the program runs.
 
 ## README illustrations
 **Status:** Frozen
 
-`tools/ScreenGrab.png` is shown at the top of the README, and six
-`docs/images/face-<material>.png` images, 128 pixels square, sit in its
-material table. The face images are rendered by `tools/make_face_images.py`
-with the program's own `CubeRenderer` in an offscreen context, each face
+Every image in `docs/images/` is rendered by a tool in `tools/`. The tools
+share `tools/offscreen.py`, which requests the program's surface format,
+makes an offscreen context current, binds a framebuffer and initialises a
+hidden `CubeWidget`'s renderers on it.
+
+`docs/images/screenshot.png`, the default view at 640 pixels, is shown at
+the top of the README; `tools/make_icon.py` writes it from the same render
+as the icon. Six `docs/images/face-<material>.png` images, 128 pixels
+square, sit in its material table. `tools/make_face_images.py` renders them
+with the program's own `CubeRenderer` alone, each face
 turned to the camera under `config.DEFAULT_LIGHT`, without the overlay.
 
 Five `docs/images/control-<gesture>.webp` animations, 240 pixels square and

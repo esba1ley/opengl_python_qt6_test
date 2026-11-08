@@ -6,7 +6,7 @@ rotate, zoom and pan the scene and move the light with the mouse.
 
 All the textures are generated in code, so the program loads no image files.
 
-![The program's window: the textured cube inside the sphere grid](tools/ScreenGrab.png)
+![The default view: the textured cube inside the sphere grid](docs/images/screenshot.png)
 
 ## What it draws
 
@@ -206,13 +206,18 @@ python3 tools/make_control_animations.py docs/images
 ## Icon
 
 `icon.png` is the application icon, which Qt shows in the Dock or taskbar
-while the program runs. It is cropped from a screenshot of the window by
-`tools/make_icon.py`, which finds the sphere, masks it to a disc and scales it
-to 512 pixels. To regenerate it from a new screenshot:
+while the program runs. `tools/make_icon.py` renders the program's default
+view offscreen, crops it to the sphere, masks it to a disc and scales it to
+512 pixels. The same render, scaled to the window's 640 pixels, is the
+screenshot at the top of this file. Regenerate both after any visible change:
 
 ```
-python3 tools/make_icon.py tools/ScreenGrab.png icon.png
+python3 tools/make_icon.py icon.png docs/images/screenshot.png
 ```
+
+`tools/make_icon.py`, `tools/make_face_images.py` and
+`tools/make_control_animations.py` share `tools/offscreen.py`, which sets up
+an offscreen OpenGL context and a hidden window whose renderers draw into it.
 
 ## Configuration
 
