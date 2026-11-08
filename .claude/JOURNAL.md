@@ -2,6 +2,17 @@
 
 Newest first.
 
+## 2026-11-07 — Publish the manual to GitHub Pages
+
+- Added `.github/workflows/docs.yml`: builds the manual on pushes to
+  `develop`, `main`, `ft/**` and `rc/**`, deploys to https://esba1ley.github.io/opengl_python_qt6_test/ from `main`. See
+  `DECISIONS.md`. Updated the README's Documentation section,
+  `ARCHITECTURE.md` and `CLAUDE.md`.
+- Not yet run on GitHub: the workflow first runs when `develop` is pushed.
+
+**Next:** Set the repository's Pages source to GitHub Actions, push, and
+check the first run; then release so `main` deploys.
+
 ## 2026-11-07 — Release v0.3.1
 
 - Cut `rc/esbailey/v0.3.1` from `develop` and ran `bump2version patch`

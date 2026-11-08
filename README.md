@@ -212,7 +212,10 @@ are in `src/config.py`.
 
 ## Documentation
 
-A local HTML manual, built with Sphinx in the Read the Docs style, combines this
+The manual for the latest release is published at
+<https://esba1ley.github.io/opengl_python_qt6_test/>.
+
+An HTML manual, built with Sphinx in the Read the Docs style, combines this
 file, `src/README.md`, PlantUML diagrams of how the program executes, an API
 reference generated from the docstrings, and a page per test file saying what
 each test checks and why. It needs the Sphinx packages from
@@ -223,6 +226,10 @@ Java and Graphviz entries from the system prerequisites table above.
 make -C docs html
 open docs/_build/html/index.html
 ```
+
+`.github/workflows/docs.yml` builds the same manual on GitHub for every push
+to `develop`, `main` and the `ft/` and `rc/` branches, with warnings as errors, and publishes it from `main`
+only, so the site changes with each release.
 
 ## Code layout
 
