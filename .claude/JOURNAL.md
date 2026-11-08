@@ -2,6 +2,18 @@
 
 Newest first.
 
+## 2026-11-08 — Release v0.4.0
+
+- Cut `rc/esbailey/v0.4.0` from `develop` and ran `bump2version minor`
+  without tagging. Merged into `main`, tagged `v0.4.0`, and merged `main`
+  back into `develop`.
+- Adds the teaching restructure of `textures.py`, the cube shader's `view`
+  uniform, `tools/make_guide_images.py` and the "How it works" chapter. Texture
+  bytes and the lit image are unchanged.
+
+**Next:** Pi face-image comparison of view 0, Python 3.11, and the
+surface-format factoring.
+
 ## 2026-11-08 — Pi run of the teaching branch
 
 - Erik ran `pytest`, `python3 src/main.py --check` and `make -C docs html` on
