@@ -2,6 +2,25 @@
 
 Newest first.
 
+## 2026-11-07 — Render the icon and README screenshot instead of capturing them
+**Status:** Accepted
+**Context:** `icon.png` was cropped by `tools/make_icon.py` from
+`tools/ScreenGrab.png`, a hand-taken screenshot that was also the README's
+top image. Every other image had become tool-rendered, and Erik asked
+whether the capture should be automated so the icon follows the program.
+**Decision:** `tools/make_icon.py` renders the default view offscreen at
+1280 pixels and writes both the icon (cropped to the sphere, whose projected
+radius it computes, then disc-masked) and `docs/images/screenshot.png`
+(scaled to 640). `ScreenGrab.png` is deleted. The offscreen setup moves into
+`tools/offscreen.py`, shared by all three image tools.
+**Consequences:** The icon changed from a hand-rotated view lit from behind
+to the default view, and the README image lost the macOS title bar. The
+screenshot detection code (title bar, brightness bounding box) is gone. The
+face images and animations came out byte-identical after the refactor.
+Rejected: grabbing a shown window with `grabFramebuffer()` (needs a display
+and adds nothing over 2x supersampling); keeping `ScreenGrab.png` for the
+README only (the README image and the icon could drift apart).
+
 ## 2026-11-07 — Animate the mouse controls as WebP rendered through the real input path
 **Status:** Accepted
 **Context:** Erik asked for an animation of each mouse control in the

@@ -1,24 +1,37 @@
 #!/usr/bin/env python3
-"""Turn a screenshot of the program into a square, disc-masked icon.
+"""Render the default view, and make the icon and README screenshot from it.
 
-The sphere grid is found as the bounding box of pixels brighter than a
-threshold, ignoring the window frame and any title bar above the black client
-area. A square slightly larger than that box
-is cropped, masked to a soft-edged disc so the corners are transparent, and
-scaled to the requested size.
+The program's default view is drawn offscreen by the window's own
+``paintGL``, at twice the screenshot's size, and scaled down for the
+screenshot. For the icon, the same frame is cropped to a square around the
+sphere grid, whose projected radius follows from the camera settings in
+``config``, masked to a soft-edged disc so the corners are transparent, and
+scaled to the requested size. Both therefore follow any change to the scene.
 
 Examples
 --------
-Regenerate ``icon.png`` from a screenshot of the window::
+Regenerate ``icon.png`` and the README screenshot::
 
-    python3 tools/make_icon.py tools/ScreenGrab.png icon.png
+    python3 tools/make_icon.py icon.png docs/images/screenshot.png
 """
 import argparse
+import math
 import sys
 
 import numpy as np
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QImage
+
+from offscreen import OffscreenScene
+
+# src/ is on the import path once offscreen is imported.
+import config
+
+#: Side length of the README screenshot, in pixels: the window's size.
+SCREENSHOT_SIZE = 640
+
+#: Side length of the render, twice the screenshot's, to smooth the lines.
+RENDER_SIZE = 2 * SCREENSHOT_SIZE
 
 
 def image_to_array(image):
@@ -61,102 +74,63 @@ def array_to_image(pixels):
     return image.copy()
 
 
-def client_top(pixels, run=8, black=8):
-    """Find the first row of the black client area below any title bar.
+def sphere_radius(size, distance):
+    """Return the projected radius of the sphere grid, in pixels.
 
-    A title bar is gray, not black, so the client area starts at the first
-    row that begins a run of near-black rows down the centre column.
+    The sphere is centred on the origin and the camera looks at it from
+    ``distance``, so its outline is a circle centred in the frame.
 
     Parameters
     ----------
-    pixels : numpy.ndarray
-        BGRA pixels of the screenshot.
-    run : int
-        Number of consecutive near-black rows required.
-    black : int
-        Maximum channel value for a pixel to count as near-black.
+    size : int
+        Side length of the square frame, in pixels.
+    distance : float
+        Camera distance from the origin.
 
     Returns
     -------
-    int
-        Index of the first row of the client area, or 0 if none is found.
+    float
+        Radius of the outline, in pixels.
     """
-    column = pixels[:, pixels.shape[1] // 2, :3].max(axis=1)
-    dark = column <= black
-    for row in range(len(dark) - run):
-        if dark[row : row + run].all():
-            return row
-    return 0
+    half_angle = math.asin(config.SPHERE_RADIUS / distance)
+    tangent = math.tan(math.radians(config.FOV_DEGREES / 2.0))
+    return math.tan(half_angle) / tangent * size / 2.0
 
 
-def find_sphere(pixels, frame, threshold):
-    """Locate the sphere grid as the bounding box of bright pixels.
+def make_icon(frame, distance, size, padding):
+    """Crop, mask and scale a rendered frame into an icon.
 
     Parameters
     ----------
-    pixels : numpy.ndarray
-        BGRA pixels of the screenshot.
-    frame : int
-        Border width to ignore, in pixels, so window chrome is skipped.
-    threshold : int
-        Minimum channel value for a pixel to count as content.
-
-    Returns
-    -------
-    tuple of int
-        Centre x, centre y and radius, in pixels.
-    """
-    top = client_top(pixels) + frame
-    bright = pixels[top:-frame, frame:-frame, :3].max(axis=2)
-    ys, xs = np.nonzero(bright > threshold)
-    if xs.size == 0:
-        raise ValueError("no content found above the threshold")
-    cx = (xs.min() + xs.max()) // 2 + frame
-    cy = (ys.min() + ys.max()) // 2 + top
-    radius = max(xs.max() - xs.min(), ys.max() - ys.min()) // 2
-    return cx, cy, radius
-
-
-def make_icon(screenshot, size, padding, frame, threshold):
-    """Crop, mask and scale a screenshot into an icon.
-
-    Parameters
-    ----------
-    screenshot : PyQt6.QtGui.QImage
-        Screenshot of the running program.
+    frame : PyQt6.QtGui.QImage
+        Square render of the scene, with the sphere centred.
+    distance : float
+        Camera distance the frame was rendered at.
     size : int
         Width and height of the icon, in pixels.
     padding : float
         Extra space around the sphere, as a fraction of its radius.
-    frame : int
-        Border width of the screenshot to ignore, in pixels.
-    threshold : int
-        Brightness threshold for detecting the sphere.
 
     Returns
     -------
     PyQt6.QtGui.QImage
         The icon, with transparent corners outside the disc.
     """
-    pixels = image_to_array(screenshot)
-    cx, cy, radius = find_sphere(pixels, frame, threshold)
-    half = int(radius * (1.0 + padding))
-    height, width = pixels.shape[:2]
-    x0, y0 = max(cx - half, 0), max(cy - half, 0)
-    x1, y1 = min(cx + half, width), min(cy + half, height)
-    crop = pixels[y0:y1, x0:x1].copy()
+    pixels = image_to_array(frame)
+    centre = frame.width() // 2
+    half = int(sphere_radius(frame.width(), distance) * (1.0 + padding))
+    crop = pixels[centre - half : centre + half, centre - half : centre + half].copy()
 
     # Soft-edged disc: fully opaque inside, fading over the last few pixels.
     h, w = crop.shape[:2]
     yy, xx = np.mgrid[:h, :w]
-    distance = np.hypot(xx - (w - 1) / 2.0, yy - (h - 1) / 2.0)
+    radius = np.hypot(xx - (w - 1) / 2.0, yy - (h - 1) / 2.0)
     edge = min(h, w) / 2.0
-    alpha = np.clip((edge - distance) / 3.0, 0.0, 1.0)
+    alpha = np.clip((edge - radius) / 6.0, 0.0, 1.0)
     crop[..., 3] = (alpha * 255).astype(np.uint8)
     crop[..., :3] = (crop[..., :3] * alpha[..., None]).astype(np.uint8)
 
-    image = array_to_image(crop)
-    return image.scaled(
+    return array_to_image(crop).scaled(
         size,
         size,
         Qt.AspectRatioMode.IgnoreAspectRatio,
@@ -165,7 +139,7 @@ def make_icon(screenshot, size, padding, frame, threshold):
 
 
 def main(argv):
-    """Parse arguments, build the icon and write it out.
+    """Parse arguments, render the default view and write both images.
 
     Parameters
     ----------
@@ -178,23 +152,29 @@ def main(argv):
         Exit status.
     """
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("screenshot", help="PNG screenshot of the window")
-    parser.add_argument("output", help="PNG icon to write")
+    parser.add_argument("icon", help="PNG icon to write")
+    parser.add_argument("screenshot", help="PNG screenshot to write")
     parser.add_argument("--size", type=int, default=512, help="icon size in pixels")
     parser.add_argument("--padding", type=float, default=0.06, help="space around the sphere")
-    parser.add_argument("--frame", type=int, default=12, help="screenshot border to ignore")
-    parser.add_argument("--threshold", type=int, default=60, help="brightness threshold")
     args = parser.parse_args(argv)
 
-    screenshot = QImage(args.screenshot)
-    if screenshot.isNull():
-        print(f"cannot read {args.screenshot}", file=sys.stderr)
-        return 1
-    icon = make_icon(screenshot, args.size, args.padding, args.frame, args.threshold)
-    if not icon.save(args.output):
-        print(f"cannot write {args.output}", file=sys.stderr)
-        return 1
-    print(f"wrote {args.output} ({icon.width()}x{icon.height()})")
+    scene = OffscreenScene(RENDER_SIZE)
+    frame = scene.render()
+    distance = scene.widget.ctx.distance
+    scene.close()
+
+    screenshot = frame.convertToFormat(QImage.Format.Format_RGB32).scaled(
+        SCREENSHOT_SIZE,
+        SCREENSHOT_SIZE,
+        Qt.AspectRatioMode.IgnoreAspectRatio,
+        Qt.TransformationMode.SmoothTransformation,
+    )
+    icon = make_icon(frame, distance, args.size, args.padding)
+    for image, path in ((icon, args.icon), (screenshot, args.screenshot)):
+        if not image.save(path):
+            print(f"cannot write {path}", file=sys.stderr)
+            return 1
+        print(f"wrote {path} ({image.width()}x{image.height()})")
     return 0
 
 

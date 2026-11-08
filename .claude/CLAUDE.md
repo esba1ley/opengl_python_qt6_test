@@ -89,8 +89,12 @@ output are harmless.
 - `widget.py` should only translate mouse input into `SceneContext` calls.
 - `textures.py` and `geometry.py` must stay free of OpenGL calls.
 - Generate textures in code rather than adding image files. The one image
-  file the program loads is `icon.png`, the application icon; regenerate it
-  with `tools/make_icon.py` from a window screenshot rather than editing it.
+  file the program loads is `icon.png`, the application icon. Every image in
+  the repository is rendered by a tool in `tools/`, never drawn or captured
+  by hand; the tools share `tools/offscreen.py`.
+- `icon.png` and `docs/images/screenshot.png` come from one render of the
+  default view: rerun `tools/make_icon.py icon.png docs/images/screenshot.png`
+  after any visible change, and look at both.
 - `docs/images/face-*.png` illustrate the README's material table. They are
   rendered, not drawn: rerun `tools/make_face_images.py docs/images` after
   changing a material, the cube shader or the default light, and look at
