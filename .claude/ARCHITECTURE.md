@@ -21,9 +21,9 @@ normal lit image.
 ## OpenGL context selection
 **Status:** Frozen
 
-`main.py` sets the default `QSurfaceFormat` before creating the application
-and asks for the newest OpenGL each platform offers: a 4.1 core profile on
-macOS, OpenGL ES 3.1 elsewhere. `widget.py` builds its own format from
+`main.request_surface_format` sets the default `QSurfaceFormat`, and `main()`
+calls it before creating the application. It asks for the newest OpenGL each
+platform offers: a 4.1 core profile on macOS, OpenGL ES 3.1 elsewhere. `widget.py` builds its own format from
 `QSurfaceFormat.defaultFormat()` and only adds depth and multisampling, so
 the request survives. Nothing else in the program tests the platform.
 
@@ -57,8 +57,8 @@ module, plus `test_conftest.py` for the fixtures. `pytest.ini` is the only
 configuration: it sets `testpaths`, `qt_api = pyqt6`, and the coverage
 options, including `--cov-fail-under=100`, so a plain `pytest` fails when line
 or branch coverage of `src` falls below 100%. Nothing is excluded from
-coverage. `tests/conftest.py` puts `src` on `sys.path` and sets the default
-`QSurfaceFormat` as `main.py` does in `pytest_configure`, and provides the
+coverage. `tests/conftest.py` puts `src` on `sys.path` and calls
+`main.request_surface_format` in `pytest_configure`, and provides the
 fixtures `gl_context` (a shared offscreen `QOpenGLContext` made current per
 test), `fbo` (a bound 256 by 256 `QOpenGLFramebufferObject` with depth),
 `scene` (a fresh `SceneContext`), `image_to_array` and the autouse
@@ -159,7 +159,8 @@ masks it to a soft-edged disc and scales it to 512 pixels. There is no
 
 Every image in `docs/images/` is rendered by a tool in `tools/`; the chapter's
 images in `docs/images/guide/` are described under Teaching guide. The tools
-share `tools/offscreen.py`, which requests the program's surface format,
+share `tools/offscreen.py`, which requests the program's surface format with
+`main.request_surface_format`,
 makes an offscreen context current, binds a framebuffer and initialises a
 hidden `CubeWidget`'s renderers on it.
 

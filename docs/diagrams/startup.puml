@@ -15,6 +15,7 @@ participant "gl_utils" as glu
 participant "textures" as tex
 participant "geometry" as geo
 
+main -> main : request_surface_format()
 main -> qt : QSurfaceFormat.setDefaultFormat()
 note right of main
   macOS: OpenGL 4.1 core profile

@@ -45,13 +45,14 @@ from widget import CubeWidget
 ICON_PATH = Path(__file__).resolve().parent.parent / "icon.png"
 
 
-def main():
-    """Show the widget and run the application.
+def request_surface_format():
+    """Set the default surface format to the newest OpenGL the platform offers.
 
-    Returns
-    -------
-    int
-        The application's exit status.
+    On macOS this is a 4.1 core profile, since macOS has no OpenGL ES and
+    gives only OpenGL 2.1 without a core profile. Elsewhere it is OpenGL ES
+    3.1, the most the Raspberry Pi's V3D driver reaches. Qt reads the default
+    format when it creates the shared context, so this must run before the
+    ``QApplication`` exists.
     """
     # Ask for the newest OpenGL each platform offers. Qt needs the request in
     # the default format before the application exists so the shared context
@@ -68,6 +69,17 @@ def main():
         surface.setRenderableType(QSurfaceFormat.RenderableType.OpenGLES)
         surface.setVersion(3, 1)
     QSurfaceFormat.setDefaultFormat(surface)
+
+
+def main():
+    """Show the widget and run the application.
+
+    Returns
+    -------
+    int
+        The application's exit status.
+    """
+    request_surface_format()
     app = QApplication(sys.argv)
     app.setWindowIcon(QIcon(str(ICON_PATH)))
     widget = CubeWidget()
