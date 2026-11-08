@@ -4,8 +4,10 @@ Newest first.
 
 ## 2026-11-08 — Use Erik's frame notation in the docs, code names unchanged
 **Status:** Accepted
-**Context:** The spaces page names transforms and quaternions, and the code
-(`context.py`, Qt) does not follow Erik's `T_to_from` notation; Qt's
+**Context:** The spaces page names transforms and quaternions. Erik's
+standing convention is `T_to_from`, rightmost transform first, JPL
+quaternions, and he chose to apply it in the docs while leaving the code's
+names unchanged. The code (`context.py`, Qt) does not follow it; Qt's
 `QQuaternion` is Hamilton, scalar-first, against his JPL, scalar-last
 convention.
 **Decision:** Write the docs in Erik's notation (`T_to_from`, rightmost

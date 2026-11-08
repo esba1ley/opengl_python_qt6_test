@@ -3,9 +3,9 @@
 A PyQt6 and OpenGL test program that draws a textured cube inside a sphere grid,
 and a teaching example of the whole program, from the window and the OpenGL
 context through the geometry to procedural textures and shaders: the code is
-meant to be read, and the "How it works" chapter (`docs/guide/`) explains it. See
-`README.md` for what it does and `src/README.md` for how the modules fit
-together. Update both when behaviour or module structure changes.
+meant to be read, and the "How it works" chapter (`docs/guide/`) explains
+it. See `README.md` for what it does and `src/README.md` for how the modules
+fit together. Update both when behaviour or module structure changes.
 
 ## Commands
 
@@ -23,7 +23,8 @@ make -C docs html             # build the HTML manual into docs/_build/html
 ```
 
 `.github/workflows/docs.yml` runs the same docs build on every push to
-`develop`, `main`, `ft/**` and `rc/**` and publishes the manual to GitHub Pages from `main`.
+`develop`, `main`, `ft/**` and `rc/**` and publishes the manual to GitHub Pages
+from `main`.
 A docs change that builds locally can still fail there, since the runner
 uses Ubuntu's PlantUML and Graphviz; check the run after pushing.
 
@@ -99,8 +100,9 @@ output are harmless.
   `steps` as it is built. Never record the distance volume, and never change
   a recorded array in place. A recorded step must not move a random draw: the
   texture bytes must stay the same unless a material is meant to change.
-- The cube shader's `view` uniform (11 views in `CUBE_VIEWS`) must keep view 0
-  identical to the lit image. After a shader change, regenerate `tools/make_face_images.py`,
+- The cube shader's `view` uniform must keep view 0
+  identical to the lit image, and every view in `shaders.CUBE_VIEWS` must
+  render. After a shader change, regenerate `tools/make_face_images.py`,
   `tools/make_icon.py` and `tools/make_control_animations.py` output and
   check that git shows no change.
 - After changing a material, a pattern, the geometry, the cube shader, the
