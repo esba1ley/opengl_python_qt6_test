@@ -1,8 +1,9 @@
 """Shared pytest configuration and fixtures.
 
 Puts ``src`` on the import path, requests the same default OpenGL format as
-``main.py``, and provides an offscreen OpenGL context, a framebuffer object to
-render into, and a few small helpers.
+``main.py`` through ``main.request_surface_format``, and provides an
+offscreen OpenGL context, a framebuffer object to render into, and a few small
+helpers.
 """
 import sys
 from pathlib import Path
@@ -30,8 +31,8 @@ FBO_SIZE = 256
 def pytest_configure(config):
     """Set up the import path and the default surface format.
 
-    The format lines duplicate ``main.main`` on purpose, so that widgets
-    created by the tests get the same context the program requests.
+    Calls ``main.request_surface_format``, so that widgets created by the
+    tests get the same context the program requests.
 
     Parameters
     ----------
@@ -39,14 +40,9 @@ def pytest_configure(config):
         The pytest configuration object (unused).
     """
     sys.path.insert(0, str(SRC_DIR))
-    surface = QSurfaceFormat()
-    if sys.platform == "darwin":
-        surface.setVersion(4, 1)
-        surface.setProfile(QSurfaceFormat.OpenGLContextProfile.CoreProfile)
-    else:
-        surface.setRenderableType(QSurfaceFormat.RenderableType.OpenGLES)
-        surface.setVersion(3, 1)
-    QSurfaceFormat.setDefaultFormat(surface)
+    import main
+
+    main.request_surface_format()
 
 
 @pytest.fixture(scope="session")

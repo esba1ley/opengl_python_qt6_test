@@ -110,7 +110,8 @@ def check(widget):
         ok = ok and changed
         print(f"{name}: {'PASS' if changed else 'FAIL'}")
 
-    # The double-click arrives as a press-then-double-click pair from Qt.
+    # Qt delivers a widget's second press as the double-click event, so the
+    # double-click event alone is all a widget sees.
     pos = QPointF(widget.width() / 2, widget.height() / 2)
     QApplication.sendEvent(
         widget,

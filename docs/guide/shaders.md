@@ -9,8 +9,8 @@ fragment and returns its colour.
 
 The shader sources are Python strings in {py:mod}`shaders`, without a
 `#version` line. {py:func}`gl_utils.build_program` prepends the header that
-{py:func}`gl_utils.glsl_header` chooses for the OpenGL context Qt actually
-created: GLSL 1.40 or 1.50 on desktop OpenGL 3.1 or 3.2, a matching version
+{py:func}`gl_utils.glsl_header` chooses for the OpenGL context [Qt](https://doc.qt.io/qt-6/) actually
+created ({ref}`guide-glsl-header`): GLSL 1.40 or 1.50 on desktop OpenGL 3.1 or 3.2, a matching version
 from 3.3 on (4.10 on macOS), and GLSL ES 3.x0 with precision statements on
 OpenGL ES. The bodies therefore use only what GLSL 1.40 and GLSL ES 3.00
 have in common.
@@ -25,14 +25,16 @@ have in common.
 
 **Uniforms** are values set once per draw call and shared by every vertex.
 {py:meth}`cube.CubeRenderer.paint` sets them from the
-{py:class}`context.SceneContext`:
+{py:class}`context.SceneContext` ({ref}`guide-setting-uniforms`; the
+matrices are built in {ref}`guide-matrices`):
 
 - `mvp` is projection × view × model, `ctx.view_projection_matrix() * model`:
   model space to clip space in one matrix.
 - `model` is `ctx.model_matrix()`, the cube's rotation.
 
 The `in` variables are the vertex attributes from
-`geometry.VERTEX_ATTRIBUTES` ({ref}`guide-layers`), one set per vertex.
+`geometry.VERTEX_ATTRIBUTES` ({ref}`guide-layers`), one set per vertex, read
+from the vertex buffer ({ref}`guide-cube-buffer`).
 
 - `gl_Position = mvp * vec4(position, 1.0)` is the one output OpenGL
   requires: the vertex in clip space. The 1.0 makes the position a point, so
@@ -294,13 +296,16 @@ only the ambient term, because the facing gate turns their direct light off.
 ```
 
 Every term is computed for every view, and `view` only chooses which one is
-written; view 0 keeps the final colour. The names, in index order, are in
-`shaders.CUBE_VIEWS`:
+written; view 0 keeps the final colour. Views 1 to 5 are the shading stages
+pictured above. Views 6 to 10 draw the vertex data instead (`uv`, `layer`,
+`tangent`, `bitangent`, `face_normal`); they are explained with the vertex
+data on the geometry page ({ref}`guide-geometry-views`). The names, in index
+order, are in `shaders.CUBE_VIEWS`:
 
 ```{literalinclude} ../../src/shaders.py
 :language: python
 :start-at: CUBE_VIEWS = (
-:end-at: CUBE_VIEWS = (
+:end-at: )
 ```
 
 The value comes from {py:attr}`context.SceneContext.cube_view`, which starts
@@ -347,9 +352,11 @@ point drawn with `GL_POINTS`; only the light dot is drawn that way, at
   without depth testing, so it shows faintly through the cube, then 1 with
   depth testing.
 
-The overlay is drawn after the cube, and the grid does not write depth; the
-[diagrams](../diagrams.rst) page shows the whole frame.
+The overlay is drawn after the cube, and the grid does not write depth;
+[one frame](frame.md) explains the order, the blending and the light dot's
+two passes.
 
+(guide-one-pixel)=
 ## One pixel, start to finish
 
 Follow one fragment on the brick face, at the model-space point
@@ -404,3 +411,12 @@ of 0.5, the middle of its range.
 9. **Output.** `fragColor` is $\mathrm{albedo}\,(0.2 + 0.8\,\mathrm{diffuse}) +
    0.3\,\mathrm{specular}$ with alpha 1, written to the framebuffer if the
    depth test passes.
+
+## Further reading
+
+- The shading-language specifications: [GLSL 1.40](https://registry.khronos.org/OpenGL/specs/gl/GLSLangSpec.1.40.pdf) and [GLSL ES 3.00](https://registry.khronos.org/OpenGL/specs/es/3.0/GLSL_ES_Specification_3.00.pdf), whose common subset the bodies keep to.
+- Reference pages for the built-ins used: [`texture`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/texture.xhtml), [`normalize`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/normalize.xhtml), [`smoothstep`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/smoothstep.xhtml), [`gl_PointSize`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/gl_PointSize.xhtml) and [`gl_PointCoord`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/gl_PointCoord.xhtml).
+- LearnOpenGL, [Advanced Lighting](https://learnopengl.com/Advanced-Lighting/Advanced-Lighting) (Blinn-Phong) and [Normal Mapping](https://learnopengl.com/Advanced-Lighting/Normal-Mapping).
+
+The {ref}`references page <references>` lists the rest, with the
+authors' tutorials for each part of the program.

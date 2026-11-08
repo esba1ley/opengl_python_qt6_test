@@ -12,6 +12,7 @@ rectangle "Qt event loop" as qt #EEEEEE
 
 package main {
   rectangle "main()" as main_main
+  rectangle "request_surface_format()" as main_fmt
 }
 
 package widget {
@@ -91,6 +92,7 @@ package textures {
 }
 
 ' --- startup ---
+main_main --> main_fmt
 main_main --> w_init
 w_init --> c_init
 c_init --> c_reset

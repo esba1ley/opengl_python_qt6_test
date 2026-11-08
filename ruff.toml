@@ -2,7 +2,7 @@
 # so the selection is pinned here to keep results identical in every
 # environment. These are the classic defaults the code was written against;
 # widening the set is a separate decision (see .claude/DECISIONS.md).
-target-version = "py310"
+target-version = "py311"
 line-length = 88
 
 [lint]

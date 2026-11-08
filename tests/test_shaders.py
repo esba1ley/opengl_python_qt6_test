@@ -31,6 +31,6 @@ def test_cube_views_match_the_shader_branches():
     ``if`` chain. Adding a name without a branch would show the final image
     under that name.
     """
-    assert len(shaders.CUBE_VIEWS) == 6
+    assert len(shaders.CUBE_VIEWS) == 11
     for index in range(1, len(shaders.CUBE_VIEWS)):
         assert f"view == {index}" in shaders.CUBE_FRAGMENT_BODY

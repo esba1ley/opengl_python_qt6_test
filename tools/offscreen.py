@@ -12,41 +12,24 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
 from OpenGL import GL  # noqa: E402
-from PyQt6.QtGui import (  # noqa: E402
-    QOffscreenSurface,
-    QOpenGLContext,
-    QSurfaceFormat,
-)
+from PyQt6.QtGui import QOffscreenSurface, QOpenGLContext  # noqa: E402
 from PyQt6.QtOpenGL import (  # noqa: E402
     QOpenGLFramebufferObject,
     QOpenGLFramebufferObjectFormat,
 )
 from PyQt6.QtWidgets import QApplication  # noqa: E402
 
+import main  # noqa: E402
 from widget import CubeWidget  # noqa: E402
-
-
-def request_format():
-    """Set the default surface format the program itself requests.
-
-    These lines repeat ``main.main``, which sets the format inline.
-    """
-    surface = QSurfaceFormat()
-    if sys.platform == "darwin":
-        surface.setVersion(4, 1)
-        surface.setProfile(QSurfaceFormat.OpenGLContextProfile.CoreProfile)
-    else:
-        surface.setRenderableType(QSurfaceFormat.RenderableType.OpenGLES)
-        surface.setVersion(3, 1)
-    QSurfaceFormat.setDefaultFormat(surface)
 
 
 class OffscreenScene:
     """A hidden window's renderers drawing into an offscreen framebuffer.
 
-    Creating one requests the program's surface format, starts a
-    ``QApplication`` if none exists, makes an offscreen context current and
-    binds a square framebuffer with a depth buffer.
+    Creating one requests the program's surface format with
+    ``main.request_surface_format``, starts a ``QApplication`` if none exists,
+    makes an offscreen context current and binds a square framebuffer with a
+    depth buffer.
 
     Parameters
     ----------
@@ -63,7 +46,7 @@ class OffscreenScene:
 
     def __init__(self, render_size):
         """Create the context, the framebuffer and the widget."""
-        request_format()
+        main.request_surface_format()
         self.app = QApplication.instance() or QApplication(sys.argv[:1])
         self.surface = QOffscreenSurface()
         self.surface.create()

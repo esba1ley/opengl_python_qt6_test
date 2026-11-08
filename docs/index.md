@@ -9,6 +9,7 @@
 src/README
 diagrams
 guide/index
+references
 api/index
 tests/index
 ```

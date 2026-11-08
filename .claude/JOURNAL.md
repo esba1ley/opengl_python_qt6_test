@@ -2,6 +2,86 @@
 
 Newest first.
 
+## 2026-11-08 — Release v0.5.0
+
+- Cut `rc/esbailey/v0.5.0` from `develop` and ran `bump2version minor`
+  without tagging.
+- Adds the guide from the window to the frame (`window`, `context`,
+  `spaces`, `geometry`, `buffers`, `frame`), `geometry.CUBE_FACES`,
+  `main.request_surface_format`, the five geometry debug views, the frame
+  build-up images, `docs/references.md` with per-page further reading and
+  package links, and the Python 3.11 floor. Texture bytes, vertex data and
+  the lit image are unchanged.
+
+**Next:** Merge into `main`, tag `v0.5.0`, and merge `main` back into
+`develop`.
+
+## 2026-11-08 — Pi run of the extended guide
+
+- Erik ran `pytest`, `--check` and the docs build on the Pi (OpenGL ES 3.1)
+  at `develop` 80aea89; all passed, so the five geometry views render
+  under GLSL ES 3.00. Recorded in `ARCHITECTURE.md` (Platform coverage,
+  Testing).
+- Deleted the SDD workspace `.superpowers/sdd/PLAN/`.
+
+**Next:** Nothing queued; a release would publish the extended guide.
+
+## 2026-11-08 — References and further reading
+
+- `docs/references.md`: new top-level page after the guide, linking the
+  documentation and the authors' tutorials for Python, the runtime,
+  development and documentation packages, Qt 6 (by the classes the program
+  uses), OpenGL, OpenGL ES and GLSL (a table of the specifications per
+  platform), platform notes and the two quaternion-convention papers.
+- `docs/guide/*.md`: a "Further reading" list at the end of each page;
+  `index.md` points at the references page.
+- `README.md`, `src/README.md`, `docs/diagrams.rst` and the guide pages:
+  the first prose mention of each package on a page (PyQt6, PyOpenGL,
+  NumPy, Qt, ctypes, the test, docs and environment tools) links to its
+  documentation. Headings, code and existing links are left alone.
+- Every link checked on 2026-11-08 with `curl` and Sphinx's linkcheck;
+  the Khronos wiki and SourceForge refuse automated requests, so those were
+  confirmed through redirects and search instead.
+- `README.md`, `.claude/CLAUDE.md` and `.claude/ARCHITECTURE.md` mention the
+  page; reason in `DECISIONS.md`.
+
+## 2026-11-08 — Guide from the window to the frame
+
+- `docs/guide/`: new pages `window`, `context`, `spaces`, `geometry`,
+  `buffers` and `frame`; `index` rewritten around three captioned parts; the
+  vertex-layout section moved from `gpu.md` to `geometry.md`. The depth-mask
+  and line-width explanations were corrected after measuring the grid's
+  depth write (its own far-side lines, then gaps in the axes and dot).
+- `src/geometry.py`: `CUBE_FACES` names the faces. `src/main.py`:
+  `request_surface_format` is the one platform-gated format request, used by
+  `main()`, `tools/offscreen.py` and `tests/conftest.py`.
+- `src/shaders.py`: five geometry debug views (`CUBE_VIEWS` now has 11);
+  the layer view is grey = (layer + 1) / 6 so layer 0 is visible.
+  `src/widget.py`: `resizeGL`'s docstring corrected to device-independent
+  pixels (Qt 6 passes `width()` and `height()`).
+- `tools/make_guide_images.py`: hyphenated view file names and the four
+  frame build-up images; the guide has 69 images.
+- Project documents updated: `README.md`, `src/README.md`,
+  `.claude/CLAUDE.md` (the rerun rule, the depth rule),
+  `.claude/ARCHITECTURE.md`; reasons in the five `DECISIONS.md` entries of
+  this date. Reflowed one long line in `src/README.md`; the long
+  `ARCHITECTURE.md` lines (the Documentation paragraph and two in the
+  Teaching guide) were rewrapped to 80 columns in the final fix wave.
+
+**Next:** Run `pytest` and `--check` on the Pi under OpenGL ES for the new
+views; the deferred minors the final review leaves.
+
+## 2026-11-08 — Python 3.11 run
+
+- Ran `pytest -W error` (118 passed, 100% coverage) and `--check` (6 PASS)
+  on macOS under Python 3.11.18 in `opengl_qt6_test_311`; texture hash
+  unchanged under NumPy 2.4.6. Recorded in `ARCHITECTURE.md` (Testing).
+- The `environment.yml` recipe for another Python version passed
+  `python=3.11` to `conda env create`, which rejects it; replaced with a
+  `sed` copy.
+
+**Next:** Pi face-image comparison of view 0; the surface-format factoring.
+
 ## 2026-11-08 — Release v0.4.0
 
 - Cut `rc/esbailey/v0.4.0` from `develop` and ran `bump2version minor`
