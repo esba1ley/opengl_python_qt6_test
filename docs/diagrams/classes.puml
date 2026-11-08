@@ -31,6 +31,7 @@ class SceneContext {
   light : QVector3D
   aspect_ratio : float
   pixel_ratio : float
+  cube_view : int
   --
   reset_view()
   rotate_by(delta)

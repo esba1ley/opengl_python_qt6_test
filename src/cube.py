@@ -26,6 +26,7 @@ class CubeRenderer:
         self.model_loc = GL.glGetUniformLocation(self.program, "model")
         self.light_loc = GL.glGetUniformLocation(self.program, "lightDirection")
         self.camera_loc = GL.glGetUniformLocation(self.program, "cameraPosition")
+        self.view_loc = GL.glGetUniformLocation(self.program, "view")
         self.init_textures()
         self.init_vertices()
 
@@ -86,6 +87,7 @@ class CubeRenderer:
         gl_utils.set_matrix(self.model_loc, model)
         gl_utils.set_vector(self.light_loc, ctx.light)
         gl_utils.set_vector(self.camera_loc, ctx.camera_position())
+        GL.glUniform1i(self.view_loc, ctx.cube_view)
         GL.glActiveTexture(GL.GL_TEXTURE0)
         GL.glBindTexture(GL.GL_TEXTURE_2D_ARRAY, self.albedo_texture)
         GL.glActiveTexture(GL.GL_TEXTURE1)
